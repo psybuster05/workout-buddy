@@ -16,6 +16,13 @@ function Exercise({ exercise, onBack }) {
   const [restEndsAt, setRestEndsAt] = useState(null)
   const audioCtxRef = useRef(null)
 
+  const adjustWeight = (delta) => {
+    setWeight((w) => {
+      const next = Math.max(0, (Number(w) || 0) + delta)
+      return String(Math.round(next * 10) / 10)
+    })
+  }
+
   const finishSet = () => {
     const session = logSet(exercise.id, { reps, weight: Number(weight) || 0 })
     setSets([...session.sets])
@@ -55,18 +62,36 @@ function Exercise({ exercise, onBack }) {
       <section className="session-zone">
         {exercise.target && <p className="target-line">Target: {exercise.target}</p>}
         {last && <p className="last-time">Last time: {formatSession(last)}</p>}
-        <label className="weight-field">
-          Weight (lbs)
-          <input
-            type="number"
-            inputMode="decimal"
-            min="0"
-            step="2.5"
-            value={weight}
-            onChange={(e) => setWeight(e.target.value)}
-            placeholder="0"
-          />
-        </label>
+        <div className="weight-field">
+          <label htmlFor="weight-input">Weight (lbs)</label>
+          <div className="weight-stepper">
+            <button
+              className="weight-button"
+              onClick={() => adjustWeight(-2.5)}
+              disabled={(Number(weight) || 0) === 0}
+              aria-label="Subtract 2.5 lbs"
+            >
+              −
+            </button>
+            <input
+              id="weight-input"
+              type="number"
+              inputMode="decimal"
+              min="0"
+              step="2.5"
+              value={weight}
+              onChange={(e) => setWeight(e.target.value)}
+              placeholder="0"
+            />
+            <button
+              className="weight-button"
+              onClick={() => adjustWeight(2.5)}
+              aria-label="Add 2.5 lbs"
+            >
+              +
+            </button>
+          </div>
+        </div>
 
         <div className="rep-counter">
           <button

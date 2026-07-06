@@ -124,3 +124,9 @@ Cloud sync, accounts, charts/graphs, in-app exercise editing, PWA service-worker
 - Every videoUrl verified real via YouTube oEmbed; new-exercise videos found via YouTube search (e.g. at-home preacher curl variant, since WFH = no preacher bench).
 - ids kept stable for carried-over movements (flat-dumbbell-press = the bench press, dumbbell-row, calf-raise, overhead-press, goblet-squat, romanian-deadlift) so existing localStorage history stays attached. Old-program-only ids (lat-pulldown, seated-cable-row, bicep-curl, incline-dumbbell-press, tricep-pushdown, leg-press) are orphaned in storage but still present in exports.
 - Non-weight/bodyweight entries (hangs, scap pull-ups): weight input can stay 0; hangs log seconds as reps per the cue.
+
+### 2026-07-06 — Weight entry: stepper buttons
+- Weight input now has −/＋ buttons stepping ±2.5 lbs (user has adjustable dumbbells with 2.5 lb plates). Keyboard typing mid-workout was annoying; since weight prefills from last session, the common case is one tap.
+- Slider rejected (imprecise under sweaty thumbs at ~1 lb/px) and select dropdown rejected (iOS picker-wheel scroll every set).
+- The number input stays between the buttons as a keyboard fallback (type=number, spinners hidden); stepper clamps at 0, − disabled at 0, values rounded to one decimal to avoid float artifacts.
+- Same functional-updater pattern as the rep counter (rapid taps must not drop).
