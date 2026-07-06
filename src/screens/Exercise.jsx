@@ -1,15 +1,32 @@
 import { useRef, useState } from 'react'
 import RestTimer from '../components/RestTimer.jsx'
+import { lastSession, logSet, todaySession } from '../storage.js'
+
+function formatSession(s) {
+  const reps = new Set(s.sets.map((x) => x.reps))
+  const weights = new Set(s.sets.map((x) => x.weight))
+  if (reps.size === 1 && weights.size === 1) {
+    return `${s.sets.length}×${s.sets[0].reps} @ ${s.sets[0].weight} ${s.unit}`
+  }
+  return s.sets.map((x) => `${x.reps}×${x.weight}`).join(', ') + ` ${s.unit}`
+}
 
 function Exercise({ exercise, onBack }) {
-  const [weight, setWeight] = useState('')
+  // "last time" = most recent previous day; today's in-progress sets reload
+  // from storage so leaving and reopening the screen mid-workout loses nothing
+  const [last] = useState(() => lastSession(exercise.id))
+  const [weight, setWeight] = useState(() => {
+    const w = last?.sets.at(-1)?.weight
+    return w ? String(w) : ''
+  })
   const [reps, setReps] = useState(0)
-  const [sets, setSets] = useState([])
+  const [sets, setSets] = useState(() => todaySession(exercise.id)?.sets ?? [])
   const [restEndsAt, setRestEndsAt] = useState(null)
   const audioCtxRef = useRef(null)
 
   const finishSet = () => {
-    setSets([...sets, { reps, weight: Number(weight) || 0 }])
+    const session = logSet(exercise.id, { reps, weight: Number(weight) || 0 })
+    setSets([...session.sets])
     setReps(0)
     // iOS only lets audio start from a user gesture — unlock the context on
     // this tap so the end-of-rest beep is allowed to play later
@@ -44,6 +61,7 @@ function Exercise({ exercise, onBack }) {
       </ul>
 
       <section className="session-zone">
+        {last && <p className="last-time">Last time: {formatSession(last)}</p>}
         <label className="weight-field">
           Weight (lbs)
           <input

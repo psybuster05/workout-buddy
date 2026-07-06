@@ -27,11 +27,17 @@ Personal workout tracker web app. One user (Jon), used on an iPhone browser mid-
   "restSeconds": 120
 }
 
-// localStorage history entry (key: "history")
+// localStorage store (key: "workout-tracker:v1")
 {
-  "exerciseId": "goblet-squat",
-  "date": "2026-07-06",
-  "sets": [{ "reps": 8, "weight": 50 }]
+  "schemaVersion": 1,
+  "sessions": [
+    {
+      "exerciseId": "goblet-squat",
+      "date": "2026-07-06",
+      "unit": "lbs",
+      "sets": [{ "reps": 8, "weight": 50 }]
+    }
+  ]
 }
 ```
 
@@ -48,7 +54,7 @@ Cloud sync, accounts, charts/graphs, in-app exercise editing, PWA service-worker
 - [x] 1. Repo scaffold + this file + exercises.json + Home list rendering
 - [x] 2. Exercise screen (embed, cues, weight input, rep/set counter)
 - [x] 3. Rest timer (auto-start on finish set, vibrate/sound at zero)
-- [ ] 4. History to localStorage + "last time" display
+- [x] 4. History to localStorage + "last time" display
 - [ ] 5. History screen + JSON export
 - [x] Ship to GitHub Pages (pipeline live as of step 1 — https://psybuster05.github.io/workout-buddy/ — every push to main deploys)
 
@@ -95,3 +101,11 @@ Cloud sync, accounts, charts/graphs, in-app exercise editing, PWA service-worker
 - End-of-rest alert: navigator.vibrate (guarded — iOS Safari doesn't support it, Android does) + 3 rising WebAudio beeps. AudioContext is created/resumed on the Finish-set tap (iOS requires a user gesture to unlock audio).
 - Late-return rule: alert only fires if rest ended <3s ago — coming back to the tab minutes later shows the "Rest over — go!" state without a pointless beep.
 - Known iOS limits, accepted: no sound while phone is locked/Safari suspended (timer state is still correct on return), and the ringer/silent switch mutes WebAudio.
+
+### 2026-07-06 — Step 4 built (localStorage history + last time)
+- src/storage.js per plan: plain module, key "workout-tracker:v1", { schemaVersion: 1, sessions[] }, sessions { exerciseId, date, unit, sets[] }. Data shapes section above updated to match (it still showed the old "history"-key sketch).
+- Every Finish set writes through to localStorage immediately (one session per exercise per day, sets appended) — Safari killing the tab mid-workout loses nothing. Reopening the exercise screen the same day reloads today's sets.
+- Dates are LOCAL YYYY-MM-DD, not toISOString() — a 9pm workout must not land on tomorrow's UTC date.
+- "Last time" = most recent session from a previous day (today's sets are not "last time"). Uniform sessions format as "3×8 @ 45 lbs", mixed as "10×30, 8×35 lbs".
+- Weight input prefills with the last session's final set weight (small UX add beyond spec).
+- Resilience tested: corrupt store JSON → empty store, app runs, next set rewrites it; saveStore catches quota/private-mode throws so logging never crashes mid-workout.

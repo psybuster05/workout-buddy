@@ -134,6 +134,12 @@ h1 {
   gap: 16px;
 }
 
+.last-time {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
 .weight-field {
   display: flex;
   flex-direction: column;
