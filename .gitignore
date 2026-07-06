@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# local dev harness config (machine-specific paths)
+.claude/launch.json
