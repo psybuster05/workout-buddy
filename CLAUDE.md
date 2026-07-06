@@ -130,3 +130,9 @@ Cloud sync, accounts, charts/graphs, in-app exercise editing, PWA service-worker
 - Slider rejected (imprecise under sweaty thumbs at ~1 lb/px) and select dropdown rejected (iOS picker-wheel scroll every set).
 - The number input stays between the buttons as a keyboard fallback (type=number, spinners hidden); stepper clamps at 0, − disabled at 0, values rounded to one decimal to avoid float artifacts.
 - Same functional-updater pattern as the rep counter (rapid taps must not drop).
+
+### 2026-07-06 — Set-for-set prefill + password gate
+- Reps now prefill from "last time" too, set-for-set: today's set N starts at last session's set N reps (clamped to its final set when today runs longer). Weight prefills the same way on open but is never auto-changed between sets — mid-session stepper adjustments must not be fought.
+- Finish set with an untouched prefill deliberately logs the prefilled reps ("do it again" is the common case).
+- Password gate (src/auth.js + src/screens/Lock.jsx): SHA-256 of the password is a constant in the bundle; matching hash stored in localStorage key "workout-tracker:unlock" unlocks the device permanently. Asks once per device/browser. This is a courtesy lock on a public static site, NOT security (client-side, brute-forceable) — acceptable because all data is device-local anyway. Changing the password constant re-locks all devices.
+- Confirmed for the record: deploys/builds can never wipe workout history — localStorage lives in the visitor's browser per-origin; only iOS's ~7-day eviction can, which Export JSON mitigates.

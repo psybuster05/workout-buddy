@@ -7,12 +7,18 @@ function Exercise({ exercise, onBack }) {
   // "last time" = most recent previous day; today's in-progress sets reload
   // from storage so leaving and reopening the screen mid-workout loses nothing
   const [last] = useState(() => lastSession(exercise.id))
+  const [sets, setSets] = useState(() => todaySession(exercise.id)?.sets ?? [])
+  // mirror last time set-for-set: today's set N prefills from last session's
+  // set N, clamping to its final set once today runs longer than last time
+  const lastSetFor = (i) => {
+    if (!last || last.sets.length === 0) return null
+    return last.sets[Math.min(i, last.sets.length - 1)]
+  }
   const [weight, setWeight] = useState(() => {
-    const w = last?.sets.at(-1)?.weight
+    const w = lastSetFor(sets.length)?.weight
     return w ? String(w) : ''
   })
-  const [reps, setReps] = useState(0)
-  const [sets, setSets] = useState(() => todaySession(exercise.id)?.sets ?? [])
+  const [reps, setReps] = useState(() => lastSetFor(sets.length)?.reps ?? 0)
   const [restEndsAt, setRestEndsAt] = useState(null)
   const audioCtxRef = useRef(null)
 
@@ -26,7 +32,7 @@ function Exercise({ exercise, onBack }) {
   const finishSet = () => {
     const session = logSet(exercise.id, { reps, weight: Number(weight) || 0 })
     setSets([...session.sets])
-    setReps(0)
+    setReps(lastSetFor(session.sets.length)?.reps ?? 0)
     // iOS only lets audio start from a user gesture — unlock the context on
     // this tap so the end-of-rest beep is allowed to play later
     if (!audioCtxRef.current && window.AudioContext) {

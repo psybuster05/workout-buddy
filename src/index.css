@@ -164,6 +164,40 @@ h1 {
   padding-top: 12px;
 }
 
+/* --- Lock screen --- */
+
+.lock-screen {
+  padding-top: 25vh;
+  text-align: center;
+}
+
+.lock-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.lock-form input {
+  min-height: 56px;
+  padding: 8px 16px;
+  font-size: 1.5rem;
+  text-align: center;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--surface-pressed);
+  border-radius: 12px;
+}
+
+.lock-form input:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+}
+
+.lock-error {
+  color: #e5534b;
+  font-weight: 600;
+}
+
 /* --- Exercise screen --- */
 
 .video-frame {
