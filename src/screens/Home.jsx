@@ -1,3 +1,5 @@
+import { dayAccent } from '../theme.js'
+
 function Home({ days, exercises, onSelect, onHistory }) {
   return (
     <div className="screen">
@@ -8,7 +10,7 @@ function Home({ days, exercises, onSelect, onHistory }) {
         </button>
       </header>
       {days.map((day) => (
-        <section key={day} className="day-group">
+        <section key={day} className="day-group" style={{ '--accent': dayAccent(day) }}>
           <h2>{day}</h2>
           <ul className="exercise-list">
             {exercises

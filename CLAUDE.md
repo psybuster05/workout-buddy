@@ -139,3 +139,8 @@ Cloud sync, accounts, charts/graphs, in-app exercise editing, PWA service-worker
 
 ### 2026-07-06 — Exercise screen reordered
 - Session zone (target/last time/weight/reps/finish/log) moved above the video + cues: the whole tracker fits above the fold, no scrolling past the video every set. Video/cues are reference material — below.
+
+### 2026-07-06 — Per-day accents + unified counters
+- src/theme.js: dayAccent(day) — Mon — Push #ee7a52 (coral), Wed — Pull #58a6ff (blue), Fri — Legs #4cc38a (green, the old base accent, still the :root fallback for lock/history-button/export).
+- Implementation: `--accent` is overridden inline (style prop) on Home day-groups, the Exercise screen root, and History per-exercise sections — every accent-consuming rule (day headings, list borders, last-time, timer fill, finish button, active states, back button) follows automatically. New days added to exercises.json without a theme.js entry fall back to green.
+- Weight and rep steppers unified into shared .counter-* styles: label above ("Weight (lbs)" / "Reps"), identical flex:1 72px buttons, identical 110px centered value. Weight value is still an input (keyboard fallback) styled to be indistinguishable from the rep value; "reps" sublabel under the count removed. Rep − now disabled at 0 like the weight −.

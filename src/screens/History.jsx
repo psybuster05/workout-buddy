@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { exportJSON, loadStore } from '../storage.js'
 import { formatSession } from '../format.js'
+import { dayAccent } from '../theme.js'
 
 function History({ exercises, onBack }) {
   const [store] = useState(() => loadStore())
@@ -37,7 +38,11 @@ function History({ exercises, onBack }) {
         <p className="placeholder">No workouts logged yet.</p>
       ) : (
         byExercise.map(({ exercise, sessions }) => (
-          <section key={exercise.id} className="day-group">
+          <section
+            key={exercise.id}
+            className="day-group"
+            style={{ '--accent': dayAccent(exercise.day) }}
+          >
             <h2>{exercise.name}</h2>
             <ul className="history-list">
               {sessions.map((s) => (

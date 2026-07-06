@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import RestTimer from '../components/RestTimer.jsx'
 import { lastSession, logSet, todaySession } from '../storage.js'
 import { formatSession } from '../format.js'
+import { dayAccent } from '../theme.js'
 
 function Exercise({ exercise, onBack }) {
   // "last time" = most recent previous day; today's in-progress sets reload
@@ -43,7 +44,7 @@ function Exercise({ exercise, onBack }) {
   }
 
   return (
-    <div className="screen">
+    <div className="screen" style={{ '--accent': dayAccent(exercise.day) }}>
       <button className="back-button" onClick={onBack}>
         ‹ Back
       </button>
@@ -52,11 +53,11 @@ function Exercise({ exercise, onBack }) {
       <section className="session-zone">
         {exercise.target && <p className="target-line">Target: {exercise.target}</p>}
         {last && <p className="last-time">Last time: {formatSession(last)}</p>}
-        <div className="weight-field">
+        <div className="counter-field">
           <label htmlFor="weight-input">Weight (lbs)</label>
-          <div className="weight-stepper">
+          <div className="counter-row">
             <button
-              className="weight-button"
+              className="counter-button"
               onClick={() => adjustWeight(-2.5)}
               disabled={(Number(weight) || 0) === 0}
               aria-label="Subtract 2.5 lbs"
@@ -65,6 +66,7 @@ function Exercise({ exercise, onBack }) {
             </button>
             <input
               id="weight-input"
+              className="counter-value"
               type="number"
               inputMode="decimal"
               min="0"
@@ -74,7 +76,7 @@ function Exercise({ exercise, onBack }) {
               placeholder="0"
             />
             <button
-              className="weight-button"
+              className="counter-button"
               onClick={() => adjustWeight(2.5)}
               aria-label="Add 2.5 lbs"
             >
@@ -83,25 +85,28 @@ function Exercise({ exercise, onBack }) {
           </div>
         </div>
 
-        <div className="rep-counter">
-          <button
-            className="rep-button"
-            onClick={() => setReps((r) => Math.max(0, r - 1))}
-            aria-label="Subtract one rep"
-          >
-            −
-          </button>
-          <div className="rep-count">
-            {reps}
-            <span>reps</span>
+        <div className="counter-field">
+          <label id="reps-label">Reps</label>
+          <div className="counter-row">
+            <button
+              className="counter-button"
+              onClick={() => setReps((r) => Math.max(0, r - 1))}
+              disabled={reps === 0}
+              aria-label="Subtract one rep"
+            >
+              −
+            </button>
+            <div className="counter-value" aria-labelledby="reps-label">
+              {reps}
+            </div>
+            <button
+              className="counter-button"
+              onClick={() => setReps((r) => r + 1)}
+              aria-label="Add one rep"
+            >
+              +
+            </button>
           </div>
-          <button
-            className="rep-button"
-            onClick={() => setReps((r) => r + 1)}
-            aria-label="Add one rep"
-          >
-            +
-          </button>
         </div>
 
         {restEndsAt !== null && (
