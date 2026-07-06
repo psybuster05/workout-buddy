@@ -1,0 +1,158 @@
+{
+  "days": ["Push", "Pull", "Legs"],
+  "exercises": [
+    {
+      "id": "flat-dumbbell-press",
+      "name": "Flat Dumbbell Press",
+      "day": "Push",
+      "videoUrl": "https://www.youtube.com/embed/VmB1G1K7v94",
+      "instructions": [
+        "Feet planted, slight arch, shoulder blades pinched back and down",
+        "Lower dumbbells to chest level, elbows about 45° from torso",
+        "Press up and slightly together without clanking the bells",
+        "Control the descent — 2 seconds down"
+      ],
+      "restSeconds": 150
+    },
+    {
+      "id": "overhead-press",
+      "name": "Seated Dumbbell Overhead Press",
+      "day": "Push",
+      "videoUrl": "https://www.youtube.com/embed/qEwKCR5JCog",
+      "instructions": [
+        "Start with dumbbells at shoulder height, palms forward",
+        "Brace abs, don't flare ribs — press straight up",
+        "Finish with biceps by ears, don't bang the bells",
+        "Lower under control to ear level"
+      ],
+      "restSeconds": 150
+    },
+    {
+      "id": "incline-dumbbell-press",
+      "name": "Incline Dumbbell Press",
+      "day": "Push",
+      "videoUrl": "https://www.youtube.com/embed/8iPEnn-ltC8",
+      "instructions": [
+        "Bench at 30° — steeper turns it into a shoulder press",
+        "Lower to upper chest, elbows under wrists",
+        "Drive up without shrugging shoulders toward ears"
+      ],
+      "restSeconds": 120
+    },
+    {
+      "id": "tricep-pushdown",
+      "name": "Tricep Rope Pushdown",
+      "day": "Push",
+      "videoUrl": "https://www.youtube.com/embed/2-LAMcpzODU",
+      "instructions": [
+        "Elbows pinned to sides — they don't move",
+        "Push down and spread the rope apart at the bottom",
+        "Full lockout, squeeze triceps for a beat",
+        "Slow return, don't let the stack yank your arms up"
+      ],
+      "restSeconds": 90
+    },
+    {
+      "id": "lat-pulldown",
+      "name": "Lat Pulldown",
+      "day": "Pull",
+      "videoUrl": "https://www.youtube.com/embed/CAwf7n6Luuc",
+      "instructions": [
+        "Grip slightly wider than shoulders, palms forward",
+        "Lean back slightly, chest up",
+        "Pull the bar to upper chest, elbows driving down and back",
+        "Control the way up — full stretch at the top"
+      ],
+      "restSeconds": 120
+    },
+    {
+      "id": "seated-cable-row",
+      "name": "Seated Cable Row",
+      "day": "Pull",
+      "videoUrl": "https://www.youtube.com/embed/GZbfZ033f74",
+      "instructions": [
+        "Sit tall, slight bend in knees, back neutral",
+        "Pull handle to belly button, squeeze shoulder blades together",
+        "Don't rock back and forth — torso stays mostly still",
+        "Let arms fully extend on the return without slumping"
+      ],
+      "restSeconds": 120
+    },
+    {
+      "id": "dumbbell-row",
+      "name": "One-Arm Dumbbell Row",
+      "day": "Pull",
+      "videoUrl": "https://www.youtube.com/embed/pYcpY20QaE8",
+      "instructions": [
+        "Knee and hand on bench, back flat like a table",
+        "Pull dumbbell to hip, not to armpit",
+        "Elbow stays close to body, no torso twist",
+        "Full stretch at the bottom each rep"
+      ],
+      "restSeconds": 90
+    },
+    {
+      "id": "bicep-curl",
+      "name": "Dumbbell Bicep Curl",
+      "day": "Pull",
+      "videoUrl": "https://www.youtube.com/embed/ykJmrZ5v0Oo",
+      "instructions": [
+        "Elbows pinned at sides, shoulders relaxed",
+        "Curl up without swinging — if you're rocking, it's too heavy",
+        "Squeeze at the top, lower slow (3 seconds)"
+      ],
+      "restSeconds": 90
+    },
+    {
+      "id": "goblet-squat",
+      "name": "Goblet Squat",
+      "day": "Legs",
+      "videoUrl": "https://www.youtube.com/embed/MxsFDhcyFyE",
+      "instructions": [
+        "Hold dumbbell vertically against chest, elbows down",
+        "Feet shoulder width, toes slightly out",
+        "Sit down between your heels — chest stays up",
+        "Elbows track inside knees at the bottom, drive up through mid-foot"
+      ],
+      "restSeconds": 150
+    },
+    {
+      "id": "romanian-deadlift",
+      "name": "Dumbbell Romanian Deadlift",
+      "day": "Legs",
+      "videoUrl": "https://www.youtube.com/embed/hQgFixeXdZo",
+      "instructions": [
+        "Soft knees — this is a hip hinge, not a squat",
+        "Push hips back, dumbbells slide down thighs",
+        "Stop when hamstrings pull tight (around mid-shin), back flat",
+        "Stand up by squeezing glutes, don't yank with lower back"
+      ],
+      "restSeconds": 150
+    },
+    {
+      "id": "leg-press",
+      "name": "Leg Press",
+      "day": "Legs",
+      "videoUrl": "https://www.youtube.com/embed/IZxyjW7MPJQ",
+      "instructions": [
+        "Feet shoulder width, mid-platform",
+        "Lower until knees near 90° — don't let lower back curl off the pad",
+        "Press through whole foot, don't lock knees hard at the top"
+      ],
+      "restSeconds": 120
+    },
+    {
+      "id": "calf-raise",
+      "name": "Standing Calf Raise",
+      "day": "Legs",
+      "videoUrl": "https://www.youtube.com/embed/gwLzBJYoWlI",
+      "instructions": [
+        "Balls of feet on edge, heels hanging",
+        "Full stretch at the bottom — pause there",
+        "Drive up as high as possible, hold the top 1 second",
+        "Slow tempo beats heavy weight here"
+      ],
+      "restSeconds": 60
+    }
+  ]
+}
