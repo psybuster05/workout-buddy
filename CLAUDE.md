@@ -50,7 +50,7 @@ Cloud sync, accounts, charts/graphs, in-app exercise editing, PWA service-worker
 - [ ] 3. Rest timer (auto-start on finish set, vibrate/sound at zero)
 - [ ] 4. History to localStorage + "last time" display
 - [ ] 5. History screen + JSON export
-- [ ] Ship to GitHub Pages (after step 3, then keep iterating)
+- [x] Ship to GitHub Pages (pipeline live as of step 1 — https://psybuster05.github.io/workout-buddy/ — every push to main deploys)
 
 ## Decision log
 - 2026-07-06 — Project scoped in Chat. Pivoted from idle-miner idea to workout tracker for smaller, finishable scope. Repo is canonical source of truth; Chat project is design-only; no Cowork for this project.
@@ -81,3 +81,4 @@ Cloud sync, accounts, charts/graphs, in-app exercise editing, PWA service-worker
 - Screens switched via useState in App.jsx as planned; Home in src/screens/, Exercise screen is a stub until step 2.
 - Starter exercise list is a 3-day Push/Pull/Legs guess with best-effort YouTube IDs — Jon should swap in his real program and preferred videos.
 - Deploy: .github/workflows/deploy.yml (npm ci + build + actions/deploy-pages on push to main).
+- Shipped 2026-07-06: repo psybuster05/workout-buddy, live at https://psybuster05.github.io/workout-buddy/. Pages source had to be set to "GitHub Actions" manually — configure-pages `enablement: true` fails because GITHUB_TOKEN can't create the Pages site (needs repo admin); tried and reverted.
