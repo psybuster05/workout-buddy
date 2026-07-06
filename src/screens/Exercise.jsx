@@ -1,14 +1,23 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import RestTimer from '../components/RestTimer.jsx'
 
 function Exercise({ exercise, onBack }) {
   const [weight, setWeight] = useState('')
   const [reps, setReps] = useState(0)
   const [sets, setSets] = useState([])
+  const [restEndsAt, setRestEndsAt] = useState(null)
+  const audioCtxRef = useRef(null)
 
   const finishSet = () => {
     setSets([...sets, { reps, weight: Number(weight) || 0 }])
     setReps(0)
-    // step 3: auto-start rest timer here
+    // iOS only lets audio start from a user gesture — unlock the context on
+    // this tap so the end-of-rest beep is allowed to play later
+    if (!audioCtxRef.current && window.AudioContext) {
+      audioCtxRef.current = new AudioContext()
+    }
+    audioCtxRef.current?.resume?.()
+    setRestEndsAt(Date.now() + exercise.restSeconds * 1000)
   }
 
   return (
@@ -68,6 +77,16 @@ function Exercise({ exercise, onBack }) {
             +
           </button>
         </div>
+
+        {restEndsAt !== null && (
+          <RestTimer
+            key={restEndsAt}
+            endsAt={restEndsAt}
+            totalSeconds={exercise.restSeconds}
+            audioCtxRef={audioCtxRef}
+            onDismiss={() => setRestEndsAt(null)}
+          />
+        )}
 
         <button className="finish-button" disabled={reps === 0} onClick={finishSet}>
           Finish set

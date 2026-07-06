@@ -47,7 +47,7 @@ Cloud sync, accounts, charts/graphs, in-app exercise editing, PWA service-worker
 ## Build order / status
 - [x] 1. Repo scaffold + this file + exercises.json + Home list rendering
 - [x] 2. Exercise screen (embed, cues, weight input, rep/set counter)
-- [ ] 3. Rest timer (auto-start on finish set, vibrate/sound at zero)
+- [x] 3. Rest timer (auto-start on finish set, vibrate/sound at zero)
 - [ ] 4. History to localStorage + "last time" display
 - [ ] 5. History screen + JSON export
 - [x] Ship to GitHub Pages (pipeline live as of step 1 — https://psybuster05.github.io/workout-buddy/ — every push to main deploys)
@@ -88,3 +88,10 @@ Cloud sync, accounts, charts/graphs, in-app exercise editing, PWA service-worker
 - Set state is in-memory only for now: sets[] lives in the Exercise component and resets on leaving the screen. localStorage persistence is step 4; the `// step 3: auto-start rest timer here` comment in finishSet marks the timer hook-in point.
 - Rep counter uses functional setState updaters — plain `setReps(reps + 1)` dropped updates under rapid same-task clicks (stale closure).
 - Finish set is disabled at 0 reps; reps reset to 0 after each set, weight persists between sets.
+
+### 2026-07-06 — Step 3 built (rest timer)
+- src/components/RestTimer.jsx, auto-started by finishSet with the exercise's restSeconds; finishing another set restarts it (keyed on endsAt), Skip / tap-when-done dismisses.
+- Lock-survival design: countdown derives from an endsAt wall-clock timestamp every 250ms tick (+ immediate tick on visibilitychange/pageshow) — never a decrementing counter, so iOS suspending JS can't drift it. Verified logically; still needs the real-phone lock test.
+- End-of-rest alert: navigator.vibrate (guarded — iOS Safari doesn't support it, Android does) + 3 rising WebAudio beeps. AudioContext is created/resumed on the Finish-set tap (iOS requires a user gesture to unlock audio).
+- Late-return rule: alert only fires if rest ended <3s ago — coming back to the tab minutes later shows the "Rest over — go!" state without a pointless beep.
+- Known iOS limits, accepted: no sound while phone is locked/Safari suspended (timer state is still correct on return), and the ringer/silent switch mutes WebAudio.
