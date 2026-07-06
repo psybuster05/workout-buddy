@@ -49,22 +49,6 @@ function Exercise({ exercise, onBack }) {
       </button>
       <h1>{exercise.name}</h1>
 
-      <div className="video-frame">
-        <iframe
-          src={exercise.videoUrl}
-          title={`${exercise.name} form video`}
-          loading="lazy"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          allowFullScreen
-        />
-      </div>
-
-      <ul className="cues">
-        {exercise.instructions.map((cue) => (
-          <li key={cue}>{cue}</li>
-        ))}
-      </ul>
-
       <section className="session-zone">
         {exercise.target && <p className="target-line">Target: {exercise.target}</p>}
         {last && <p className="last-time">Last time: {formatSession(last)}</p>}
@@ -144,6 +128,22 @@ function Exercise({ exercise, onBack }) {
           </ol>
         )}
       </section>
+
+      <div className="video-frame">
+        <iframe
+          src={exercise.videoUrl}
+          title={`${exercise.name} form video`}
+          loading="lazy"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowFullScreen
+        />
+      </div>
+
+      <ul className="cues">
+        {exercise.instructions.map((cue) => (
+          <li key={cue}>{cue}</li>
+        ))}
+      </ul>
     </div>
   )
 }

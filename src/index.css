@@ -201,6 +201,7 @@ h1 {
 /* --- Exercise screen --- */
 
 .video-frame {
+  margin-top: 24px;
   aspect-ratio: 16 / 9;
   border-radius: 12px;
   overflow: hidden;
@@ -230,7 +231,7 @@ h1 {
 }
 
 .session-zone {
-  margin-top: 20px;
+  margin-top: 8px;
   padding: 16px;
   background: var(--surface);
   border-radius: 16px;

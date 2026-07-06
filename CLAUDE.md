@@ -136,3 +136,6 @@ Cloud sync, accounts, charts/graphs, in-app exercise editing, PWA service-worker
 - Finish set with an untouched prefill deliberately logs the prefilled reps ("do it again" is the common case).
 - Password gate (src/auth.js + src/screens/Lock.jsx): SHA-256 of the password is a constant in the bundle; matching hash stored in localStorage key "workout-tracker:unlock" unlocks the device permanently. Asks once per device/browser. This is a courtesy lock on a public static site, NOT security (client-side, brute-forceable) — acceptable because all data is device-local anyway. Changing the password constant re-locks all devices.
 - Confirmed for the record: deploys/builds can never wipe workout history — localStorage lives in the visitor's browser per-origin; only iOS's ~7-day eviction can, which Export JSON mitigates.
+
+### 2026-07-06 — Exercise screen reordered
+- Session zone (target/last time/weight/reps/finish/log) moved above the video + cues: the whole tracker fits above the fold, no scrolling past the video every set. Video/cues are reference material — below.
