@@ -205,6 +205,16 @@ h1 {
   gap: 16px;
 }
 
+.target-line {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+
+.target-line + .last-time {
+  margin-top: -8px;
+}
+
 .last-time {
   font-size: 1rem;
   font-weight: 600;

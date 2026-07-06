@@ -21,10 +21,11 @@ Personal workout tracker web app. One user (Jon), used on an iPhone browser mid-
 {
   "id": "goblet-squat",
   "name": "Goblet Squat",
-  "day": "Legs",
+  "day": "Fri — Legs",
+  "target": "4 × 10–15",
   "videoUrl": "https://www.youtube.com/embed/VIDEO_ID",
   "instructions": ["Cue 1", "Cue 2"],
-  "restSeconds": 120
+  "restSeconds": 90
 }
 
 // localStorage store (key: "workout-tracker:v1")
@@ -115,3 +116,11 @@ Cloud sync, accounts, charts/graphs, in-app exercise editing, PWA service-worker
 - Session formatter shared with the Exercise screen's "last time" line via src/format.js.
 - Export JSON: blob download named workout-history-YYYY-MM-DD.json (pretty-printed full store). On iPhone Safari it lands in Files via the download sheet.
 - All 5 build-order steps done. Remaining known gaps, all deliberate: real-phone test of timer lock recovery + beep audibility; starter exercises/videos are placeholder-ish until Jon swaps his real program in.
+
+### 2026-07-06 — Real program loaded (WFH MWF, normal version)
+- exercises.json replaced with Jon's actual program from WFH_Workout_Normal_Version.pdf: Mon — Push (4), Wed — Pull (5), Fri — Legs (4). Days renamed to "Mon — Push" etc.
+- New schema field: `target` (free string, e.g. "3–4 × 8–12", "3–4 sets", "2–3 × 8–10 / leg"), shown as a "Target:" line above "Last time" in the session zone.
+- restSeconds: 90 for ALL exercises (user decision: rest timer is 1:30 across the board).
+- Every videoUrl verified real via YouTube oEmbed; new-exercise videos found via YouTube search (e.g. at-home preacher curl variant, since WFH = no preacher bench).
+- ids kept stable for carried-over movements (flat-dumbbell-press = the bench press, dumbbell-row, calf-raise, overhead-press, goblet-squat, romanian-deadlift) so existing localStorage history stays attached. Old-program-only ids (lat-pulldown, seated-cable-row, bicep-curl, incline-dumbbell-press, tricep-pushdown, leg-press) are orphaned in storage but still present in exports.
+- Non-weight/bodyweight entries (hangs, scap pull-ups): weight input can stay 0; hangs log seconds as reps per the cue.

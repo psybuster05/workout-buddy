@@ -53,6 +53,7 @@ function Exercise({ exercise, onBack }) {
       </ul>
 
       <section className="session-zone">
+        {exercise.target && <p className="target-line">Target: {exercise.target}</p>}
         {last && <p className="last-time">Last time: {formatSession(last)}</p>}
         <label className="weight-field">
           Weight (lbs)
