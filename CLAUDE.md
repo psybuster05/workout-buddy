@@ -46,7 +46,7 @@ Cloud sync, accounts, charts/graphs, in-app exercise editing, PWA service-worker
 
 ## Build order / status
 - [x] 1. Repo scaffold + this file + exercises.json + Home list rendering
-- [ ] 2. Exercise screen (embed, cues, weight input, rep/set counter)
+- [x] 2. Exercise screen (embed, cues, weight input, rep/set counter)
 - [ ] 3. Rest timer (auto-start on finish set, vibrate/sound at zero)
 - [ ] 4. History to localStorage + "last time" display
 - [ ] 5. History screen + JSON export
@@ -82,3 +82,9 @@ Cloud sync, accounts, charts/graphs, in-app exercise editing, PWA service-worker
 - Starter exercise list is a 3-day Push/Pull/Legs guess with best-effort YouTube IDs — Jon should swap in his real program and preferred videos.
 - Deploy: .github/workflows/deploy.yml (npm ci + build + actions/deploy-pages on push to main).
 - Shipped 2026-07-06: repo psybuster05/workout-buddy, live at https://psybuster05.github.io/workout-buddy/. Pages source had to be set to "GitHub Actions" manually — configure-pages `enablement: true` fails because GITHUB_TOKEN can't create the Pages site (needs repo admin); tried and reverted.
+
+### 2026-07-06 — Step 2 built (Exercise screen)
+- src/screens/Exercise.jsx: 16:9 YouTube iframe (loading=lazy), cues list, session zone (weight number input, −/rep count/+ buttons, Finish set).
+- Set state is in-memory only for now: sets[] lives in the Exercise component and resets on leaving the screen. localStorage persistence is step 4; the `// step 3: auto-start rest timer here` comment in finishSet marks the timer hook-in point.
+- Rep counter uses functional setState updaters — plain `setReps(reps + 1)` dropped updates under rapid same-task clicks (stale closure).
+- Finish set is disabled at 0 reps; reps reset to 0 after each set, weight persists between sets.

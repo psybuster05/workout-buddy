@@ -92,3 +92,139 @@ h1 {
   color: var(--text-dim);
   padding-top: 12px;
 }
+
+/* --- Exercise screen --- */
+
+.video-frame {
+  aspect-ratio: 16 / 9;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.video-frame iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.cues {
+  list-style: none;
+  padding: 16px 0 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cues li {
+  padding-left: 16px;
+  border-left: 3px solid var(--accent);
+  font-size: 1.0625rem;
+  line-height: 1.4;
+}
+
+.session-zone {
+  margin-top: 20px;
+  padding: 16px;
+  background: var(--surface);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.weight-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.9375rem;
+  color: var(--text-dim);
+}
+
+.weight-field input {
+  min-height: 56px;
+  padding: 8px 16px;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--surface-pressed);
+  border-radius: 12px;
+}
+
+.weight-field input:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+}
+
+.rep-counter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.rep-button {
+  flex: 1;
+  min-height: 80px;
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--surface-pressed);
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.rep-button:active {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.rep-count {
+  min-width: 80px;
+  text-align: center;
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.rep-count span {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-dim);
+  padding-top: 4px;
+}
+
+.finish-button {
+  min-height: 64px;
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: var(--bg);
+  background: var(--accent);
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.finish-button:active {
+  filter: brightness(1.15);
+}
+
+.finish-button:disabled {
+  background: var(--surface-pressed);
+  color: var(--text-dim);
+}
+
+.set-log {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 1.0625rem;
+  color: var(--text-dim);
+}
