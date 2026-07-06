@@ -55,7 +55,7 @@ Cloud sync, accounts, charts/graphs, in-app exercise editing, PWA service-worker
 - [x] 2. Exercise screen (embed, cues, weight input, rep/set counter)
 - [x] 3. Rest timer (auto-start on finish set, vibrate/sound at zero)
 - [x] 4. History to localStorage + "last time" display
-- [ ] 5. History screen + JSON export
+- [x] 5. History screen + JSON export
 - [x] Ship to GitHub Pages (pipeline live as of step 1 — https://psybuster05.github.io/workout-buddy/ — every push to main deploys)
 
 ## Decision log
@@ -109,3 +109,9 @@ Cloud sync, accounts, charts/graphs, in-app exercise editing, PWA service-worker
 - "Last time" = most recent session from a previous day (today's sets are not "last time"). Uniform sessions format as "3×8 @ 45 lbs", mixed as "10×30, 8×35 lbs".
 - Weight input prefills with the last session's final set weight (small UX add beyond spec).
 - Resilience tested: corrupt store JSON → empty store, app runs, next set rewrites it; saveStore catches quota/private-mode throws so logging never crashes mid-workout.
+
+### 2026-07-06 — Step 5 built (History screen + export) — v1 COMPLETE
+- src/screens/History.jsx, reached via a History button in the Home header. Grouped per exercise (exercises.json order), sessions newest-first, empty exercises omitted.
+- Session formatter shared with the Exercise screen's "last time" line via src/format.js.
+- Export JSON: blob download named workout-history-YYYY-MM-DD.json (pretty-printed full store). On iPhone Safari it lands in Files via the download sheet.
+- All 5 build-order steps done. Remaining known gaps, all deliberate: real-phone test of timer lock recovery + beep audibility; starter exercises/videos are placeholder-ish until Jon swaps his real program in.

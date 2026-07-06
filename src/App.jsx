@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import Home from './screens/Home.jsx'
 import Exercise from './screens/Exercise.jsx'
+import History from './screens/History.jsx'
 import data from './data/exercises.json'
 
 function App() {
@@ -17,7 +18,18 @@ function App() {
     return <Exercise exercise={exercise} onBack={() => setScreen('home')} />
   }
 
-  return <Home days={data.days} exercises={data.exercises} onSelect={openExercise} />
+  if (screen === 'history') {
+    return <History exercises={data.exercises} onBack={() => setScreen('home')} />
+  }
+
+  return (
+    <Home
+      days={data.days}
+      exercises={data.exercises}
+      onSelect={openExercise}
+      onHistory={() => setScreen('history')}
+    />
+  )
 }
 
 export default App

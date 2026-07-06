@@ -1,15 +1,7 @@
 import { useRef, useState } from 'react'
 import RestTimer from '../components/RestTimer.jsx'
 import { lastSession, logSet, todaySession } from '../storage.js'
-
-function formatSession(s) {
-  const reps = new Set(s.sets.map((x) => x.reps))
-  const weights = new Set(s.sets.map((x) => x.weight))
-  if (reps.size === 1 && weights.size === 1) {
-    return `${s.sets.length}×${s.sets[0].reps} @ ${s.sets[0].weight} ${s.unit}`
-  }
-  return s.sets.map((x) => `${x.reps}×${x.weight}`).join(', ') + ` ${s.unit}`
-}
+import { formatSession } from '../format.js'
 
 function Exercise({ exercise, onBack }) {
   // "last time" = most recent previous day; today's in-progress sets reload

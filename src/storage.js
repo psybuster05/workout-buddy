@@ -54,6 +54,10 @@ export function todaySession(exerciseId) {
   )
 }
 
+export function exportJSON() {
+  return JSON.stringify(loadStore(), null, 2)
+}
+
 // Most recent session from a previous day — "last time", not today's sets.
 export function lastSession(exerciseId) {
   const date = todayISO()

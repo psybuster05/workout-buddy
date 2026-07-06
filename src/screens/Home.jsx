@@ -1,7 +1,12 @@
-function Home({ days, exercises, onSelect }) {
+function Home({ days, exercises, onSelect, onHistory }) {
   return (
     <div className="screen">
-      <h1>Workout Buddy</h1>
+      <header className="home-header">
+        <h1>Workout Buddy</h1>
+        <button className="history-button" onClick={onHistory}>
+          History
+        </button>
+      </header>
       {days.map((day) => (
         <section key={day} className="day-group">
           <h2>{day}</h2>
