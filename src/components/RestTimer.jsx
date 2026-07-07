@@ -20,7 +20,7 @@ function beep(ctx) {
 // from a decrementing counter — iOS suspends JS when the phone locks or Safari
 // backgrounds the tab, and this way the timer is correct again on first tick
 // after resume.
-function RestTimer({ endsAt, totalSeconds, audioCtxRef, onDismiss }) {
+function RestTimer({ endsAt, totalSeconds, audioCtxRef, onExtend, onDismiss }) {
   const [now, setNow] = useState(() => Date.now())
   const firedRef = useRef(false)
 
@@ -72,7 +72,7 @@ function RestTimer({ endsAt, totalSeconds, audioCtxRef, onDismiss }) {
       <div className="rest-progress">
         <div
           className="rest-progress-fill"
-          style={{ width: `${(remainingMs / (totalSeconds * 1000)) * 100}%` }}
+          style={{ width: `${Math.min(100, (remainingMs / (totalSeconds * 1000)) * 100)}%` }}
         />
       </div>
       <div className="rest-row">
@@ -80,6 +80,9 @@ function RestTimer({ endsAt, totalSeconds, audioCtxRef, onDismiss }) {
         <span className="rest-count">
           {mm}:{ss}
         </span>
+        <button className="rest-extend" onClick={onExtend}>
+          +15s
+        </button>
         <button className="rest-skip" onClick={onDismiss}>
           Skip
         </button>

@@ -1,10 +1,9 @@
-import { useRef, useState } from 'react'
-import RestTimer from '../components/RestTimer.jsx'
+import { useState } from 'react'
 import { deleteLastSet, lastSession, logSet, todaySession } from '../storage.js'
 import { formatSession } from '../format.js'
 import { dayAccent } from '../theme.js'
 
-function Exercise({ exercise, onBack }) {
+function Exercise({ exercise, onBack, onStartRest }) {
   // weighted (default): weight + reps · reps-only: no weight row ·
   // time: no weight row, counter is seconds stored in the reps field
   const mode = exercise.tracking ?? 'weighted'
@@ -24,8 +23,10 @@ function Exercise({ exercise, onBack }) {
     return w ? String(w) : ''
   })
   const [reps, setReps] = useState(() => lastSetFor(sets.length)?.reps ?? 0)
-  const [restEndsAt, setRestEndsAt] = useState(null)
-  const audioCtxRef = useRef(null)
+
+  const setLine = (s, i) =>
+    `Set ${i + 1} — ${s.reps} ${mode === 'time' ? 'sec' : 'reps'}` +
+    (mode === 'weighted' ? ` @ ${s.weight} lbs` : '')
 
   const adjustWeight = (delta) => {
     setWeight((w) => {
@@ -41,13 +42,7 @@ function Exercise({ exercise, onBack }) {
     })
     setSets([...session.sets])
     setReps(lastSetFor(session.sets.length)?.reps ?? 0)
-    // iOS only lets audio start from a user gesture — unlock the context on
-    // this tap so the end-of-rest beep is allowed to play later
-    if (!audioCtxRef.current && window.AudioContext) {
-      audioCtxRef.current = new AudioContext()
-    }
-    audioCtxRef.current?.resume?.()
-    setRestEndsAt(Date.now() + exercise.restSeconds * 1000)
+    onStartRest(exercise.restSeconds)
   }
 
   const deleteLast = () => {
@@ -131,34 +126,36 @@ function Exercise({ exercise, onBack }) {
           </button>
         </div>
 
-        {restEndsAt !== null && (
-          <RestTimer
-            key={restEndsAt}
-            endsAt={restEndsAt}
-            totalSeconds={exercise.restSeconds}
-            audioCtxRef={audioCtxRef}
-            onDismiss={() => setRestEndsAt(null)}
-          />
-        )}
-
         <button className="finish-button" disabled={reps === 0} onClick={finishSet}>
           Finish set
         </button>
 
         {sets.length > 0 && (
-          <>
-            <ol className="set-log">
-              {sets.map((s, i) => (
-                <li key={i}>
-                  Set {i + 1} — {s.reps} {mode === 'time' ? 'sec' : 'reps'}
-                  {mode === 'weighted' && ` @ ${s.weight} lbs`}
-                </li>
-              ))}
-            </ol>
+          <div className="set-log">
+            {sets.length === 1 ? (
+              <p className="set-log-line">{setLine(sets[0], 0)}</p>
+            ) : (
+              <details className="set-drawer">
+                <summary>
+                  <span className="set-log-line">
+                    {setLine(sets[sets.length - 1], sets.length - 1)}
+                  </span>
+                  <span className="set-drawer-count">All {sets.length}</span>
+                </summary>
+                <ol className="set-drawer-list">
+                  {sets
+                    .map((s, i) => ({ s, i }))
+                    .reverse()
+                    .map(({ s, i }) => (
+                      <li key={i}>{setLine(s, i)}</li>
+                    ))}
+                </ol>
+              </details>
+            )}
             <button className="delete-last-button" onClick={deleteLast}>
               Delete last set
             </button>
-          </>
+          </div>
         )}
       </section>
 

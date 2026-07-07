@@ -168,6 +168,12 @@ Cloud sync, accounts, charts/graphs, in-app exercise editing, PWA service-worker
 - formatSession(session, mode): weighted "3×8 @ 45 lbs"; reps-only "3×8" / "8, 6, 5 reps"; time "3×30s" / "30s, 25s, 20s". Set log lines mode-aware too.
 - NOT in scope (user decision): recording the user's body weight anywhere — possible future feature.
 
+### 2026-07-07 — Persistent rest timer + +15s + set-log drawer
+- Rest timer state (endsAt/total/id) and the AudioContext ref moved from Exercise up to App; the timer renders as a fixed floating bar OUTSIDE the swapped screens, so it keeps running while navigating exercise→home→exercise mid-rest. App passes `onStartRest(seconds)` to Exercise (does the iOS audio unlock, still inside the Finish-set tap gesture).
+- RestTimer keyed on rest.id (set once per rest, not on extend) → fresh rest remounts, +15 doesn't flicker. `+15s` button bumps both endsAt and total (bar stays proportional, guarded with Math.min(100,…)).
+- Floating bar: position:fixed bottom, view-transition-name: rest-bar so it stays put during page transitions instead of sliding with the root; `#root:has(.rest-timer) .screen` gets bottom padding so it never hides content.
+- Set log is now a drawer: shows the latest set only, with a native `<details>` "All N ▾" toggle revealing all sets newest-first (original Set numbers preserved). Single-set case shows just the line, no drawer. setLine() helper shared, mode-aware. Delete-last button stays below.
+
 ### 2026-07-07 — Delete-last-set + auto-dismiss rest timer
 - Exercise screen: "Delete last set" button under the set log (single tap, subtle bordered style — a low-stakes in-workout undo, deliberately not the two-tap confirm History uses). storage.deleteLastSet(exerciseId) pops today's last set and drops the session if that empties it (no zero-set sessions left behind); reps counter re-prefills for the reopened set position, weight left as-is.
 - RestTimer: the "Rest over — go!" tap-to-dismiss button is gone. When rest hits 0:00 the timer auto-clears itself (onDismiss called from the alert effect); the beep + vibrate remain the signal. Beep is scheduled on the parent-owned AudioContext so it still plays after unmount. Skip still works mid-rest. Dead .rest-timer-done CSS + keyframes removed.

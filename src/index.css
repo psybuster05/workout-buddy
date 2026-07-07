@@ -339,14 +339,44 @@ input.counter-value::-webkit-inner-spin-button {
 
 /* --- rest timer --- */
 
+/* floating bar: rendered by App (not inside a screen) so it persists while
+   Jon navigates between exercises mid-rest */
 .rest-timer {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(env(safe-area-inset-bottom) + 12px);
+  width: calc(100% - 24px);
+  max-width: 456px;
+  z-index: 50;
+  /* stay put during page transitions instead of sliding with the root snapshot */
+  view-transition-name: rest-bar;
   padding: 14px 16px;
-  background: rgba(10, 10, 12, 0.6);
+  background: rgba(10, 10, 12, 0.92);
   border: 1px solid var(--border);
   border-radius: 16px;
+  box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.6);
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .rest-timer {
+    animation: rest-bar-in 220ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+}
+
+@keyframes rest-bar-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 16px);
+  }
+}
+
+/* keep the fixed bar from hiding the bottom of scrolled content while active */
+#root:has(.rest-timer) .screen {
+  padding-bottom: 108px;
 }
 
 .rest-progress {
@@ -385,7 +415,8 @@ input.counter-value::-webkit-inner-spin-button {
   text-align: center;
 }
 
-.rest-skip {
+.rest-skip,
+.rest-extend {
   min-height: 48px;
   padding: 8px 16px;
   font-size: 1rem;
@@ -396,6 +427,16 @@ input.counter-value::-webkit-inner-spin-button {
   border-radius: 12px;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+}
+
+.rest-extend {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.rest-extend:active,
+.rest-skip:active {
+  filter: brightness(1.3);
 }
 
 .finish-button {
@@ -425,12 +466,54 @@ input.counter-value::-webkit-inner-spin-button {
 }
 
 .set-log {
-  list-style: none;
   display: flex;
   flex-direction: column;
   gap: 8px;
   font-size: 1.0625rem;
   color: var(--text-dim);
+}
+
+.set-log-line {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.set-drawer > summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.set-drawer > summary::-webkit-details-marker {
+  display: none;
+}
+
+.set-drawer-count {
+  flex-shrink: 0;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+.set-drawer-count::after {
+  content: ' ▾';
+}
+
+.set-drawer[open] .set-drawer-count::after {
+  content: ' ▴';
+}
+
+.set-drawer-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 8px;
 }
 
 /* subtle corrective action — deliberately not a filled CTA like Finish set */
