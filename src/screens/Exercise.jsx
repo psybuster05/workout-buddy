@@ -51,14 +51,20 @@ function Exercise({ exercise, onStartRest }) {
     setReps(lastSetFor(remaining.length)?.reps ?? 0)
   }
 
+  // History always shows the most recent work: today's sets if any, else the
+  // last time this exercise was done. Delete-last only applies to today.
+  const historyIsToday = sets.length > 0
+  const historySets = historyIsToday ? sets : (last?.sets ?? [])
+  const historyDate = historyIsToday ? null : last?.date
+
   return (
     <div className="screen" style={{ '--accent': dayAccent(exercise.day) }}>
       <h1 className="exercise-title">{exercise.name}</h1>
 
       <section className="session-zone">
         {exercise.target && (
-          <div className="zone-section">
-            <span className="zone-label">Target</span>
+          <div className="zone-card">
+            <span className="zone-card-label">Target</span>
             <p className="target-line">
               {exercise.target.sets && <span>Sets: {exercise.target.sets}</span>}
               {exercise.target.reps && <span>Reps: {exercise.target.reps}</span>}
@@ -128,21 +134,22 @@ function Exercise({ exercise, onStartRest }) {
           Finish set
         </button>
 
-        {sets.length > 0 && (
-          <div className="zone-section">
-            <span className="zone-label">History</span>
-            {sets.length === 1 ? (
-              <p className="set-log-line">{setLine(sets[0], 0)}</p>
+        {historySets.length > 0 && (
+          <div className="zone-card">
+            <span className="zone-card-label">History</span>
+            {!historyIsToday && <span className="zone-caption">Last done {historyDate}</span>}
+            {historySets.length === 1 ? (
+              <p className="set-log-line">{setLine(historySets[0], 0)}</p>
             ) : (
               <details className="set-drawer">
                 <summary>
                   <span className="set-log-line">
-                    {setLine(sets[sets.length - 1], sets.length - 1)}
+                    {setLine(historySets[historySets.length - 1], historySets.length - 1)}
                   </span>
-                  <span className="set-drawer-count">All {sets.length}</span>
+                  <span className="set-drawer-count">All {historySets.length}</span>
                 </summary>
                 <ol className="set-drawer-list">
-                  {sets
+                  {historySets
                     .map((s, i) => ({ s, i }))
                     .reverse()
                     .map(({ s, i }) => (
@@ -151,9 +158,11 @@ function Exercise({ exercise, onStartRest }) {
                 </ol>
               </details>
             )}
-            <button className="delete-last-button" onClick={deleteLast}>
-              Delete last set
-            </button>
+            {historyIsToday && (
+              <button className="delete-last-button" onClick={deleteLast}>
+                Delete last set
+              </button>
+            )}
           </div>
         )}
       </section>

@@ -340,17 +340,18 @@ h1 {
 
 .session-zone {
   margin-top: 8px;
-  padding: 16px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 18px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
 }
 
-/* labeled sub-sections inside the session zone (Target, History) */
-.zone-section {
+/* outlined sub-sections (Target, History) with the label notched onto the top
+   border — the label's solid bg masks the border segment behind it */
+.zone-card {
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px 16px 16px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -358,13 +359,24 @@ h1 {
   color: var(--text-dim);
 }
 
-.zone-label {
-  font-size: 0.8125rem;
+.zone-card-label {
+  position: absolute;
+  top: 0;
+  left: 14px;
+  transform: translateY(-50%);
+  padding: 0 8px;
+  background: var(--bg);
+  font-size: 0.75rem;
   font-weight: 800;
   font-style: italic;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   color: var(--accent);
+}
+
+.zone-caption {
+  font-size: 0.8125rem;
+  color: var(--text-dim);
 }
 
 .target-line {

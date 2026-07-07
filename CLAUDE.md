@@ -174,6 +174,10 @@ Cloud sync, accounts, charts/graphs, in-app exercise editing, PWA service-worker
 - Safe-area top inset moved off body onto the header's padding-top (`calc(14px + env(safe-area-inset-top))`) so the sticky bar owns the notch area. Body keeps R/B/L insets.
 - header + footer given `view-transition-name` (app-header / app-footer) so they stay put while only the screen content cross-fades on navigation. `#root:has(.rest-timer)` padding moved from `.screen` to `.app`.
 
+### 2026-07-07 — History shows latest-regardless-of-date; border-labeled cards
+- Exercise History section now shows today's sets if any, else falls back to the most recent prior session (`historySets = sets.length ? sets : last.sets`), with a "Last done {date}" caption and no delete button when it's historical (deleting past records stays on the History screen). Deleting today's last set drops back to the historical view.
+- Session zone broken out of the one big `.session-zone` surface card into separate outlined `.zone-card`s for Target and History, each with its label notched onto the top border (`.zone-card-label` absolute, `background: var(--bg)` masks the border segment). The weight/reps counters + Finish set sit bare between them. `.session-zone` is now just a flex column. (User flagged this as try-and-maybe-revert.)
+
 ### 2026-07-07 — Session zone: labeled Target/History sections, one-line title
 - Target and set-log History are now consistent labeled sub-sections (`.zone-section` + accent `.zone-label`), replacing the old centered two-line `.target-block` and the `.set-log`/`.set-log-label`. Target values sit on one line (`.target-line` flex row: "Sets: 3–4   Reps: 8–12"), no line break.
 - "Last time" line removed from the Exercise screen (the set-for-set weight/reps prefill it fed still works — only the text display is gone; `formatSession` import dropped from Exercise).
