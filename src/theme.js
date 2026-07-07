@@ -9,3 +9,15 @@ const DAY_ACCENTS = {
 export function dayAccent(day) {
   return DAY_ACCENTS[day] ?? '#ff3b3b'
 }
+
+// per-day mega-button background photos, served from public/days/ (runtime URL,
+// so Jon can swap the files without a rebuild)
+const DAY_IMAGES = {
+  'Mon — Push': 'push.jpg',
+  'Wed — Pull': 'pull.jpg',
+  'Fri — Legs': 'legs.jpg',
+}
+
+export function dayImage(day) {
+  return DAY_IMAGES[day] ?? 'push.jpg'
+}

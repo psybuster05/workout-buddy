@@ -11,9 +11,10 @@ Personal workout tracker web app. One user (Jon), used on an iPhone browser mid-
 - Target device: iPhone 17 Pro Max, Safari, added to home screen
 
 ## Core screens
-1. **Home** — exercise list grouped by workout day. Tap to open an exercise.
-2. **Exercise** — YouTube embed (iframe), written form cues below it, then live session zone: weight input, large rep counter buttons, "Finish set" button that logs the set and auto-starts the rest timer. Show "Last time: {sets}×{reps} @ {weight}" from history next to inputs.
-3. **History** — chronological list per exercise: date, sets × reps × weight. Plus a "Export JSON" button that dumps all localStorage history.
+1. **Home** — 3 day mega-buttons (Mon–Push / Wed–Pull / Fri–Legs) with per-day photo backgrounds. Tap → Day screen.
+2. **Day** (middle) — whole-workout tracker (Start/Finish → live elapsed from a stored startedAt timestamp, "N of M done" derived from today's logged sets, Restart) + that day's exercise list (done ones get a ✓). Tap an exercise → Exercise. Back → Home.
+3. **Exercise** — YouTube embed (iframe), written form cues below it, then live session zone: weight input, large rep counter buttons, "Finish set" button that logs the set and auto-starts the rest timer. Back → Day.
+4. **History** — chronological list per exercise: date, sets × reps × weight. Plus a "Export JSON" button that dumps all localStorage history.
 
 ## Data shapes
 ```json
@@ -39,9 +40,13 @@ Personal workout tracker web app. One user (Jon), used on an iPhone browser mid-
       "unit": "lbs",
       "sets": [{ "reps": 8, "weight": 50 }]
     }
+  ],
+  "workouts": [
+    { "date": "2026-07-06", "day": "Fri — Legs", "startedAt": 1783466550465, "endedAt": 1783470000000 }
   ]
 }
 ```
+`workouts` is one record per calendar date (whole-day timer). `endedAt` null = in progress. Backfilled to `[]` in loadStore for old stores. "Exercises done" is derived from `sessions`, not stored here.
 
 ## Conventions
 - Weight unit: lbs for now (gym plates); revisit if it bugs me
@@ -167,6 +172,13 @@ Cloud sync, accounts, charts/graphs, in-app exercise editing, PWA service-worker
 - Storage unchanged — no migration: seconds live in the reps field (was already the hang convention), weight stays 0 as schema filler for non-weighted sets (never shown, never asked for).
 - formatSession(session, mode): weighted "3×8 @ 45 lbs"; reps-only "3×8" / "8, 6, 5 reps"; time "3×30s" / "30s, 25s, 20s". Set log lines mode-aware too.
 - NOT in scope (user decision): recording the user's body weight anywhere — possible future feature.
+
+### 2026-07-07 — Day mega-buttons + Day screen with workout tracking
+- Home is now 3 `.day-button`s (image bg via `--day-img` + per-day accent-tint gradient using `color-mix`), exercise count subtitle. New middle **Day** screen (src/screens/Day.jsx): workout timer + the day's exercise list.
+- Nav is now Home → Day → Exercise. App tracks `selectedDay`; header back is contextual (`goBack`: exercise→day, else→home). Exercise/Day/History no longer take an `onBack` — the app-header owns it.
+- Whole-day workout tracking in storage.js: `workouts[]` (one per date, `{ date, day, startedAt, endedAt }`), `startWorkout`/`finishWorkout`/`todayWorkout`. Elapsed derives from the `startedAt` timestamp (survives reload/close, verified 00:51 across a reload). "N of M done" derived from `todaySession` per day-exercise; done exercises get `.is-done` (dim + ✓) in the day list.
+- Day-button photos live in **public/days/{push,pull,legs}.jpg** (runtime URL via `import.meta.env.BASE_URL`, not bundled), currently placeholders copied from the gym bg — Jon drops in real photos with no code change. theme.js `dayImage(day)`.
+- Calories deferred (needs body weight + MET; body-weight tracking still out of scope). `workouts` record can gain a `calories` field later.
 
 ### 2026-07-07 — Gym backdrop + bulleted card labels
 - Background: user-provided gym photo (workoutbuddybg) as a fixed `body::before` layer, `cover`, blurred 3px + dark gradient overlay for readability. Frosted cards over it (`.zone-card` translucent fill + backdrop-blur) + `.exercise-button`/list translucent so the scene shows through.

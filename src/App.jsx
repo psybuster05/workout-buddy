@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
 import Home from './screens/Home.jsx'
+import Day from './screens/Day.jsx'
 import Exercise from './screens/Exercise.jsx'
 import History from './screens/History.jsx'
 import Lock from './screens/Lock.jsx'
@@ -21,6 +22,7 @@ const withTransition = (update) => {
 function App() {
   const [unlocked, setUnlocked] = useState(() => isUnlocked())
   const [screen, setScreen] = useState('home')
+  const [selectedDay, setSelectedDay] = useState(null)
   const [exerciseId, setExerciseId] = useState(null)
   // rest lives at the app level (not inside Exercise) so it keeps running while
   // Jon navigates between exercises mid-rest. { endsAt, total, id } | null
@@ -46,6 +48,11 @@ function App() {
     return <Lock onUnlock={() => withTransition(() => setUnlocked(true))} />
   }
 
+  const openDay = (day) =>
+    withTransition(() => {
+      setSelectedDay(day)
+      setScreen('day')
+    })
   const openExercise = (id) =>
     withTransition(() => {
       setExerciseId(id)
@@ -53,6 +60,9 @@ function App() {
     })
   const goHome = () => withTransition(() => setScreen('home'))
   const goHistory = () => withTransition(() => setScreen('history'))
+  // back is contextual: exercise → its day, everything else → home
+  const goBack = () =>
+    withTransition(() => setScreen(screen === 'exercise' ? 'day' : 'home'))
 
   const chooseMenu = (action) => {
     setMenuOpen(false)
@@ -63,10 +73,14 @@ function App() {
   if (screen === 'exercise') {
     const exercise = data.exercises.find((e) => e.id === exerciseId)
     screenEl = <Exercise exercise={exercise} onStartRest={startRest} />
+  } else if (screen === 'day') {
+    screenEl = (
+      <Day day={selectedDay} exercises={data.exercises} onSelectExercise={openExercise} />
+    )
   } else if (screen === 'history') {
     screenEl = <History exercises={data.exercises} />
   } else {
-    screenEl = <Home days={data.days} exercises={data.exercises} onSelect={openExercise} />
+    screenEl = <Home days={data.days} exercises={data.exercises} onSelectDay={openDay} />
   }
 
   return (
@@ -77,7 +91,7 @@ function App() {
             Workout Buddy
           </button>
         ) : (
-          <button className="back-button" onClick={goHome}>
+          <button className="back-button" onClick={goBack}>
             ‹ Back
           </button>
         )}

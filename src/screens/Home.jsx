@@ -1,24 +1,29 @@
-import { dayAccent } from '../theme.js'
+import { dayAccent, dayImage } from '../theme.js'
 
-function Home({ days, exercises, onSelect }) {
+const base = import.meta.env.BASE_URL
+
+function Home({ days, exercises, onSelectDay }) {
   return (
-    <div className="screen">
-      {days.map((day) => (
-        <section key={day} className="day-group" style={{ '--accent': dayAccent(day) }}>
-          <h2>{day}</h2>
-          <ul className="exercise-list">
-            {exercises
-              .filter((e) => e.day === day)
-              .map((e) => (
-                <li key={e.id}>
-                  <button className="exercise-button" onClick={() => onSelect(e.id)}>
-                    {e.name}
-                  </button>
-                </li>
-              ))}
-          </ul>
-        </section>
-      ))}
+    <div className="screen home-days">
+      {days.map((day) => {
+        const count = exercises.filter((e) => e.day === day).length
+        return (
+          <button
+            key={day}
+            className="day-button"
+            style={{
+              '--accent': dayAccent(day),
+              '--day-img': `url(${base}days/${dayImage(day)})`,
+            }}
+            onClick={() => onSelectDay(day)}
+          >
+            <span className="day-button-title">{day}</span>
+            <span className="day-button-sub">
+              {count} exercise{count === 1 ? '' : 's'}
+            </span>
+          </button>
+        )
+      })}
     </div>
   )
 }

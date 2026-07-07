@@ -240,6 +240,99 @@ h1 {
   padding: 22px 0 10px;
 }
 
+/* Home: 3 tall day mega-buttons with per-day photo backgrounds */
+.home-days {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-top: 8px;
+}
+
+.day-button {
+  position: relative;
+  min-height: 132px;
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 2px;
+  text-align: left;
+  border: 1px solid var(--border);
+  border-left: 5px solid var(--accent);
+  border-radius: 18px;
+  overflow: hidden;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  /* accent-tinted dark scrim over the day photo so the title stays legible */
+  background:
+    linear-gradient(
+      110deg,
+      color-mix(in srgb, var(--accent) 55%, transparent) 0%,
+      rgba(10, 10, 12, 0.35) 55%,
+      rgba(10, 10, 12, 0.85) 100%
+    ),
+    var(--day-img) center / cover no-repeat;
+  color: var(--text);
+}
+
+.day-button:active {
+  filter: brightness(1.08);
+}
+
+.day-button-title {
+  font-size: 1.5rem;
+  font-weight: 900;
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+}
+
+.day-button-sub {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(245, 245, 247, 0.75);
+}
+
+/* Day screen workout tracker */
+.workout-card {
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+}
+
+.workout-elapsed {
+  font-size: 2.75rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  line-height: 1;
+}
+
+.workout-done {
+  font-size: 0.9375rem;
+  color: var(--text-dim);
+}
+
+.workout-card .finish-button,
+.workout-card .delete-last-button {
+  width: 100%;
+}
+
+/* completed exercises get a check + dimmed name on the day list */
+.exercise-button.is-done {
+  color: var(--text-dim);
+}
+
+.exercise-button.is-done::after {
+  content: '✓';
+  float: right;
+  color: var(--accent);
+  font-weight: 800;
+}
+
 .exercise-list {
   list-style: none;
   display: flex;

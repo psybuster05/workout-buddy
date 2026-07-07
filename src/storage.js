@@ -14,12 +14,16 @@ export function loadStore() {
     const raw = localStorage.getItem(KEY)
     if (raw) {
       const store = JSON.parse(raw)
-      if (store && Array.isArray(store.sessions)) return store
+      if (store && Array.isArray(store.sessions)) {
+        // workouts added later — backfill for stores written before it existed
+        if (!Array.isArray(store.workouts)) store.workouts = []
+        return store
+      }
     }
   } catch {
     // corrupt JSON or storage blocked — fall through to an empty store
   }
-  return { schemaVersion: 1, sessions: [] }
+  return { schemaVersion: 1, sessions: [], workouts: [] }
 }
 
 function saveStore(store) {
@@ -74,6 +78,40 @@ export function todaySession(exerciseId) {
 
 export function exportJSON() {
   return JSON.stringify(loadStore(), null, 2)
+}
+
+// --- whole-day workout tracking (start/stop time). One record per date. ---
+
+export function todayWorkout() {
+  const date = todayISO()
+  return loadStore().workouts.find((w) => w.date === date) ?? null
+}
+
+// Begin (or restart) today's workout — stamps startedAt, clears endedAt.
+export function startWorkout(day) {
+  const store = loadStore()
+  const date = todayISO()
+  let workout = store.workouts.find((w) => w.date === date)
+  if (!workout) {
+    workout = { date, day, startedAt: 0, endedAt: null }
+    store.workouts.push(workout)
+  }
+  workout.day = day
+  workout.startedAt = Date.now()
+  workout.endedAt = null
+  saveStore(store)
+  return workout
+}
+
+// Stop today's workout — stamps endedAt so duration is frozen.
+export function finishWorkout() {
+  const store = loadStore()
+  const date = todayISO()
+  const workout = store.workouts.find((w) => w.date === date)
+  if (!workout) return null
+  workout.endedAt = Date.now()
+  saveStore(store)
+  return workout
 }
 
 // Remove one logged session (accidental entries). A session is uniquely
