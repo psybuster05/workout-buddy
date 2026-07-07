@@ -25,6 +25,7 @@ function App() {
   // rest lives at the app level (not inside Exercise) so it keeps running while
   // Jon navigates between exercises mid-rest. { endsAt, total, id } | null
   const [rest, setRest] = useState(null)
+  const [menuOpen, setMenuOpen] = useState(false)
   const audioCtxRef = useRef(null)
 
   // called from the Finish-set tap, so the AudioContext unlock keeps its
@@ -53,6 +54,11 @@ function App() {
   const goHome = () => withTransition(() => setScreen('home'))
   const goHistory = () => withTransition(() => setScreen('history'))
 
+  const chooseMenu = (action) => {
+    setMenuOpen(false)
+    action()
+  }
+
   let screenEl
   if (screen === 'exercise') {
     const exercise = data.exercises.find((e) => e.id === exerciseId)
@@ -60,20 +66,49 @@ function App() {
   } else if (screen === 'history') {
     screenEl = <History exercises={data.exercises} onBack={goHome} />
   } else {
-    screenEl = (
-      <Home
-        days={data.days}
-        exercises={data.exercises}
-        onSelect={openExercise}
-        onHistory={goHistory}
-        onStartRest={() => startRest(90)}
-      />
-    )
+    screenEl = <Home days={data.days} exercises={data.exercises} onSelect={openExercise} />
   }
 
   return (
-    <>
+    <div className="app">
+      <header className="app-header">
+        <button className="app-brand" onClick={goHome}>
+          Workout Buddy
+        </button>
+        <div className="menu">
+          <button
+            className="menu-button"
+            aria-label="Menu"
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((o) => !o)}
+          >
+            <span />
+            <span />
+            <span />
+          </button>
+          {menuOpen && (
+            <>
+              <div className="menu-backdrop" onClick={() => setMenuOpen(false)} />
+              <div className="menu-dropdown" role="menu">
+                <button role="menuitem" onClick={() => chooseMenu(goHistory)}>
+                  History
+                </button>
+                <button role="menuitem" onClick={() => chooseMenu(() => startRest(90))}>
+                  Rest Timer
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </header>
+
       {screenEl}
+
+      <footer className="app-footer">
+        <p>© 2026 Workout Buddy — all gains reserved 💪</p>
+        <p>Last updated {__BUILD_DATE__}</p>
+      </footer>
+
       {rest && (
         <RestTimer
           key={rest.id}
@@ -84,7 +119,7 @@ function App() {
           onDismiss={dismissRest}
         />
       )}
-    </>
+    </div>
   )
 }
 

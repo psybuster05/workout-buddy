@@ -168,6 +168,12 @@ Cloud sync, accounts, charts/graphs, in-app exercise editing, PWA service-worker
 - formatSession(session, mode): weighted "3×8 @ 45 lbs"; reps-only "3×8" / "8, 6, 5 reps"; time "3×30s" / "30s, 25s, 20s". Set log lines mode-aware too.
 - NOT in scope (user decision): recording the user's body weight anywhere — possible future feature.
 
+### 2026-07-07 — Global chrome: sticky header, global burger + footer
+- Burger menu and footer moved from Home up to App, wrapping every screen (`.app` centered column holds sticky header + screenEl + footer + rest bar). Home lost its own header/h1/menu/footer; its useState went too.
+- New global sticky `.app-header`: "Workout Buddy." wordmark (accent dot, tap → home) on the left, burger on the right. Gradient background (var(--bg) → transparent, top to bottom) so content scrolls under and fades; `pointer-events: none` on the header with `auto` on brand/menu so the fade zone doesn't eat taps. Brand kept small (1.125rem) so it reads as chrome, not competing with screen h1s.
+- Safe-area top inset moved off body onto the header's padding-top (`calc(14px + env(safe-area-inset-top))`) so the sticky bar owns the notch area. Body keeps R/B/L insets.
+- header + footer given `view-transition-name` (app-header / app-footer) so they stay put while only the screen content cross-fades on navigation. `#root:has(.rest-timer)` padding moved from `.screen` to `.app`.
+
 ### 2026-07-07 — Burger menu, footer, set-log "History" label
 - Home header's History button replaced by a ☰ burger menu (Home.jsx local menuOpen state + click-outside backdrop). Menu items: History (→ history screen) and Rest Timer (→ App's startRest(90); the timer is app-level so it can be launched standalone). Old .history-button CSS removed.
 - Footer on Home: "© 2026 Workout Buddy — all gains reserved 💪" + "Last updated {date}". Date is `__BUILD_DATE__`, injected via vite.config define (`new Date().toISOString().slice(0,10)`) so it auto-stamps each deploy; added to eslint globals.

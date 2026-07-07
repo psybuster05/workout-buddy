@@ -24,15 +24,21 @@ body {
 }
 
 body {
-  /* keep content clear of the notch / home indicator when launched from home screen */
-  padding: env(safe-area-inset-top) env(safe-area-inset-right)
-    env(safe-area-inset-bottom) env(safe-area-inset-left);
+  /* keep content clear of the notch / home indicator when launched from home
+     screen — top inset is handled by the sticky .app-header instead */
+  padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom)
+    env(safe-area-inset-left);
+}
+
+/* centered app column holding the global header, the active screen, footer */
+.app {
+  max-width: 480px;
+  margin: 0 auto;
+  position: relative;
 }
 
 .screen {
-  max-width: 480px;
-  margin: 0 auto;
-  padding: 16px 16px 48px;
+  padding: 4px 16px 16px;
 }
 
 /* sports-poster headings */
@@ -73,14 +79,51 @@ h1 {
 
 /* --- Home --- */
 
-.home-header {
+/* global sticky top bar; the transparent-bottom gradient lets content scroll
+   under it and fade out. pointer-events off on the fade so it doesn't block
+   taps on content beneath — re-enabled on the interactive children. */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  view-transition-name: app-header;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  padding: calc(14px + env(safe-area-inset-top)) 16px 30px;
+  background: linear-gradient(
+    to bottom,
+    var(--bg) 0%,
+    var(--bg) 55%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+.app-brand {
+  pointer-events: auto;
+  font-size: 1.125rem;
+  font-weight: 900;
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* wordmark accent dot so the brand reads as chrome, not a screen title */
+.app-brand::after {
+  content: '.';
+  color: var(--accent);
 }
 
 .menu {
+  pointer-events: auto;
   position: relative;
   flex-shrink: 0;
 }
@@ -151,7 +194,8 @@ h1 {
 }
 
 .app-footer {
-  margin-top: 40px;
+  view-transition-name: app-footer;
+  margin: 40px 16px 0;
   padding-top: 20px;
   border-top: 1px solid var(--border);
   text-align: center;
@@ -434,8 +478,8 @@ input.counter-value::-webkit-inner-spin-button {
 }
 
 /* keep the fixed bar from hiding the bottom of scrolled content while active */
-#root:has(.rest-timer) .screen {
-  padding-bottom: 108px;
+#root:has(.rest-timer) .app {
+  padding-bottom: 96px;
 }
 
 .rest-progress {
