@@ -174,10 +174,10 @@ Cloud sync, accounts, charts/graphs, in-app exercise editing, PWA service-worker
 - NOT in scope (user decision): recording the user's body weight anywhere — possible future feature.
 
 ### 2026-07-07 — Day mega-buttons + Day screen with workout tracking
-- Home is now 3 `.day-button`s (image bg via `--day-img` + per-day accent-tint gradient using `color-mix`), exercise count subtitle. New middle **Day** screen (src/screens/Day.jsx): workout timer + the day's exercise list.
+- Home is now 3 `.day-button`s. Jon supplied pre-designed banners (title/theme baked in, 1536×338, transparent rounded corners) → shown **as-is**, no tint/border/overlay (`background: var(--day-img) center/contain`, `aspect-ratio: 1536/338`); only the exercise count is overlaid bottom-right (`.day-count`). Day name is in the image, so the button carries an `aria-label` for a11y. New middle **Day** screen (src/screens/Day.jsx): workout timer + the day's exercise list.
 - Nav is now Home → Day → Exercise. App tracks `selectedDay`; header back is contextual (`goBack`: exercise→day, else→home). Exercise/Day/History no longer take an `onBack` — the app-header owns it.
 - Whole-day workout tracking in storage.js: `workouts[]` (one per date, `{ date, day, startedAt, endedAt }`), `startWorkout`/`finishWorkout`/`todayWorkout`. Elapsed derives from the `startedAt` timestamp (survives reload/close, verified 00:51 across a reload). "N of M done" derived from `todaySession` per day-exercise; done exercises get `.is-done` (dim + ✓) in the day list.
-- Day-button photos live in **public/days/{push,pull,legs}.jpg** (runtime URL via `import.meta.env.BASE_URL`, not bundled), currently placeholders copied from the gym bg — Jon drops in real photos with no code change. theme.js `dayImage(day)`.
+- Day-button photos: **public/days/{push,pull,leg}.png** (note `leg`, singular; ~680 KB each, runtime URL via `import.meta.env.BASE_URL`, not bundled/optimized). theme.js `dayImage(day)` maps day→file. Swap the files to restyle, no code change.
 - Calories deferred (needs body weight + MET; body-weight tracking still out of scope). `workouts` record can gain a `calories` field later.
 
 ### 2026-07-07 — Gym backdrop + bulleted card labels
