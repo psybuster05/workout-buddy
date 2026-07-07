@@ -3,7 +3,7 @@ import { deleteLastSet, lastSession, logSet, todaySession } from '../storage.js'
 import { formatSession } from '../format.js'
 import { dayAccent } from '../theme.js'
 
-function Exercise({ exercise, onBack, onStartRest }) {
+function Exercise({ exercise, onStartRest }) {
   // weighted (default): weight + reps · reps-only: no weight row ·
   // time: no weight row, counter is seconds stored in the reps field
   const mode = exercise.tracking ?? 'weighted'
@@ -54,9 +54,6 @@ function Exercise({ exercise, onBack, onStartRest }) {
 
   return (
     <div className="screen" style={{ '--accent': dayAccent(exercise.day) }}>
-      <button className="back-button" onClick={onBack}>
-        ‹ Back
-      </button>
       <h1>{exercise.name}</h1>
 
       <section className="session-zone">

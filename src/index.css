@@ -122,6 +122,11 @@ h1 {
   color: var(--accent);
 }
 
+/* the header disables pointer events on its fade zone; re-enable the back button */
+.app-header .back-button {
+  pointer-events: auto;
+}
+
 .menu {
   pointer-events: auto;
   position: relative;
@@ -195,9 +200,7 @@ h1 {
 
 .app-footer {
   view-transition-name: app-footer;
-  margin: 40px 16px 0;
-  padding-top: 20px;
-  border-top: 1px solid var(--border);
+  margin: 44px 16px 0;
   text-align: center;
   font-size: 0.8125rem;
   color: var(--text-dim);

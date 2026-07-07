@@ -174,6 +174,11 @@ Cloud sync, accounts, charts/graphs, in-app exercise editing, PWA service-worker
 - Safe-area top inset moved off body onto the header's padding-top (`calc(14px + env(safe-area-inset-top))`) so the sticky bar owns the notch area. Body keeps R/B/L insets.
 - header + footer given `view-transition-name` (app-header / app-footer) so they stay put while only the screen content cross-fades on navigation. `#root:has(.rest-timer)` padding moved from `.screen` to `.app`.
 
+### 2026-07-07 — Back button in the sticky header; footer rule removed
+- Sub-pages (Exercise, History) now show a "‹ Back" button in the sticky header's left slot instead of the "Workout Buddy." wordmark; Home still shows the wordmark. App decides via `screen === 'home'`. Both screens' back goes to Home, so the header button just calls goHome — the `onBack` prop was dropped from Exercise and History.
+- In-screen `.back-button` removed from both screens (it used to scroll away under the sticky header — the whole point). `.app-header .back-button` needs `pointer-events: auto` since the header itself is pointer-events:none.
+- Footer's `border-top` (horizontal rule) + its padding-top removed; spacing now from margin alone.
+
 ### 2026-07-07 — Burger menu, footer, set-log "History" label
 - Home header's History button replaced by a ☰ burger menu (Home.jsx local menuOpen state + click-outside backdrop). Menu items: History (→ history screen) and Rest Timer (→ App's startRest(90); the timer is app-level so it can be launched standalone). Old .history-button CSS removed.
 - Footer on Home: "© 2026 Workout Buddy — all gains reserved 💪" + "Last updated {date}". Date is `__BUILD_DATE__`, injected via vite.config define (`new Date().toISOString().slice(0,10)`) so it auto-stamps each deploy; added to eslint globals.

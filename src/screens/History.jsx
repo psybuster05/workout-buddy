@@ -3,7 +3,7 @@ import { deleteSession, exportJSON, loadStore } from '../storage.js'
 import { formatSession } from '../format.js'
 import { dayAccent } from '../theme.js'
 
-function History({ exercises, onBack }) {
+function History({ exercises }) {
   const [store, setStore] = useState(() => loadStore())
   // delete needs two taps: the first arms the button, the second commits;
   // an armed button disarms itself after a beat so a stray tap can't linger
@@ -49,9 +49,6 @@ function History({ exercises, onBack }) {
 
   return (
     <div className="screen">
-      <button className="back-button" onClick={onBack}>
-        ‹ Back
-      </button>
       <h1>History</h1>
 
       {byExercise.length === 0 ? (

@@ -62,9 +62,9 @@ function App() {
   let screenEl
   if (screen === 'exercise') {
     const exercise = data.exercises.find((e) => e.id === exerciseId)
-    screenEl = <Exercise exercise={exercise} onBack={goHome} onStartRest={startRest} />
+    screenEl = <Exercise exercise={exercise} onStartRest={startRest} />
   } else if (screen === 'history') {
-    screenEl = <History exercises={data.exercises} onBack={goHome} />
+    screenEl = <History exercises={data.exercises} />
   } else {
     screenEl = <Home days={data.days} exercises={data.exercises} onSelect={openExercise} />
   }
@@ -72,9 +72,15 @@ function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <button className="app-brand" onClick={goHome}>
-          Workout Buddy
-        </button>
+        {screen === 'home' ? (
+          <button className="app-brand" onClick={goHome}>
+            Workout Buddy
+          </button>
+        ) : (
+          <button className="back-button" onClick={goHome}>
+            ‹ Back
+          </button>
+        )}
         <div className="menu">
           <button
             className="menu-button"
