@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import RestTimer from '../components/RestTimer.jsx'
-import { lastSession, logSet, todaySession } from '../storage.js'
+import { deleteLastSet, lastSession, logSet, todaySession } from '../storage.js'
 import { formatSession } from '../format.js'
 import { dayAccent } from '../theme.js'
 
@@ -48,6 +48,13 @@ function Exercise({ exercise, onBack }) {
     }
     audioCtxRef.current?.resume?.()
     setRestEndsAt(Date.now() + exercise.restSeconds * 1000)
+  }
+
+  const deleteLast = () => {
+    const remaining = deleteLastSet(exercise.id)
+    setSets([...remaining])
+    // re-prefill the counter for the set position we just reopened
+    setReps(lastSetFor(remaining.length)?.reps ?? 0)
   }
 
   return (
@@ -139,14 +146,19 @@ function Exercise({ exercise, onBack }) {
         </button>
 
         {sets.length > 0 && (
-          <ol className="set-log">
-            {sets.map((s, i) => (
-              <li key={i}>
-                Set {i + 1} — {s.reps} {mode === 'time' ? 'sec' : 'reps'}
-                {mode === 'weighted' && ` @ ${s.weight} lbs`}
-              </li>
-            ))}
-          </ol>
+          <>
+            <ol className="set-log">
+              {sets.map((s, i) => (
+                <li key={i}>
+                  Set {i + 1} — {s.reps} {mode === 'time' ? 'sec' : 'reps'}
+                  {mode === 'weighted' && ` @ ${s.weight} lbs`}
+                </li>
+              ))}
+            </ol>
+            <button className="delete-last-button" onClick={deleteLast}>
+              Delete last set
+            </button>
+          </>
         )}
       </section>
 

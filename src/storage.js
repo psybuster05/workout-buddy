@@ -47,6 +47,24 @@ export function logSet(exerciseId, set) {
   return session
 }
 
+// Remove the most recent set from today's session (in-workout undo of an
+// accidental entry). Drops the session entirely if that empties it, so we
+// never leave a zero-set session behind. Returns the remaining sets.
+export function deleteLastSet(exerciseId) {
+  const store = loadStore()
+  const date = todayISO()
+  const session = store.sessions.find(
+    (s) => s.exerciseId === exerciseId && s.date === date
+  )
+  if (!session || session.sets.length === 0) return []
+  session.sets.pop()
+  if (session.sets.length === 0) {
+    store.sessions = store.sessions.filter((s) => s !== session)
+  }
+  saveStore(store)
+  return session.sets
+}
+
 export function todaySession(exerciseId) {
   const date = todayISO()
   return (

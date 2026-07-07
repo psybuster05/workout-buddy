@@ -168,5 +168,9 @@ Cloud sync, accounts, charts/graphs, in-app exercise editing, PWA service-worker
 - formatSession(session, mode): weighted "3×8 @ 45 lbs"; reps-only "3×8" / "8, 6, 5 reps"; time "3×30s" / "30s, 25s, 20s". Set log lines mode-aware too.
 - NOT in scope (user decision): recording the user's body weight anywhere — possible future feature.
 
+### 2026-07-07 — Delete-last-set + auto-dismiss rest timer
+- Exercise screen: "Delete last set" button under the set log (single tap, subtle bordered style — a low-stakes in-workout undo, deliberately not the two-tap confirm History uses). storage.deleteLastSet(exerciseId) pops today's last set and drops the session if that empties it (no zero-set sessions left behind); reps counter re-prefills for the reopened set position, weight left as-is.
+- RestTimer: the "Rest over — go!" tap-to-dismiss button is gone. When rest hits 0:00 the timer auto-clears itself (onDismiss called from the alert effect); the beep + vibrate remain the signal. Beep is scheduled on the parent-owned AudioContext so it still plays after unmount. Skip still works mid-rest. Dead .rest-timer-done CSS + keyframes removed.
+
 ### 2026-07-06 — Counter labels moved under values
 - "Weight (lbs)" / "Reps" headers above the counter rows removed; small dim unit labels ("lbs" / "reps") sit under the values instead — the old step-2 rep-counter style, now on both rows. .counter-value-wrap column keeps the 110px value slot; buttons unchanged at 72px, rows still pixel-identical.

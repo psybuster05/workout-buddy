@@ -46,7 +46,8 @@ function RestTimer({ endsAt, totalSeconds, audioCtxRef, onDismiss }) {
     if (!done || firedRef.current) return
     firedRef.current = true
     // only alert if rest actually just ended — if the phone was locked past the
-    // end, beeping minutes late is worse than the visible "go" state
+    // end, beeping minutes late is worse than silently clearing (beep scheduled
+    // on the parent-owned audio context, so it plays on after we unmount)
     if (Date.now() - endsAt < 3000) {
       navigator.vibrate?.([200, 100, 200])
       const ctx = audioCtxRef.current
@@ -55,15 +56,12 @@ function RestTimer({ endsAt, totalSeconds, audioCtxRef, onDismiss }) {
         beep(ctx)
       }
     }
-  }, [done, endsAt, audioCtxRef])
+    // the beep + vibrate are the "rest over" signal — clear the timer itself
+    // instead of leaving a button to tap
+    onDismiss()
+  }, [done, endsAt, audioCtxRef, onDismiss])
 
-  if (done) {
-    return (
-      <button className="rest-timer rest-timer-done" onClick={onDismiss}>
-        Rest over — go!
-      </button>
-    )
-  }
+  if (done) return null
 
   const secondsLeft = Math.ceil(remainingMs / 1000)
   const mm = Math.floor(secondsLeft / 60)
