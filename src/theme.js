@@ -1,10 +1,11 @@
-// per-day accent colors; fallback is the app's base green
+// per-day accents, tuned to the red/black/white sports palette;
+// fallback (lock screen, history/export buttons) is the brand red
 const DAY_ACCENTS = {
-  'Mon — Push': '#ee7a52',
-  'Wed — Pull': '#58a6ff',
-  'Fri — Legs': '#4cc38a',
+  'Mon — Push': '#ff3b3b',
+  'Wed — Pull': '#f5f5f7',
+  'Fri — Legs': '#93a5b8',
 }
 
 export function dayAccent(day) {
-  return DAY_ACCENTS[day] ?? '#4cc38a'
+  return DAY_ACCENTS[day] ?? '#ff3b3b'
 }

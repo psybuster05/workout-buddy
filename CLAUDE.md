@@ -144,3 +144,11 @@ Cloud sync, accounts, charts/graphs, in-app exercise editing, PWA service-worker
 - src/theme.js: dayAccent(day) — Mon — Push #ee7a52 (coral), Wed — Pull #58a6ff (blue), Fri — Legs #4cc38a (green, the old base accent, still the :root fallback for lock/history-button/export).
 - Implementation: `--accent` is overridden inline (style prop) on Home day-groups, the Exercise screen root, and History per-exercise sections — every accent-consuming rule (day headings, list borders, last-time, timer fill, finish button, active states, back button) follows automatically. New days added to exercises.json without a theme.js entry fall back to green.
 - Weight and rep steppers unified into shared .counter-* styles: label above ("Weight (lbs)" / "Reps"), identical flex:1 72px buttons, identical 110px centered value. Weight value is still an input (keyboard fallback) styled to be indistinguishable from the rep value; "reps" sublabel under the count removed. Rep − now disabled at 0 like the weight −.
+
+### 2026-07-06 — Sports-app redesign (red/black/white)
+- Palette: bg #0a0a0c near-black, brand red #ff3b3b (:root --accent fallback), white text. Day accents retuned: Mon — Push #ff3b3b red, Wed — Pull #f5f5f7 white, Fri — Legs #93a5b8 steel.
+- Typography: headings/CTAs are 800-900 weight italic uppercase (system font — no webfont, gym reception rule).
+- Backdrop: src/assets/gym-bg.svg — hand-built pre-blurred SVG gym scene (red glows + barbell/dumbbell silhouettes), fixed body::before layer under a readability gradient. Bundled locally on purpose: a hotlinked photo would vanish on bad gym reception. Referenced from CSS via relative url() so Vite rebases it under the /workout-buddy/ base.
+- Cards are frosted: rgba surface + backdrop-filter blur (with -webkit- prefix for iOS).
+- Page transitions: document.startViewTransition(() => flushSync(update)) in App.jsx's withTransition helper wrapping all screen changes (View Transitions API, iOS 18+; plain switch as fallback). CSS: ::view-transition-old/new fade+slide, wrapped in prefers-reduced-motion: no-preference.
+- theme-color and favicon updated to match (#0a0a0c / red).
