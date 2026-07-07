@@ -71,68 +71,71 @@ function Exercise({ exercise, onStartRest }) {
             </p>
           </div>
         )}
-        {mode === 'weighted' && (
-        <div className="counter-row">
-          <button
-            className="counter-button"
-            onClick={() => adjustWeight(-2.5)}
-            disabled={(Number(weight) || 0) === 0}
-            aria-label="Subtract 2.5 lbs"
-          >
-            −
-          </button>
-          <div className="counter-value-wrap">
-            <input
-              id="weight-input"
-              className="counter-value"
-              type="number"
-              inputMode="decimal"
-              min="0"
-              step="2.5"
-              value={weight}
-              onChange={(e) => setWeight(e.target.value)}
-              placeholder="0"
-              aria-label="Weight in lbs"
-            />
-            <span className="counter-sub">lbs</span>
-          </div>
-          <button
-            className="counter-button"
-            onClick={() => adjustWeight(2.5)}
-            aria-label="Add 2.5 lbs"
-          >
-            +
-          </button>
-        </div>
-        )}
-
-        <div className="counter-row">
-          <button
-            className="counter-button"
-            onClick={() => setReps((r) => Math.max(0, r - repStep))}
-            disabled={reps === 0}
-            aria-label={mode === 'time' ? 'Subtract 5 seconds' : 'Subtract one rep'}
-          >
-            −
-          </button>
-          <div className="counter-value-wrap">
-            <div className="counter-value" aria-label={mode === 'time' ? 'Seconds' : 'Reps'}>
-              {reps}
+        <div className="zone-card log-card">
+          <span className="zone-card-label">This Set</span>
+          {mode === 'weighted' && (
+            <div className="counter-row">
+              <button
+                className="counter-button"
+                onClick={() => adjustWeight(-2.5)}
+                disabled={(Number(weight) || 0) === 0}
+                aria-label="Subtract 2.5 lbs"
+              >
+                −
+              </button>
+              <div className="counter-value-wrap">
+                <input
+                  id="weight-input"
+                  className="counter-value"
+                  type="number"
+                  inputMode="decimal"
+                  min="0"
+                  step="2.5"
+                  value={weight}
+                  onChange={(e) => setWeight(e.target.value)}
+                  placeholder="0"
+                  aria-label="Weight in lbs"
+                />
+                <span className="counter-sub">lbs</span>
+              </div>
+              <button
+                className="counter-button"
+                onClick={() => adjustWeight(2.5)}
+                aria-label="Add 2.5 lbs"
+              >
+                +
+              </button>
             </div>
-            <span className="counter-sub">{mode === 'time' ? 'sec' : 'reps'}</span>
+          )}
+
+          <div className="counter-row">
+            <button
+              className="counter-button"
+              onClick={() => setReps((r) => Math.max(0, r - repStep))}
+              disabled={reps === 0}
+              aria-label={mode === 'time' ? 'Subtract 5 seconds' : 'Subtract one rep'}
+            >
+              −
+            </button>
+            <div className="counter-value-wrap">
+              <div className="counter-value" aria-label={mode === 'time' ? 'Seconds' : 'Reps'}>
+                {reps}
+              </div>
+              <span className="counter-sub">{mode === 'time' ? 'sec' : 'reps'}</span>
+            </div>
+            <button
+              className="counter-button"
+              onClick={() => setReps((r) => r + repStep)}
+              aria-label={mode === 'time' ? 'Add 5 seconds' : 'Add one rep'}
+            >
+              +
+            </button>
           </div>
-          <button
-            className="counter-button"
-            onClick={() => setReps((r) => r + repStep)}
-            aria-label={mode === 'time' ? 'Add 5 seconds' : 'Add one rep'}
-          >
-            +
+
+          <button className="finish-button" disabled={reps === 0} onClick={finishSet}>
+            Finish set
           </button>
         </div>
-
-        <button className="finish-button" disabled={reps === 0} onClick={finishSet}>
-          Finish set
-        </button>
 
         {historySets.length > 0 && (
           <div className="zone-card">

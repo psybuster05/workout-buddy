@@ -379,6 +379,13 @@ h1 {
   color: var(--text-dim);
 }
 
+/* the log card holds big controls, not text — more breathing room than the
+   text cards, and its top padding clears the notched label */
+.log-card {
+  gap: 14px;
+  padding-top: 22px;
+}
+
 .target-line {
   display: flex;
   gap: 24px;
