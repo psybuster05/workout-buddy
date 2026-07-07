@@ -70,7 +70,9 @@ function History({ exercises, onBack }) {
                 return (
                   <li key={s.date} className="history-entry">
                     <span className="history-date">{s.date}</span>
-                    <span className="history-sets">{formatSession(s)}</span>
+                    <span className="history-sets">
+                      {formatSession(s, exercise.tracking ?? 'weighted')}
+                    </span>
                     <button
                       className={isArmed ? 'history-delete armed' : 'history-delete'}
                       onClick={() => handleDelete(exercise.id, s.date)}

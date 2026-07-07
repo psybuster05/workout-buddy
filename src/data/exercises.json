@@ -62,12 +62,13 @@
       "name": "Assisted Hangs / Progression",
       "day": "Wed — Pull",
       "target": { "sets": "3–4" },
+      "tracking": "time",
       "videoUrl": "https://www.youtube.com/embed/fq9gDvNZQ2c",
       "instructions": [
         "Full grip on the bar, hands about shoulder width",
         "Keep shoulders active — pull them slightly down away from ears",
         "Use feet on a box/band only as much as needed, arms stay straight",
-        "Build time under tension; log seconds as reps"
+        "Build time under tension — count the seconds"
       ],
       "restSeconds": 90
     },
@@ -76,6 +77,7 @@
       "name": "Scap Pull-Ups",
       "day": "Wed — Pull",
       "target": { "sets": "3", "reps": "6–10" },
+      "tracking": "reps-only",
       "videoUrl": "https://www.youtube.com/embed/9M8ylnbriB0",
       "instructions": [
         "Start from a dead hang, arms completely straight",

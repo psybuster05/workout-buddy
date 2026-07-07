@@ -5,6 +5,10 @@ import { formatSession } from '../format.js'
 import { dayAccent } from '../theme.js'
 
 function Exercise({ exercise, onBack }) {
+  // weighted (default): weight + reps · reps-only: no weight row ·
+  // time: no weight row, counter is seconds stored in the reps field
+  const mode = exercise.tracking ?? 'weighted'
+  const repStep = mode === 'time' ? 5 : 1
   // "last time" = most recent previous day; today's in-progress sets reload
   // from storage so leaving and reopening the screen mid-workout loses nothing
   const [last] = useState(() => lastSession(exercise.id))
@@ -31,7 +35,10 @@ function Exercise({ exercise, onBack }) {
   }
 
   const finishSet = () => {
-    const session = logSet(exercise.id, { reps, weight: Number(weight) || 0 })
+    const session = logSet(exercise.id, {
+      reps,
+      weight: mode === 'weighted' ? Number(weight) || 0 : 0,
+    })
     setSets([...session.sets])
     setReps(lastSetFor(session.sets.length)?.reps ?? 0)
     // iOS only lets audio start from a user gesture — unlock the context on
@@ -57,7 +64,8 @@ function Exercise({ exercise, onBack }) {
             {exercise.target.reps && <span>Reps: {exercise.target.reps}</span>}
           </div>
         )}
-        {last && <p className="last-time">Last time: {formatSession(last)}</p>}
+        {last && <p className="last-time">Last time: {formatSession(last, mode)}</p>}
+        {mode === 'weighted' && (
         <div className="counter-row">
           <button
             className="counter-button"
@@ -90,26 +98,27 @@ function Exercise({ exercise, onBack }) {
             +
           </button>
         </div>
+        )}
 
         <div className="counter-row">
           <button
             className="counter-button"
-            onClick={() => setReps((r) => Math.max(0, r - 1))}
+            onClick={() => setReps((r) => Math.max(0, r - repStep))}
             disabled={reps === 0}
-            aria-label="Subtract one rep"
+            aria-label={mode === 'time' ? 'Subtract 5 seconds' : 'Subtract one rep'}
           >
             −
           </button>
           <div className="counter-value-wrap">
-            <div className="counter-value" aria-label="Reps">
+            <div className="counter-value" aria-label={mode === 'time' ? 'Seconds' : 'Reps'}>
               {reps}
             </div>
-            <span className="counter-sub">reps</span>
+            <span className="counter-sub">{mode === 'time' ? 'sec' : 'reps'}</span>
           </div>
           <button
             className="counter-button"
-            onClick={() => setReps((r) => r + 1)}
-            aria-label="Add one rep"
+            onClick={() => setReps((r) => r + repStep)}
+            aria-label={mode === 'time' ? 'Add 5 seconds' : 'Add one rep'}
           >
             +
           </button>
@@ -133,7 +142,8 @@ function Exercise({ exercise, onBack }) {
           <ol className="set-log">
             {sets.map((s, i) => (
               <li key={i}>
-                Set {i + 1} — {s.reps} reps @ {s.weight} lbs
+                Set {i + 1} — {s.reps} {mode === 'time' ? 'sec' : 'reps'}
+                {mode === 'weighted' && ` @ ${s.weight} lbs`}
               </li>
             ))}
           </ol>
