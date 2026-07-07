@@ -168,6 +168,12 @@ Cloud sync, accounts, charts/graphs, in-app exercise editing, PWA service-worker
 - formatSession(session, mode): weighted "3×8 @ 45 lbs"; reps-only "3×8" / "8, 6, 5 reps"; time "3×30s" / "30s, 25s, 20s". Set log lines mode-aware too.
 - NOT in scope (user decision): recording the user's body weight anywhere — possible future feature.
 
+### 2026-07-07 — Gym backdrop + bulleted card labels
+- Background: user-provided gym photo (workoutbuddybg) as a fixed `body::before` layer, `cover`, blurred 3px + dark gradient overlay for readability. Frosted cards over it (`.zone-card` translucent fill + backdrop-blur) + `.exercise-button`/list translucent so the scene shows through.
+- **Stacking gotcha fixed**: `body` had an opaque `background`, so the `z-index:-1` pseudo painted *below* body's own fill (invisible). Moved the page background to `html` only; body stays transparent so the backdrop shows. (If a future full-page ::before backdrop goes black, this is why.)
+- **Image optimized 90×**: the supplied PNG was 1024×1536 / 2 MB. No image tooling on the machine (no sharp/imagemagick), so downscaled it to 512×768 JPEG q0.7 (~23 KB) via a canvas in the preview browser (`toDataURL`), wrote the base64 to disk with node. Since the backdrop is blurred, quality is identical. Referenced from CSS via relative `url('./assets/…jpg')` so Vite hashes + rebases it.
+- Card labels: replaced the notched-into-border style with a header row led by a "cool" accent diamond (`.zone-card-label::before`, 7px square rotated 45°). No more absolute positioning / bg mask. (This is the "notches → bullet points" change; if Jon meant the form-cue bars instead, that's the swap.)
+
 ### 2026-07-07 — Global chrome: sticky header, global burger + footer
 - Burger menu and footer moved from Home up to App, wrapping every screen (`.app` centered column holds sticky header + screenEl + footer + rest bar). Home lost its own header/h1/menu/footer; its useState went too.
 - New global sticky `.app-header`: "Workout Buddy." wordmark (accent dot, tap → home) on the left, burger on the right. Gradient background (var(--bg) → transparent, top to bottom) so content scrolls under and fades; `pointer-events: none` on the header with `auto` on brand/menu so the fade zone doesn't eat taps. Brand kept small (1.125rem) so it reads as chrome, not competing with screen h1s.

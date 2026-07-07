@@ -16,9 +16,14 @@
   padding: 0;
 }
 
+/* background lives on html only — body stays transparent so the fixed
+   body::before backdrop (z-index -1) isn't hidden behind body's own fill */
+html {
+  background: var(--bg);
+}
+
 html,
 body {
-  background: var(--bg);
   color: var(--text);
   -webkit-text-size-adjust: 100%;
 }
@@ -28,6 +33,19 @@ body {
      screen — top inset is handled by the sticky .app-header instead */
   padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom)
     env(safe-area-inset-left);
+}
+
+/* moody gym backdrop: blurred + darkened so content stays readable. oversized
+   past the viewport so the blur radius never reveals a hard edge. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: -24px;
+  z-index: -1;
+  background:
+    linear-gradient(rgba(10, 10, 12, 0.1), rgba(10, 10, 12, 0.45)),
+    url('./assets/workoutbuddybg.jpg') center / cover no-repeat;
+  filter: blur(3px);
 }
 
 /* centered app column holding the global header, the active screen, footer */
@@ -349,33 +367,42 @@ h1 {
   gap: 18px;
 }
 
-/* outlined sub-sections (Target, History) with the label notched onto the top
-   border — the label's solid bg masks the border segment behind it */
+/* outlined sub-sections (Target, This Set, History, Form). Translucent dark
+   fill lifts the content off the gym backdrop; the label is a header row led
+   by a cool accent diamond. */
 .zone-card {
-  position: relative;
   border: 1px solid var(--border);
   border-radius: 16px;
-  padding: 18px 16px 16px;
+  padding: 14px 16px 16px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   font-size: 1.0625rem;
   color: var(--text-dim);
+  background: rgba(10, 10, 12, 0.32);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 
 .zone-card-label {
-  position: absolute;
-  top: 0;
-  left: 14px;
-  transform: translateY(-50%);
-  padding: 0 8px;
-  background: var(--bg);
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 0.75rem;
   font-weight: 800;
   font-style: italic;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--accent);
+}
+
+.zone-card-label::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  background: var(--accent);
+  transform: rotate(45deg);
+  border-radius: 1px;
 }
 
 .zone-caption {
@@ -387,7 +414,6 @@ h1 {
    text cards, and its top padding clears the notched label */
 .log-card {
   gap: 14px;
-  padding-top: 22px;
 }
 
 .target-line {
