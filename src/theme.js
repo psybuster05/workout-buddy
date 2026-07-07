@@ -13,9 +13,9 @@ export function dayAccent(day) {
 // per-day mega-button background photos, served from public/days/ (runtime URL,
 // so Jon can swap the files without a rebuild)
 const DAY_IMAGES = {
-  'Mon — Push': 'push.png',
-  'Wed — Pull': 'pull.png',
-  'Fri — Legs': 'leg.png',
+  'Mon — Push': 'push.jpg',
+  'Wed — Pull': 'pull.jpg',
+  'Fri — Legs': 'leg.jpg',
 }
 
 export function dayImage(day) {
