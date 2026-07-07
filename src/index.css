@@ -257,17 +257,10 @@ h1 {
   color: var(--accent);
 }
 
-/* Weight and reps share one control language: label above, −/value/＋ row,
-   identical button and value treatment (the weight value is an input so
-   keyboard entry stays possible; it must look the same as the rep value). */
-.counter-field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  font-size: 0.9375rem;
-  color: var(--text-dim);
-}
-
+/* Weight and reps share one control language: −/value/＋ row with a small
+   unit label under the value ("lbs" / "reps"); identical button and value
+   treatment (the weight value is an input so keyboard entry stays possible;
+   it must look the same as the rep value). */
 .counter-row {
   display: flex;
   align-items: stretch;
@@ -298,9 +291,17 @@ h1 {
   background: transparent;
 }
 
-.counter-value {
+.counter-value-wrap {
   flex-shrink: 0;
   width: 110px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.counter-value {
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -314,6 +315,14 @@ h1 {
   background: transparent;
   border: none;
   border-radius: 12px;
+  line-height: 1.1;
+}
+
+.counter-sub {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-dim);
+  padding-top: 2px;
 }
 
 input.counter-value:focus {

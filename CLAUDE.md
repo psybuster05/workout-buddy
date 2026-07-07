@@ -160,3 +160,6 @@ Cloud sync, accounts, charts/graphs, in-app exercise editing, PWA service-worker
 
 ### 2026-07-06 — Target copy restructured
 - `target` schema changed from free string ("3–4 × 8–12") to `{ sets, reps }` object, rendered as a centered bold two-line block ("Sets: 3–4" / "Reps: 8–12"). Reps key optional — assisted hangs are time-based and show sets only; reverse lunges keep "8–10 / leg" in reps. Data shapes section updated.
+
+### 2026-07-06 — Counter labels moved under values
+- "Weight (lbs)" / "Reps" headers above the counter rows removed; small dim unit labels ("lbs" / "reps") sit under the values instead — the old step-2 rep-counter style, now on both rows. .counter-value-wrap column keeps the 110px value slot; buttons unchanged at 72px, rows still pixel-identical.
