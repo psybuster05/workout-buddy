@@ -323,9 +323,12 @@ h1 {
   border: 0;
 }
 
+.cues-card {
+  margin-top: 18px;
+}
+
 .cues {
   list-style: none;
-  padding: 16px 0 8px;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -336,6 +339,7 @@ h1 {
   border-left: 3px solid var(--accent);
   font-size: 1.0625rem;
   line-height: 1.4;
+  color: var(--text);
 }
 
 .session-zone {

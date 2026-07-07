@@ -180,11 +180,14 @@ function Exercise({ exercise, onStartRest }) {
         />
       </div>
 
-      <ul className="cues">
-        {exercise.instructions.map((cue) => (
-          <li key={cue}>{cue}</li>
-        ))}
-      </ul>
+      <div className="zone-card cues-card">
+        <span className="zone-card-label">Form</span>
+        <ul className="cues">
+          {exercise.instructions.map((cue) => (
+            <li key={cue}>{cue}</li>
+          ))}
+        </ul>
+      </div>
     </div>
   )
 }
