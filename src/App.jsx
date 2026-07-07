@@ -111,7 +111,7 @@ function App() {
       {screenEl}
 
       <footer className="app-footer">
-        <p>© 2026 Workout Buddy — all gains reserved 💪</p>
+        <p>© 2026 Workout Buddy — all gains reserved</p>
         <p>Last updated {__BUILD_DATE__}</p>
       </footer>
 

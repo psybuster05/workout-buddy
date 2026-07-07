@@ -51,6 +51,11 @@ h1 {
   padding: 8px 0 16px;
 }
 
+/* sized so even the longest exercise name stays on one line */
+.exercise-title {
+  font-size: 1.25rem;
+}
+
 /* --- page transitions (View Transitions API) --- */
 
 @media (prefers-reduced-motion: no-preference) {
@@ -203,7 +208,7 @@ h1 {
   margin: 44px 16px 0;
   text-align: center;
   font-size: 0.8125rem;
-  color: var(--text-dim);
+  color: #5b5b63;
   line-height: 1.7;
 }
 
@@ -344,23 +349,29 @@ h1 {
   gap: 16px;
 }
 
-.target-block {
+/* labeled sub-sections inside the session zone (Target, History) */
+.zone-section {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 2px;
+  gap: 8px;
   font-size: 1.0625rem;
-  font-weight: 700;
+  color: var(--text-dim);
 }
 
-.target-block + .last-time {
-  margin-top: -6px;
-}
-
-.last-time {
-  font-size: 1rem;
-  font-weight: 700;
+.zone-label {
+  font-size: 0.8125rem;
+  font-weight: 800;
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
   color: var(--accent);
+}
+
+.target-line {
+  display: flex;
+  gap: 24px;
+  font-weight: 700;
+  color: var(--text);
 }
 
 /* Weight and reps share one control language: −/value/＋ row with a small
@@ -569,23 +580,6 @@ input.counter-value::-webkit-inner-spin-button {
   background: var(--surface-pressed);
   color: var(--text-dim);
   box-shadow: none;
-}
-
-.set-log {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  font-size: 1.0625rem;
-  color: var(--text-dim);
-}
-
-.set-log-label {
-  font-size: 0.8125rem;
-  font-weight: 800;
-  font-style: italic;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--accent);
 }
 
 .set-log-line {

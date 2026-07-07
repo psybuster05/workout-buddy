@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { deleteLastSet, lastSession, logSet, todaySession } from '../storage.js'
-import { formatSession } from '../format.js'
 import { dayAccent } from '../theme.js'
 
 function Exercise({ exercise, onStartRest }) {
@@ -54,16 +53,18 @@ function Exercise({ exercise, onStartRest }) {
 
   return (
     <div className="screen" style={{ '--accent': dayAccent(exercise.day) }}>
-      <h1>{exercise.name}</h1>
+      <h1 className="exercise-title">{exercise.name}</h1>
 
       <section className="session-zone">
         {exercise.target && (
-          <div className="target-block">
-            {exercise.target.sets && <span>Sets: {exercise.target.sets}</span>}
-            {exercise.target.reps && <span>Reps: {exercise.target.reps}</span>}
+          <div className="zone-section">
+            <span className="zone-label">Target</span>
+            <p className="target-line">
+              {exercise.target.sets && <span>Sets: {exercise.target.sets}</span>}
+              {exercise.target.reps && <span>Reps: {exercise.target.reps}</span>}
+            </p>
           </div>
         )}
-        {last && <p className="last-time">Last time: {formatSession(last, mode)}</p>}
         {mode === 'weighted' && (
         <div className="counter-row">
           <button
@@ -128,8 +129,8 @@ function Exercise({ exercise, onStartRest }) {
         </button>
 
         {sets.length > 0 && (
-          <div className="set-log">
-            <span className="set-log-label">History</span>
+          <div className="zone-section">
+            <span className="zone-label">History</span>
             {sets.length === 1 ? (
               <p className="set-log-line">{setLine(sets[0], 0)}</p>
             ) : (

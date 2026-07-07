@@ -174,6 +174,12 @@ Cloud sync, accounts, charts/graphs, in-app exercise editing, PWA service-worker
 - Safe-area top inset moved off body onto the header's padding-top (`calc(14px + env(safe-area-inset-top))`) so the sticky bar owns the notch area. Body keeps R/B/L insets.
 - header + footer given `view-transition-name` (app-header / app-footer) so they stay put while only the screen content cross-fades on navigation. `#root:has(.rest-timer)` padding moved from `.screen` to `.app`.
 
+### 2026-07-07 — Session zone: labeled Target/History sections, one-line title
+- Target and set-log History are now consistent labeled sub-sections (`.zone-section` + accent `.zone-label`), replacing the old centered two-line `.target-block` and the `.set-log`/`.set-log-label`. Target values sit on one line (`.target-line` flex row: "Sets: 3–4   Reps: 8–12"), no line break.
+- "Last time" line removed from the Exercise screen (the set-for-set weight/reps prefill it fed still works — only the text display is gone; `formatSession` import dropped from Exercise).
+- Exercise title scoped to `.exercise-title` at 1.25rem so even the longest name ("Assisted Hangs / Progression") stays on one line; History screen h1 keeps the 1.875rem size.
+- Footer: emoji removed (pun kept — "all gains reserved"), color darkened to #5b5b63 for a subtler look.
+
 ### 2026-07-07 — Back button in the sticky header; footer rule removed
 - Sub-pages (Exercise, History) now show a "‹ Back" button in the sticky header's left slot instead of the "Workout Buddy." wordmark; Home still shows the wordmark. App decides via `screen === 'home'`. Both screens' back goes to Home, so the header button just calls goHome — the `onBack` prop was dropped from Exercise and History.
 - In-screen `.back-button` removed from both screens (it used to scroll away under the sticky header — the whole point). `.app-header .back-button` needs `pointer-events: auto` since the header itself is pointer-events:none.
