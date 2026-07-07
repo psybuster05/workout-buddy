@@ -132,6 +132,7 @@ function Exercise({ exercise, onBack, onStartRest }) {
 
         {sets.length > 0 && (
           <div className="set-log">
+            <span className="set-log-label">History</span>
             {sets.length === 1 ? (
               <p className="set-log-line">{setLine(sets[0], 0)}</p>
             ) : (

@@ -80,25 +80,84 @@ h1 {
   gap: 12px;
 }
 
-.history-button {
-  min-height: 48px;
-  padding: 8px 18px;
-  font-size: 0.9375rem;
-  font-weight: 800;
-  font-style: italic;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--bg);
-  background: var(--accent);
-  border: none;
+.menu {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.menu-button {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 48px;
+  height: 48px;
+  padding: 0 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 12px;
-  box-shadow: 0 8px 24px -10px var(--accent);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
 
-.history-button:active {
-  filter: brightness(1.15);
+.menu-button span {
+  display: block;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--text);
+}
+
+.menu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+}
+
+.menu-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 41;
+  min-width: 190px;
+  display: flex;
+  flex-direction: column;
+  background: rgba(20, 20, 26, 0.98);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.7);
+  overflow: hidden;
+}
+
+.menu-dropdown button {
+  min-height: 54px;
+  padding: 0 18px;
+  text-align: left;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--text);
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.menu-dropdown button:last-child {
+  border-bottom: none;
+}
+
+.menu-dropdown button:active {
+  background: var(--surface-pressed);
+}
+
+.app-footer {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  font-size: 0.8125rem;
+  color: var(--text-dim);
+  line-height: 1.7;
 }
 
 .day-group h2 {
@@ -471,6 +530,15 @@ input.counter-value::-webkit-inner-spin-button {
   gap: 8px;
   font-size: 1.0625rem;
   color: var(--text-dim);
+}
+
+.set-log-label {
+  font-size: 0.8125rem;
+  font-weight: 800;
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent);
 }
 
 .set-log-line {

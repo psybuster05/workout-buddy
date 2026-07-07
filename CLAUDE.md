@@ -168,6 +168,11 @@ Cloud sync, accounts, charts/graphs, in-app exercise editing, PWA service-worker
 - formatSession(session, mode): weighted "3×8 @ 45 lbs"; reps-only "3×8" / "8, 6, 5 reps"; time "3×30s" / "30s, 25s, 20s". Set log lines mode-aware too.
 - NOT in scope (user decision): recording the user's body weight anywhere — possible future feature.
 
+### 2026-07-07 — Burger menu, footer, set-log "History" label
+- Home header's History button replaced by a ☰ burger menu (Home.jsx local menuOpen state + click-outside backdrop). Menu items: History (→ history screen) and Rest Timer (→ App's startRest(90); the timer is app-level so it can be launched standalone). Old .history-button CSS removed.
+- Footer on Home: "© 2026 Workout Buddy — all gains reserved 💪" + "Last updated {date}". Date is `__BUILD_DATE__`, injected via vite.config define (`new Date().toISOString().slice(0,10)`) so it auto-stamps each deploy; added to eslint globals.
+- Exercise set-log drawer now has a small "History" section label above it.
+
 ### 2026-07-07 — Persistent rest timer + +15s + set-log drawer
 - Rest timer state (endsAt/total/id) and the AudioContext ref moved from Exercise up to App; the timer renders as a fixed floating bar OUTSIDE the swapped screens, so it keeps running while navigating exercise→home→exercise mid-rest. App passes `onStartRest(seconds)` to Exercise (does the iOS audio unlock, still inside the Finish-set tap gesture).
 - RestTimer keyed on rest.id (set once per rest, not on extend) → fresh rest remounts, +15 doesn't flicker. `+15s` button bumps both endsAt and total (bar stays proportional, guarded with Math.min(100,…)).

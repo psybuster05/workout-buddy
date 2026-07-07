@@ -66,6 +66,7 @@ function App() {
         exercises={data.exercises}
         onSelect={openExercise}
         onHistory={goHistory}
+        onStartRest={() => startRest(90)}
       />
     )
   }
