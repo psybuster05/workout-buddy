@@ -238,14 +238,17 @@ h1 {
   gap: 16px;
 }
 
-.target-line {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--text-dim);
+.target-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-size: 1.0625rem;
+  font-weight: 700;
 }
 
-.target-line + .last-time {
-  margin-top: -8px;
+.target-block + .last-time {
+  margin-top: -6px;
 }
 
 .last-time {

@@ -5,7 +5,7 @@
       "id": "flat-dumbbell-press",
       "name": "Dumbbell Bench Press",
       "day": "Mon — Push",
-      "target": "3–4 × 8–12",
+      "target": { "sets": "3–4", "reps": "8–12" },
       "videoUrl": "https://www.youtube.com/embed/VmB1G1K7v94",
       "instructions": [
         "Feet planted, slight arch, shoulder blades pinched back and down",
@@ -19,7 +19,7 @@
       "id": "overhead-press",
       "name": "Overhead Press",
       "day": "Mon — Push",
-      "target": "3 × 8–12",
+      "target": { "sets": "3", "reps": "8–12" },
       "videoUrl": "https://www.youtube.com/embed/qEwKCR5JCog",
       "instructions": [
         "Start with dumbbells at shoulder height, palms forward",
@@ -33,7 +33,7 @@
       "id": "lateral-raises",
       "name": "Lateral Raises",
       "day": "Mon — Push",
-      "target": "3 × 12–20",
+      "target": { "sets": "3", "reps": "12–20" },
       "videoUrl": "https://www.youtube.com/embed/PzsMitRdI_8",
       "instructions": [
         "Slight bend in elbows, lead with the elbows not the hands",
@@ -47,7 +47,7 @@
       "id": "lying-triceps-extensions",
       "name": "Lying Triceps Extensions",
       "day": "Mon — Push",
-      "target": "2–3 × 10–15",
+      "target": { "sets": "2–3", "reps": "10–15" },
       "videoUrl": "https://www.youtube.com/embed/MO_03opCc0g",
       "instructions": [
         "Lie back, dumbbells pressed up over chest, palms facing each other",
@@ -61,7 +61,7 @@
       "id": "assisted-hangs",
       "name": "Assisted Hangs / Progression",
       "day": "Wed — Pull",
-      "target": "3–4 sets",
+      "target": { "sets": "3–4" },
       "videoUrl": "https://www.youtube.com/embed/fq9gDvNZQ2c",
       "instructions": [
         "Full grip on the bar, hands about shoulder width",
@@ -75,7 +75,7 @@
       "id": "scap-pull-ups",
       "name": "Scap Pull-Ups",
       "day": "Wed — Pull",
-      "target": "3 × 6–10",
+      "target": { "sets": "3", "reps": "6–10" },
       "videoUrl": "https://www.youtube.com/embed/9M8ylnbriB0",
       "instructions": [
         "Start from a dead hang, arms completely straight",
@@ -89,7 +89,7 @@
       "id": "dumbbell-row",
       "name": "One-Arm Dumbbell Rows",
       "day": "Wed — Pull",
-      "target": "4 × 8–12",
+      "target": { "sets": "4", "reps": "8–12" },
       "videoUrl": "https://www.youtube.com/embed/pYcpY20QaE8",
       "instructions": [
         "Knee and hand on bench, back flat like a table",
@@ -103,7 +103,7 @@
       "id": "incline-dumbbell-curl",
       "name": "Incline Dumbbell Curl",
       "day": "Wed — Pull",
-      "target": "3 × 10–15",
+      "target": { "sets": "3", "reps": "10–15" },
       "videoUrl": "https://www.youtube.com/embed/DCe8f6vMe9A",
       "instructions": [
         "Bench at ~45°, sit back fully, arms hanging straight down",
@@ -117,7 +117,7 @@
       "id": "preacher-curl",
       "name": "Preacher Curl",
       "day": "Wed — Pull",
-      "target": "2–3 × 10–15",
+      "target": { "sets": "2–3", "reps": "10–15" },
       "videoUrl": "https://www.youtube.com/embed/RT5LFzBUvno",
       "instructions": [
         "Brace upper arm on the incline bench (or your thigh), armpit snug against the pad",
@@ -131,7 +131,7 @@
       "id": "goblet-squat",
       "name": "Goblet Squat",
       "day": "Fri — Legs",
-      "target": "4 × 10–15",
+      "target": { "sets": "4", "reps": "10–15" },
       "videoUrl": "https://www.youtube.com/embed/MxsFDhcyFyE",
       "instructions": [
         "Hold dumbbell vertically against chest, elbows down",
@@ -145,7 +145,7 @@
       "id": "romanian-deadlift",
       "name": "Romanian Deadlift",
       "day": "Fri — Legs",
-      "target": "3 × 8–12",
+      "target": { "sets": "3", "reps": "8–12" },
       "videoUrl": "https://www.youtube.com/embed/hQgFixeXdZo",
       "instructions": [
         "Soft knees — this is a hip hinge, not a squat",
@@ -159,7 +159,7 @@
       "id": "reverse-lunges",
       "name": "Reverse Lunges",
       "day": "Fri — Legs",
-      "target": "2–3 × 8–10 / leg",
+      "target": { "sets": "2–3", "reps": "8–10 / leg" },
       "videoUrl": "https://www.youtube.com/embed/J9MpoAQCjos",
       "instructions": [
         "Dumbbells at sides, step one foot straight back",
@@ -173,7 +173,7 @@
       "id": "calf-raise",
       "name": "Calf Raises",
       "day": "Fri — Legs",
-      "target": "3 × 12–20",
+      "target": { "sets": "3", "reps": "12–20" },
       "videoUrl": "https://www.youtube.com/embed/gwLzBJYoWlI",
       "instructions": [
         "Balls of feet on edge, heels hanging",

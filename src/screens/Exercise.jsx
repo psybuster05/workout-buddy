@@ -51,7 +51,12 @@ function Exercise({ exercise, onBack }) {
       <h1>{exercise.name}</h1>
 
       <section className="session-zone">
-        {exercise.target && <p className="target-line">Target: {exercise.target}</p>}
+        {exercise.target && (
+          <div className="target-block">
+            {exercise.target.sets && <span>Sets: {exercise.target.sets}</span>}
+            {exercise.target.reps && <span>Reps: {exercise.target.reps}</span>}
+          </div>
+        )}
         {last && <p className="last-time">Last time: {formatSession(last)}</p>}
         <div className="counter-field">
           <label htmlFor="weight-input">Weight (lbs)</label>

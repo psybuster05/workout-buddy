@@ -22,7 +22,7 @@ Personal workout tracker web app. One user (Jon), used on an iPhone browser mid-
   "id": "goblet-squat",
   "name": "Goblet Squat",
   "day": "Fri — Legs",
-  "target": "4 × 10–15",
+  "target": { "sets": "4", "reps": "10–15" },
   "videoUrl": "https://www.youtube.com/embed/VIDEO_ID",
   "instructions": ["Cue 1", "Cue 2"],
   "restSeconds": 90
@@ -157,3 +157,6 @@ Cloud sync, accounts, charts/graphs, in-app exercise editing, PWA service-worker
 - gym-bg.svg backdrop removed (user verdict: not really visible — solid near-black instead). backdrop-filter frosting removed with it (nothing left to blur); surfaces keep their translucent rgba.
 - --border lightened 0.08 → 0.16 alpha; History button now accent-red CTA style matching Finish/Export.
 - History entries deletable (accidental logs): ✕ on each session row → first tap arms it ("Delete?" in red), second tap deletes; auto-disarms after 3s. Two-tap instead of confirm() — no browser chrome, no accidental single-tap deletes. storage.js deleteSession(exerciseId, date); a session is unique per exercise+date.
+
+### 2026-07-06 — Target copy restructured
+- `target` schema changed from free string ("3–4 × 8–12") to `{ sets, reps }` object, rendered as a centered bold two-line block ("Sets: 3–4" / "Reps: 8–12"). Reps key optional — assisted hangs are time-based and show sets only; reverse lunges keep "8–10 / leg" in reps. Data shapes section updated.
