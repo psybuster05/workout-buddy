@@ -1,10 +1,30 @@
-import { useState } from 'react'
-import { exportJSON, loadStore } from '../storage.js'
+import { useEffect, useRef, useState } from 'react'
+import { deleteSession, exportJSON, loadStore } from '../storage.js'
 import { formatSession } from '../format.js'
 import { dayAccent } from '../theme.js'
 
 function History({ exercises, onBack }) {
-  const [store] = useState(() => loadStore())
+  const [store, setStore] = useState(() => loadStore())
+  // delete needs two taps: the first arms the button, the second commits;
+  // an armed button disarms itself after a beat so a stray tap can't linger
+  const [armed, setArmed] = useState(null)
+  const disarmTimer = useRef(null)
+
+  useEffect(() => () => clearTimeout(disarmTimer.current), [])
+
+  const handleDelete = (exerciseId, date) => {
+    const key = `${exerciseId}|${date}`
+    if (armed !== key) {
+      setArmed(key)
+      clearTimeout(disarmTimer.current)
+      disarmTimer.current = setTimeout(() => setArmed(null), 3000)
+      return
+    }
+    clearTimeout(disarmTimer.current)
+    deleteSession(exerciseId, date)
+    setArmed(null)
+    setStore(loadStore())
+  }
 
   const byExercise = exercises
     .map((exercise) => ({
@@ -45,12 +65,26 @@ function History({ exercises, onBack }) {
           >
             <h2>{exercise.name}</h2>
             <ul className="history-list">
-              {sessions.map((s) => (
-                <li key={s.date} className="history-entry">
-                  <span className="history-date">{s.date}</span>
-                  <span className="history-sets">{formatSession(s)}</span>
-                </li>
-              ))}
+              {sessions.map((s) => {
+                const isArmed = armed === `${exercise.id}|${s.date}`
+                return (
+                  <li key={s.date} className="history-entry">
+                    <span className="history-date">{s.date}</span>
+                    <span className="history-sets">{formatSession(s)}</span>
+                    <button
+                      className={isArmed ? 'history-delete armed' : 'history-delete'}
+                      onClick={() => handleDelete(exercise.id, s.date)}
+                      aria-label={
+                        isArmed
+                          ? `Confirm delete ${exercise.name} on ${s.date}`
+                          : `Delete ${exercise.name} on ${s.date}`
+                      }
+                    >
+                      {isArmed ? 'Delete?' : '✕'}
+                    </button>
+                  </li>
+                )
+              })}
             </ul>
           </section>
         ))

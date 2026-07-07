@@ -3,7 +3,7 @@
   --bg: #0a0a0c;
   --surface: rgba(22, 22, 28, 0.55);
   --surface-pressed: rgba(255, 255, 255, 0.12);
-  --border: rgba(255, 255, 255, 0.08);
+  --border: rgba(255, 255, 255, 0.16);
   --text: #f5f5f7;
   --text-dim: #9a9aa3;
   --accent: #ff3b3b;
@@ -21,18 +21,6 @@ body {
   background: var(--bg);
   color: var(--text);
   -webkit-text-size-adjust: 100%;
-}
-
-/* blurred gym backdrop: bundled SVG scene under a readability gradient */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  background:
-    linear-gradient(180deg, rgba(10, 10, 12, 0.5), rgba(10, 10, 12, 0.3) 35%, rgba(10, 10, 12, 0.82)),
-    url('./assets/gym-bg.svg') center / cover no-repeat,
-    var(--bg);
 }
 
 body {
@@ -100,18 +88,17 @@ h1 {
   font-style: italic;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: var(--text);
-  background: var(--surface);
-  border: 1px solid var(--border);
+  color: var(--bg);
+  background: var(--accent);
+  border: none;
   border-radius: 12px;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 8px 24px -10px var(--accent);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
 
 .history-button:active {
-  background: var(--surface-pressed);
+  filter: brightness(1.15);
 }
 
 .day-group h2 {
@@ -145,8 +132,6 @@ h1 {
   border: 1px solid var(--border);
   border-left: 4px solid var(--accent);
   border-radius: 14px;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
@@ -197,8 +182,6 @@ h1 {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
 }
 
 .lock-form input:focus {
@@ -250,8 +233,6 @@ h1 {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 18px;
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -473,15 +454,42 @@ input.counter-value::-webkit-inner-spin-button {
 
 .history-entry {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 12px;
-  min-height: 44px;
-  padding: 10px 16px;
+  min-height: 52px;
+  padding: 6px 6px 6px 16px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+}
+
+.history-sets {
+  flex: 1;
+}
+
+.history-delete {
+  flex-shrink: 0;
+  min-width: 44px;
+  min-height: 44px;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* first tap arms the delete; second tap actually deletes */
+.history-delete.armed {
+  color: var(--bg);
+  background: var(--accent);
+  font-size: 0.875rem;
+  font-weight: 800;
+  font-style: italic;
+  text-transform: uppercase;
+  padding: 0 12px;
 }
 
 .history-date {

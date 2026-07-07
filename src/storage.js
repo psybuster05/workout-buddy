@@ -58,6 +58,16 @@ export function exportJSON() {
   return JSON.stringify(loadStore(), null, 2)
 }
 
+// Remove one logged session (accidental entries). A session is uniquely
+// identified by exercise + date since logSet keeps one per exercise per day.
+export function deleteSession(exerciseId, date) {
+  const store = loadStore()
+  store.sessions = store.sessions.filter(
+    (s) => !(s.exerciseId === exerciseId && s.date === date)
+  )
+  saveStore(store)
+}
+
 // Most recent session from a previous day — "last time", not today's sets.
 export function lastSession(exerciseId) {
   const date = todayISO()

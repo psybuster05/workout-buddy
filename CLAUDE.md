@@ -152,3 +152,8 @@ Cloud sync, accounts, charts/graphs, in-app exercise editing, PWA service-worker
 - Cards are frosted: rgba surface + backdrop-filter blur (with -webkit- prefix for iOS).
 - Page transitions: document.startViewTransition(() => flushSync(update)) in App.jsx's withTransition helper wrapping all screen changes (View Transitions API, iOS 18+; plain switch as fallback). CSS: ::view-transition-old/new fade+slide, wrapped in prefers-reduced-motion: no-preference.
 - theme-color and favicon updated to match (#0a0a0c / red).
+
+### 2026-07-06 — Backdrop scrapped; History button, borders, deletable records
+- gym-bg.svg backdrop removed (user verdict: not really visible — solid near-black instead). backdrop-filter frosting removed with it (nothing left to blur); surfaces keep their translucent rgba.
+- --border lightened 0.08 → 0.16 alpha; History button now accent-red CTA style matching Finish/Export.
+- History entries deletable (accidental logs): ✕ on each session row → first tap arms it ("Delete?" in red), second tap deletes; auto-disarms after 3s. Two-tap instead of confirm() — no browser chrome, no accidental single-tap deletes. storage.js deleteSession(exerciseId, date); a session is unique per exercise+date.
