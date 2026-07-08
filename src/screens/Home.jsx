@@ -1,4 +1,4 @@
-import { dayImage } from '../theme.js'
+import { dayAccent, dayImage } from '../theme.js'
 
 const base = import.meta.env.BASE_URL
 
@@ -11,11 +11,14 @@ function Home({ days, exercises, onSelectDay }) {
           <button
             key={day}
             className="day-button"
-            style={{ '--day-img': `url(${base}days/${dayImage(day)})` }}
+            style={{
+              '--accent': dayAccent(day),
+              '--day-img': `url(${base}days/${dayImage(day)})`,
+            }}
             onClick={() => onSelectDay(day)}
-            aria-label={`${day}, ${count} exercises`}
           >
-            <span className="day-count">
+            <span className="day-button-title">{day}</span>
+            <span className="day-button-sub">
               {count} exercise{count === 1 ? '' : 's'}
             </span>
           </button>
