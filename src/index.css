@@ -59,6 +59,7 @@ body::before {
   flex-direction: column;
   min-height: 100vh;
   min-height: 100dvh;
+  min-height: 100dvh;
 }
 
 .screen {
@@ -156,20 +157,16 @@ h1 {
   pointer-events: auto;
 }
 
-.menu {
+/* rest-timer launcher (stopwatch icon), always in the sticky header */
+.timer-button {
   pointer-events: auto;
-  position: relative;
   flex-shrink: 0;
-}
-
-.menu-button {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 5px;
   width: 48px;
   height: 48px;
-  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text);
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -177,54 +174,39 @@ h1 {
   -webkit-tap-highlight-color: transparent;
 }
 
-.menu-button span {
-  display: block;
-  height: 2px;
-  border-radius: 2px;
-  background: var(--text);
+.timer-button:active {
+  background: var(--surface-pressed);
+  color: var(--accent);
 }
 
-.menu-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 40;
-}
-
-.menu-dropdown {
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
-  z-index: 41;
-  min-width: 190px;
+/* secondary action on Home — History lives here now (no more burger menu) */
+.home-history {
+  margin-top: 4px;
+  min-height: 54px;
   display: flex;
-  flex-direction: column;
-  background: rgba(20, 20, 26, 0.98);
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 1rem;
+  font-weight: 800;
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text);
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 14px;
-  box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.7);
-  overflow: hidden;
-}
-
-.menu-dropdown button {
-  min-height: 54px;
-  padding: 0 18px;
-  text-align: left;
-  font-size: 1.0625rem;
-  font-weight: 700;
-  color: var(--text);
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid var(--border);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
 
-.menu-dropdown button:last-child {
-  border-bottom: none;
+.home-history:active {
+  background: var(--surface-pressed);
 }
 
-.menu-dropdown button:active {
-  background: var(--surface-pressed);
+.home-history svg {
+  width: 18px;
+  height: 18px;
 }
 
 .app-footer {

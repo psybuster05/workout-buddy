@@ -2,7 +2,7 @@ import { dayAccent, dayImage, dayLabel } from '../theme.js'
 
 const base = import.meta.env.BASE_URL
 
-function Home({ days, exercises, onSelectDay }) {
+function Home({ days, exercises, onSelectDay, onHistory }) {
   return (
     <div className="screen home-days">
       {days.map((day) => {
@@ -24,6 +24,23 @@ function Home({ days, exercises, onSelectDay }) {
           </button>
         )
       })}
+
+      <button className="home-history" onClick={onHistory}>
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M3 3v5h5" />
+          <path d="M3.05 13A9 9 0 1 0 6 5.3L3 8" />
+          <path d="M12 7v5l4 2" />
+        </svg>
+        History
+      </button>
     </div>
   )
 }

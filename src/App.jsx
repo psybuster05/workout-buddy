@@ -27,7 +27,6 @@ function App() {
   // rest lives at the app level (not inside Exercise) so it keeps running while
   // Jon navigates between exercises mid-rest. { endsAt, total, id } | null
   const [rest, setRest] = useState(null)
-  const [menuOpen, setMenuOpen] = useState(false)
   const audioCtxRef = useRef(null)
 
   // called from the Finish-set tap, so the AudioContext unlock keeps its
@@ -64,11 +63,6 @@ function App() {
   const goBack = () =>
     withTransition(() => setScreen(screen === 'exercise' ? 'day' : 'home'))
 
-  const chooseMenu = (action) => {
-    setMenuOpen(false)
-    action()
-  }
-
   let screenEl
   if (screen === 'exercise') {
     const exercise = data.exercises.find((e) => e.id === exerciseId)
@@ -80,7 +74,14 @@ function App() {
   } else if (screen === 'history') {
     screenEl = <History exercises={data.exercises} />
   } else {
-    screenEl = <Home days={data.days} exercises={data.exercises} onSelectDay={openDay} />
+    screenEl = (
+      <Home
+        days={data.days}
+        exercises={data.exercises}
+        onSelectDay={openDay}
+        onHistory={goHistory}
+      />
+    )
   }
 
   return (
@@ -95,31 +96,28 @@ function App() {
             ‹ Back
           </button>
         )}
-        <div className="menu">
-          <button
-            className="menu-button"
-            aria-label="Menu"
-            aria-expanded={menuOpen}
-            onClick={() => setMenuOpen((o) => !o)}
+        <button
+          className="timer-button"
+          aria-label="Start rest timer"
+          onClick={() => startRest(90)}
+        >
+          <svg
+            viewBox="0 0 24 24"
+            width="22"
+            height="22"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
           >
-            <span />
-            <span />
-            <span />
-          </button>
-          {menuOpen && (
-            <>
-              <div className="menu-backdrop" onClick={() => setMenuOpen(false)} />
-              <div className="menu-dropdown" role="menu">
-                <button role="menuitem" onClick={() => chooseMenu(goHistory)}>
-                  History
-                </button>
-                <button role="menuitem" onClick={() => chooseMenu(() => startRest(90))}>
-                  Rest Timer
-                </button>
-              </div>
-            </>
-          )}
-        </div>
+            <line x1="9" y1="2.5" x2="15" y2="2.5" />
+            <line x1="12" y1="2.5" x2="12" y2="6" />
+            <circle cx="12" cy="14" r="8" />
+            <line x1="12" y1="14" x2="12" y2="9.5" />
+          </svg>
+        </button>
       </header>
 
       {screenEl}

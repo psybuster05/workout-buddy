@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { dayAccent } from '../theme.js'
+import { dayAccent, dayLabel } from '../theme.js'
 import { finishWorkout, startWorkout, todaySession, todayWorkout } from '../storage.js'
 
 // mm:ss, or h:mm:ss once a workout passes an hour
@@ -44,7 +44,7 @@ function Day({ day, exercises, onSelectExercise }) {
 
   return (
     <div className="screen" style={{ '--accent': dayAccent(day) }}>
-      <h1>{day}</h1>
+      <h1>{dayLabel(day)}</h1>
 
       <div className="zone-card workout-card">
         <span className="zone-card-label">Workout</span>
