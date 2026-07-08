@@ -1,4 +1,4 @@
-import { dayAccent, dayImage } from '../theme.js'
+import { dayAccent, dayImage, dayLabel } from '../theme.js'
 
 const base = import.meta.env.BASE_URL
 
@@ -17,7 +17,7 @@ function Home({ days, exercises, onSelectDay }) {
             }}
             onClick={() => onSelectDay(day)}
           >
-            <span className="day-button-title">{day}</span>
+            <span className="day-button-title">{dayLabel(day)}</span>
             <span className="day-button-sub">
               {count} exercise{count === 1 ? '' : 's'}
             </span>

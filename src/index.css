@@ -53,6 +53,12 @@ body::before {
   max-width: 480px;
   margin: 0 auto;
   position: relative;
+  /* sticky-footer column so the footer sits at the viewport bottom on short
+     pages (Home) instead of floating mid-screen */
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 .screen {
@@ -223,7 +229,10 @@ h1 {
 
 .app-footer {
   view-transition-name: app-footer;
-  margin: 44px 16px 0;
+  /* margin-top:auto pushes the footer to the bottom when content is short;
+     padding-top keeps a gap above it on tall pages */
+  margin: auto 16px 0;
+  padding-top: 44px;
   text-align: center;
   font-size: 0.8125rem;
   color: #5b5b63;

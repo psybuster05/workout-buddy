@@ -184,6 +184,11 @@ Cloud sync, accounts, charts/graphs, in-app exercise editing, PWA service-worker
 - **sharp** now a devDependency — image tooling (resize/compress/convert/flatten/crop) is available for future asset jobs; run one-off scripts from the project root so `node_modules` resolves. Not used at build time (Vite doesn't import it).
 - Calories deferred (needs body weight + MET; body-weight tracking still out of scope). `workouts` record can gain a `calories` field later.
 
+### 2026-07-08 — Day recolor + sticky-bottom footer + full day names
+- Day accents retuned (white/steel were "meh"): Wed — Pull `#3b9dff` (azure), Fri — Legs `#2ee66e` (green); Mon — Push stays `#ff3b3b`. All driven by `--accent` so one theme.js edit propagates everywhere. Black text on both stays legible (Finish button etc.).
+- Footer no longer floats mid-page on short screens: `.app` is now a `min-height:100dvh` flex column and `.app-footer` uses `margin-top:auto` (+ `padding-top:44px` to keep the gap on tall pages). Pins to viewport bottom on Home; flows below content on History. Rest-bar clearance (`#root:has(.rest-timer) .app` padding-bottom) and the sticky header both still work.
+- Home mega-button titles spell the day out via `dayLabel(day)` in theme.js (`Mon — Push → Monday — Push`). **Display-only, Home-only** — the data string stays "Mon — Push" so Day h1 / History / theme keys don't ripple. Longest "WEDNESDAY — PULL" still fits one line at 1.5rem.
+
 ### 2026-07-07 — Gym backdrop + bulleted card labels
 - Background: user-provided gym photo (workoutbuddybg) as a fixed `body::before` layer, `cover`, blurred 3px + dark gradient overlay for readability. Frosted cards over it (`.zone-card` translucent fill + backdrop-blur) + `.exercise-button`/list translucent so the scene shows through.
 - **Stacking gotcha fixed**: `body` had an opaque `background`, so the `z-index:-1` pseudo painted *below* body's own fill (invisible). Moved the page background to `html` only; body stays transparent so the backdrop shows. (If a future full-page ::before backdrop goes black, this is why.)

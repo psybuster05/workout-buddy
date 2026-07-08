@@ -2,12 +2,23 @@
 // fallback (lock screen, history/export buttons) is the brand red
 const DAY_ACCENTS = {
   'Mon — Push': '#ff3b3b',
-  'Wed — Pull': '#f5f5f7',
-  'Fri — Legs': '#93a5b8',
+  'Wed — Pull': '#3b9dff',
+  'Fri — Legs': '#2ee66e',
 }
 
 export function dayAccent(day) {
   return DAY_ACCENTS[day] ?? '#ff3b3b'
+}
+
+// spelled-out day labels for the Home mega-buttons (data stays "Mon — Push")
+const DAY_LABELS = {
+  'Mon — Push': 'Monday — Push',
+  'Wed — Pull': 'Wednesday — Pull',
+  'Fri — Legs': 'Friday — Legs',
+}
+
+export function dayLabel(day) {
+  return DAY_LABELS[day] ?? day
 }
 
 // per-day mega-button background photos, served from public/days/ (runtime URL,
