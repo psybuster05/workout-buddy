@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { deleteSession, exportJSON, loadStore } from '../storage.js'
-import { formatSession, formatDuration } from '../format.js'
+import { formatSession, formatDuration, personalRecord } from '../format.js'
 import { dayAccent, dayLabel } from '../theme.js'
 import { supabase } from '../supabase.js'
 
@@ -86,6 +86,10 @@ function History({ exercises, authed, onSignOut, onLogin }) {
             style={{ '--accent': dayAccent(exercise.day) }}
           >
             <h2>{exercise.name}</h2>
+            {(() => {
+              const pr = personalRecord(sessions, exercise.tracking ?? 'weighted')
+              return pr ? <p className="pr-line">PR · {pr}</p> : null
+            })()}
             <ul className="history-list">
               {sessions.map((s) => {
                 const isArmed = armed === `${exercise.id}|${s.date}`

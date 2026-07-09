@@ -395,31 +395,74 @@ h1 {
   padding-top: 12px;
 }
 
-/* --- Lock screen --- */
+/* --- Login screen --- */
 
-.lock-screen {
-  padding-top: 25vh;
-  text-align: center;
-}
-
-.lock-form {
+.login-screen {
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 24px calc(16px + env(safe-area-inset-right))
+    calc(24px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));
 }
 
-.lock-form input {
-  min-height: 56px;
+.login-inner {
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+}
+
+.login-brand {
+  font-size: 2.25rem;
+  font-weight: 900;
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  color: var(--text);
+}
+
+.login-dot {
+  color: var(--accent);
+}
+
+.login-tagline {
+  margin-top: 10px;
+  font-size: 0.8125rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--text-dim);
+}
+
+.login-card {
+  margin-top: 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px 18px;
+  background: rgba(10, 10, 12, 0.5);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.login-card input {
+  min-height: 54px;
   padding: 8px 16px;
-  font-size: 1.5rem;
+  font-size: 1.125rem;
   text-align: center;
   color: var(--text);
-  background: var(--surface);
+  background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 12px;
 }
 
-.lock-form input:focus {
+.login-card input:focus {
   outline: 2px solid var(--accent);
   outline-offset: -1px;
 }
@@ -429,27 +472,18 @@ h1 {
   font-weight: 700;
 }
 
-.lock-hint {
+.login-offline {
+  margin-top: 16px;
+  align-self: center;
+  background: none;
+  border: none;
   color: var(--text-dim);
-  font-size: 0.9375rem;
-}
-
-.offline-button {
-  margin-top: 18px;
-  width: 100%;
-  min-height: 48px;
   font-size: 0.9375rem;
   font-weight: 600;
-  color: var(--text-dim);
-  background: transparent;
-  border: 1px solid var(--border);
-  border-radius: 12px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-}
-
-.offline-button:active {
-  background: var(--surface-pressed);
 }
 
 /* --- Exercise screen --- */
@@ -946,4 +980,158 @@ input.counter-value::-webkit-inner-spin-button {
 
 .export-button:active {
   filter: brightness(1.15);
+}
+
+/* --- RC additions --- */
+
+/* bottom fade-to-black, mirroring the header's top gradient */
+body::after {
+  content: '';
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 60px;
+  z-index: 15;
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent, var(--bg));
+}
+
+/* header actions: sync (when logged in) + rest-timer buttons */
+.header-actions {
+  pointer-events: auto;
+  display: flex;
+  gap: 8px;
+}
+
+.sync-button.sync-idle {
+  color: var(--text-dim);
+}
+.sync-button.sync-pending {
+  color: var(--accent);
+}
+.sync-button.sync-offline {
+  color: var(--text-dim);
+  opacity: 0.55;
+}
+.sync-button.sync-error {
+  color: #e5534b;
+}
+.sync-button.sync-syncing svg {
+  animation: spin 0.9s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* "taken to failure" toggle in the This-Set card */
+.failure-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 4px;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  background: none;
+  border: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.failure-box {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--border);
+  border-radius: 7px;
+  font-weight: 900;
+  font-style: italic;
+  color: var(--bg);
+}
+.failure-toggle.on {
+  color: var(--text);
+}
+.failure-toggle.on .failure-box {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+/* personal-record line under each History exercise heading */
+.pr-line {
+  margin: -4px 0 8px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+/* Day-screen cool-down stretches (collapsible) */
+.stretch-card {
+  margin-top: 2px;
+  padding: 2px 16px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: rgba(10, 10, 12, 0.32);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: var(--text-dim);
+}
+.stretch-card > summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 52px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.stretch-card > summary::-webkit-details-marker {
+  display: none;
+}
+.stretch-title {
+  font-size: 0.9375rem;
+  font-weight: 800;
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+}
+.stretch-count {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+.stretch-count::after {
+  content: ' ▾';
+}
+.stretch-card[open] .stretch-count::after {
+  content: ' ▴';
+}
+.stretch-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 4px 0 14px;
+}
+.stretch-list li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-left: 14px;
+  border-left: 3px solid var(--accent);
+}
+.stretch-name {
+  font-weight: 700;
+  color: var(--text);
+}
+.stretch-cue {
+  font-size: 0.9375rem;
+  line-height: 1.4;
+  color: var(--text-dim);
 }

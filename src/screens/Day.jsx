@@ -2,9 +2,12 @@ import { useEffect, useState } from 'react'
 import { dayAccent, dayLabel } from '../theme.js'
 import { finishWorkout, startWorkout, todaySession, todayWorkout } from '../storage.js'
 import { formatDuration } from '../format.js'
+import { flush } from '../sync.js'
+import { stretchesFor } from '../data/stretches.js'
 
 function Day({ day, exercises, onSelectExercise }) {
   const dayExercises = exercises.filter((e) => e.day === day)
+  const stretches = stretchesFor(day)
   const [workout, setWorkout] = useState(() => todayWorkout())
   const [now, setNow] = useState(() => Date.now())
 
@@ -52,7 +55,10 @@ function Day({ day, exercises, onSelectExercise }) {
             {active ? (
               <button
                 className="finish-button"
-                onClick={() => setWorkout(finishWorkout())}
+                onClick={() => {
+                  setWorkout(finishWorkout())
+                  flush() // sync checkpoint: push right after a workout ends
+                }}
               >
                 Finish Workout
               </button>
@@ -82,6 +88,23 @@ function Day({ day, exercises, onSelectExercise }) {
           </li>
         ))}
       </ul>
+
+      {stretches.length > 0 && (
+        <details className="stretch-card">
+          <summary>
+            <span className="stretch-title">Cool-down stretches</span>
+            <span className="stretch-count">{stretches.length}</span>
+          </summary>
+          <ul className="stretch-list">
+            {stretches.map((s) => (
+              <li key={s.name}>
+                <span className="stretch-name">{s.name}</span>
+                <span className="stretch-cue">{s.cue}</span>
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
     </div>
   )
 }

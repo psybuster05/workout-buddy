@@ -184,6 +184,14 @@ Charts/graphs, in-app exercise editing, PWA service-worker/offline-launch (the a
 - **sharp** now a devDependency — image tooling (resize/compress/convert/flatten/crop) is available for future asset jobs; run one-off scripts from the project root so `node_modules` resolves. Not used at build time (Vite doesn't import it).
 - Calories deferred (needs body weight + MET; body-weight tracking still out of scope). `workouts` record can gain a `calories` field later.
 
+### 2026-07-09 — RC feedback batch: stretches, PRs, failure flag, checkpoint sync, login redesign
+- **Stretches** (src/data/stretches.js): per-day cool-down list (`stretchesByDay`), 4 each with cues. Day.jsx shows a collapsible `.stretch-card` below the exercise list, accent-bar cues like the Form card.
+- **Personal Records** (format.js `personalRecord(sessions, mode)`): weighted → est. 1RM (Epley `w·(1+reps/30)`) + heaviest weight; reps-only → most reps; time → longest hold. Shown as a red `.pr-line` under each exercise heading in History.
+- **Failure flag**: `.failure-toggle` ("Taken to failure") in the This-Set card; sets `failure:true` on the logged set, resets on Finish set. `setLine`/`formatSession` append `· F`. Storage/merge unchanged (extra bool field).
+- **Sync = checkpoints, not per-rep** (sync.js rework): `onStoreChange` now only `markDirty()`; actual push (`flush()`) fires on workout finish, `visibilitychange`→hidden, `pagehide`, and a 2-min interval. Manual **sync button** in the header (`.sync-button`, next to the timer) → `syncNow()` (full pull-merge-push); status drives its color/spin (idle/pending/syncing/offline/error) + the footer text. `pushLocal` removed.
+- **Login redesign**: sleeker `.login-screen` — big wordmark + "TRAIN. TRACK. REPEAT." tagline + frosted `.login-card` over the gym backdrop; offline is a subtle underline link. Old `.lock-screen`/`.lock-form`/`.offline-button` CSS retired.
+- **Bottom fade**: `body::after` fixed gradient (transparent→`--bg`, 60px) mirroring the header's top fade.
+
 ### 2026-07-08 — Day recolor + sticky-bottom footer + full day names
 - Day accents retuned (white/steel were "meh"): Wed — Pull `#3b9dff` (azure), Fri — Legs `#2ee66e` (green); Mon — Push stays `#ff3b3b`. All driven by `--accent` so one theme.js edit propagates everywhere. Black text on both stays legible (Finish button etc.).
 - Footer no longer floats mid-page on short screens: `.app` is now a `min-height:100dvh` flex column and `.app-footer` uses `margin-top:auto` (+ `padding-top:44px` to keep the gap on tall pages). Pins to viewport bottom on Home; flows below content on History. Rest-bar clearance (`#root:has(.rest-timer) .app` padding-bottom) and the sticky header both still work.

@@ -4,19 +4,38 @@
 //   time      — "3×30s", mixed "30s, 25s, 20s" (seconds live in the reps field)
 export function formatSession(s, mode = 'weighted') {
   const reps = new Set(s.sets.map((x) => x.reps))
+  let base
   if (mode === 'time') {
-    if (reps.size === 1) return `${s.sets.length}×${s.sets[0].reps}s`
-    return s.sets.map((x) => `${x.reps}s`).join(', ')
+    base = reps.size === 1
+      ? `${s.sets.length}×${s.sets[0].reps}s`
+      : s.sets.map((x) => `${x.reps}s`).join(', ')
+  } else if (mode === 'reps-only') {
+    base = reps.size === 1
+      ? `${s.sets.length}×${s.sets[0].reps}`
+      : s.sets.map((x) => x.reps).join(', ') + ' reps'
+  } else {
+    const weights = new Set(s.sets.map((x) => x.weight))
+    base = reps.size === 1 && weights.size === 1
+      ? `${s.sets.length}×${s.sets[0].reps} @ ${s.sets[0].weight} ${s.unit}`
+      : s.sets.map((x) => `${x.reps}×${x.weight}`).join(', ') + ` ${s.unit}`
   }
-  if (mode === 'reps-only') {
-    if (reps.size === 1) return `${s.sets.length}×${s.sets[0].reps}`
-    return s.sets.map((x) => x.reps).join(', ') + ' reps'
-  }
-  const weights = new Set(s.sets.map((x) => x.weight))
-  if (reps.size === 1 && weights.size === 1) {
-    return `${s.sets.length}×${s.sets[0].reps} @ ${s.sets[0].weight} ${s.unit}`
-  }
-  return s.sets.map((x) => `${x.reps}×${x.weight}`).join(', ') + ` ${s.unit}`
+  // F flag if any set in the session was taken to failure
+  return s.sets.some((x) => x.failure) ? `${base} · F` : base
+}
+
+// Personal record across every logged set of an exercise, per tracking mode:
+//   weighted  — estimated 1RM (Epley: w·(1+reps/30)) + heaviest weight lifted
+//   reps-only — most reps in a set
+//   time      — longest hold (seconds)
+export function personalRecord(sessions, mode = 'weighted') {
+  const sets = sessions.flatMap((s) => s.sets)
+  if (sets.length === 0) return null
+  if (mode === 'time') return `best ${Math.max(...sets.map((x) => x.reps))}s`
+  if (mode === 'reps-only') return `best ${Math.max(...sets.map((x) => x.reps))} reps`
+  const est1rm = Math.max(...sets.map((x) => x.weight * (1 + x.reps / 30)))
+  const topWeight = Math.max(...sets.map((x) => x.weight))
+  if (topWeight === 0) return null
+  return `est. 1RM ${Math.round(est1rm)} lbs · top ${topWeight} lbs`
 }
 
 // elapsed workout time: mm:ss, or h:mm:ss once past an hour

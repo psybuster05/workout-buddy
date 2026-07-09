@@ -21,10 +21,13 @@ function Exercise({ exercise, onStartRest }) {
     return w ? String(w) : ''
   })
   const [reps, setReps] = useState(() => lastSetFor(sets.length)?.reps ?? 0)
+  // "to failure" flag for the set being entered; resets after each Finish set
+  const [failure, setFailure] = useState(false)
 
   const setLine = (s, i) =>
     `Set ${i + 1} — ${s.reps} ${mode === 'time' ? 'sec' : 'reps'}` +
-    (mode === 'weighted' ? ` @ ${s.weight} lbs` : '')
+    (mode === 'weighted' ? ` @ ${s.weight} lbs` : '') +
+    (s.failure ? ' · F' : '')
 
   const adjustWeight = (delta) => {
     setWeight((w) => {
@@ -37,9 +40,11 @@ function Exercise({ exercise, onStartRest }) {
     const session = logSet(exercise.id, {
       reps,
       weight: mode === 'weighted' ? Number(weight) || 0 : 0,
+      ...(failure ? { failure: true } : {}),
     })
     setSets([...session.sets])
     setReps(lastSetFor(session.sets.length)?.reps ?? 0)
+    setFailure(false)
     onStartRest(exercise.restSeconds)
   }
 
@@ -130,6 +135,16 @@ function Exercise({ exercise, onStartRest }) {
               +
             </button>
           </div>
+
+          <button
+            type="button"
+            className={failure ? 'failure-toggle on' : 'failure-toggle'}
+            aria-pressed={failure}
+            onClick={() => setFailure((f) => !f)}
+          >
+            <span className="failure-box">{failure ? 'F' : ''}</span>
+            Taken to failure
+          </button>
 
           <button className="finish-button" disabled={reps === 0} onClick={finishSet}>
             Finish set

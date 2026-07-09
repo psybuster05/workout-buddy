@@ -8,7 +8,7 @@ import Login from './screens/Login.jsx'
 import RestTimer from './components/RestTimer.jsx'
 import { supabase } from './supabase.js'
 import { onStoreChange } from './storage.js'
-import { pushLocal, pullMergePush, setSyncUser, onSyncStatus } from './sync.js'
+import { markDirty, flush, syncNow, pullMergePush, setSyncUser, onSyncStatus } from './sync.js'
 import data from './data/exercises.json'
 
 // animate screen swaps with the View Transitions API where available
@@ -25,6 +25,7 @@ const SYNC_LABEL = {
   syncing: 'Syncing…',
   offline: 'Offline — will sync',
   error: 'Sync issue — will retry',
+  pending: 'Unsynced — tap sync',
   idle: 'Synced to cloud',
 }
 
@@ -65,13 +66,23 @@ function App() {
   useEffect(() => {
     if (!supabase || !userId) return
     setSyncUser(userId)
-    const unsub = onStoreChange(() => pushLocal())
+    // don't push per write — just mark dirty; push at checkpoints below
+    const unsub = onStoreChange(markDirty)
     const onOnline = () => pullMergePush(userId)
+    const onHide = () => {
+      if (document.hidden) flush()
+    }
     window.addEventListener('online', onOnline)
+    document.addEventListener('visibilitychange', onHide)
+    window.addEventListener('pagehide', flush)
+    const interval = setInterval(flush, 120000) // periodic safety net
     pullMergePush(userId)
     return () => {
       unsub()
       window.removeEventListener('online', onOnline)
+      document.removeEventListener('visibilitychange', onHide)
+      window.removeEventListener('pagehide', flush)
+      clearInterval(interval)
     }
   }, [userId])
 
@@ -161,28 +172,53 @@ function App() {
             ‹ Back
           </button>
         )}
-        <button
-          className="timer-button"
-          aria-label="Start rest timer"
-          onClick={() => startRest(90)}
-        >
-          <svg
-            viewBox="0 0 24 24"
-            width="22"
-            height="22"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
+        <div className="header-actions">
+          {supabase && session && (
+            <button
+              className={`timer-button sync-button sync-${syncStatus}`}
+              aria-label="Sync now"
+              onClick={() => syncNow()}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                width="21"
+                height="21"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <polyline points="23 4 23 10 17 10" />
+                <polyline points="1 20 1 14 7 14" />
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+              </svg>
+            </button>
+          )}
+          <button
+            className="timer-button"
+            aria-label="Start rest timer"
+            onClick={() => startRest(90)}
           >
-            <line x1="9" y1="2.5" x2="15" y2="2.5" />
-            <line x1="12" y1="2.5" x2="12" y2="6" />
-            <circle cx="12" cy="14" r="8" />
-            <line x1="12" y1="14" x2="12" y2="9.5" />
-          </svg>
-        </button>
+            <svg
+              viewBox="0 0 24 24"
+              width="22"
+              height="22"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <line x1="9" y1="2.5" x2="15" y2="2.5" />
+              <line x1="12" y1="2.5" x2="12" y2="6" />
+              <circle cx="12" cy="14" r="8" />
+              <line x1="12" y1="14" x2="12" y2="9.5" />
+            </svg>
+          </button>
+        </div>
       </header>
 
       {screenEl}

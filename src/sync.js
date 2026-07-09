@@ -38,9 +38,10 @@ export function mergeStores(a, b) {
   return { schemaVersion: A.schemaVersion ?? B.schemaVersion ?? 1, sessions, workouts }
 }
 
-// --- sync status (for the footer indicator) ----------------------------------
+// --- status (footer text + header button) ------------------------------------
 
-let status = 'idle' // 'idle' | 'syncing' | 'offline' | 'error'
+// 'idle' synced · 'pending' unsynced changes · 'syncing' · 'offline' · 'error'
+let status = 'idle'
 const statusListeners = new Set()
 function setStatus(s) {
   status = s
@@ -55,13 +56,20 @@ export function onSyncStatus(cb) {
 // --- push / pull -------------------------------------------------------------
 
 let currentUserId = null
-let pushTimer = null
+let dirty = false // local changes not yet pushed
 
 export function setSyncUser(userId) {
   currentUserId = userId
 }
 
-async function upsert(store) {
+// called after every local write (via storage.onStoreChange). We DON'T push per
+// write — just mark dirty; the actual push happens at checkpoints / flush.
+export function markDirty() {
+  dirty = true
+  if (supabase && currentUserId) setStatus('pending')
+}
+
+async function pushStore() {
   if (!supabase || !currentUserId) return
   if (!navigator.onLine) {
     setStatus('offline')
@@ -71,22 +79,22 @@ async function upsert(store) {
   const { error } = await supabase
     .from(TABLE)
     .upsert(
-      { user_id: currentUserId, data: store, updated_at: new Date().toISOString() },
+      { user_id: currentUserId, data: loadStore(), updated_at: new Date().toISOString() },
       { onConflict: 'user_id' }
     )
   if (error) {
     console.warn('sync push failed:', error.message)
     setStatus('error')
   } else {
+    dirty = false
     setStatus('idle')
   }
 }
 
-// debounced — called after every local write via storage.onStoreChange
-export function pushLocal() {
-  if (!supabase || !currentUserId) return
-  clearTimeout(pushTimer)
-  pushTimer = setTimeout(() => upsert(loadStore()), 1500)
+// checkpoint push — only if there are unsynced changes (workout finish, app
+// backgrounded, periodic timer)
+export function flush() {
+  if (dirty) pushStore()
 }
 
 // pull remote, merge with local, write both — on login and on reconnect
@@ -109,6 +117,11 @@ export async function pullMergePush(userId) {
     return
   }
   const merged = mergeStores(data?.data ?? null, loadStore())
-  replaceStore(merged) // updates local + notifies UI to re-read
-  await upsert(merged)
+  replaceStore(merged) // updates local + notifies UI (and marks dirty)
+  await pushStore() // pushes merged, clears dirty
+}
+
+// manual "Sync now" (header button) — full reconcile
+export async function syncNow() {
+  if (currentUserId) await pullMergePush(currentUserId)
 }

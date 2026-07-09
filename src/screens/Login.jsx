@@ -20,7 +20,6 @@ function Login({ onOffline }) {
     const email = emailFor(username)
     let { error } = await supabase.auth.signInWithPassword({ email, password })
     if (error && /invalid login credentials/i.test(error.message)) {
-      // no account yet → create it (signUp returns a session with confirm-email off)
       const res = await supabase.auth.signUp({ email, password })
       error = res.error
       if (error && /already registered/i.test(error.message)) {
@@ -33,51 +32,56 @@ function Login({ onOffline }) {
   }
 
   return (
-    <div className="screen lock-screen">
-      <h1>Workout Buddy</h1>
+    <div className="login-screen">
+      <div className="login-inner">
+        <div className="login-brand">
+          Workout Buddy<span className="login-dot">.</span>
+        </div>
+        <p className="login-tagline">Train. Track. Repeat.</p>
 
-      <form className="lock-form" onSubmit={submit}>
-        <input
-          type="text"
-          autoCapitalize="none"
-          autoCorrect="off"
-          autoComplete="username"
-          autoFocus
-          required
-          value={username}
-          placeholder="Username"
-          aria-label="Username"
-          onChange={(e) => {
-            setUsername(e.target.value)
-            setError('')
-          }}
-        />
-        <input
-          type="password"
-          autoComplete="current-password"
-          required
-          minLength={6}
-          value={password}
-          placeholder="Password"
-          aria-label="Password"
-          onChange={(e) => {
-            setPassword(e.target.value)
-            setError('')
-          }}
-        />
-        <button
-          type="submit"
-          className="finish-button"
-          disabled={busy || username.trim() === '' || password.length < 6}
-        >
-          {busy ? 'Logging in…' : 'Log in'}
+        <form className="login-card" onSubmit={submit}>
+          <input
+            type="text"
+            autoCapitalize="none"
+            autoCorrect="off"
+            autoComplete="username"
+            autoFocus
+            required
+            value={username}
+            placeholder="Username"
+            aria-label="Username"
+            onChange={(e) => {
+              setUsername(e.target.value)
+              setError('')
+            }}
+          />
+          <input
+            type="password"
+            autoComplete="current-password"
+            required
+            minLength={6}
+            value={password}
+            placeholder="Password"
+            aria-label="Password"
+            onChange={(e) => {
+              setPassword(e.target.value)
+              setError('')
+            }}
+          />
+          <button
+            type="submit"
+            className="finish-button"
+            disabled={busy || username.trim() === '' || password.length < 6}
+          >
+            {busy ? 'Logging in…' : 'Log in'}
+          </button>
+          {error && <p className="lock-error">{error}</p>}
+        </form>
+
+        <button type="button" className="login-offline" onClick={onOffline}>
+          Use offline (no sync)
         </button>
-        {error && <p className="lock-error">{error}</p>}
-      </form>
-
-      <button type="button" className="offline-button" onClick={onOffline}>
-        Use offline (no sync)
-      </button>
+      </div>
     </div>
   )
 }
