@@ -4,7 +4,7 @@ import { formatSession, formatDuration } from '../format.js'
 import { dayAccent, dayLabel } from '../theme.js'
 import { supabase } from '../supabase.js'
 
-function History({ exercises }) {
+function History({ exercises, authed, onSignOut, onLogin }) {
   const [store, setStore] = useState(() => loadStore())
   // delete needs two taps: the first arms the button, the second commits;
   // an armed button disarms itself after a beat so a stray tap can't linger
@@ -118,11 +118,16 @@ function History({ exercises }) {
         Export JSON
       </button>
 
-      {supabase && (
-        <button className="signout-button" onClick={() => supabase.auth.signOut()}>
-          Sign out
-        </button>
-      )}
+      {supabase &&
+        (authed ? (
+          <button className="signout-button" onClick={onSignOut}>
+            Sign out
+          </button>
+        ) : (
+          <button className="signout-button" onClick={onLogin}>
+            Log in to back up
+          </button>
+        ))}
     </div>
   )
 }

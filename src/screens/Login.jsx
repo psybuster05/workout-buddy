@@ -1,107 +1,83 @@
 import { useState } from 'react'
 import { supabase } from '../supabase.js'
 
-// Email one-time-code login. Session persists after this, so it's only seen on a
-// new device or after an eviction. On success, App's onAuthStateChange swaps in.
-function Login() {
-  const [step, setStep] = useState('email')
-  const [email, setEmail] = useState('')
-  const [code, setCode] = useState('')
+// Supabase auth is email-based, so the username maps to a synthetic internal
+// address that is never emailed (works because "Confirm email" is off). First
+// login with a username creates the account; use the SAME username thereafter.
+const emailFor = (username) =>
+  `${username.trim().toLowerCase().replace(/\s+/g, '')}@workoutbuddy.app`
+
+function Login({ onOffline }) {
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
 
-  const sendCode = async (e) => {
+  const submit = async (e) => {
     e.preventDefault()
     setBusy(true)
     setError('')
-    const { error } = await supabase.auth.signInWithOtp({ email: email.trim() })
+    const email = emailFor(username)
+    let { error } = await supabase.auth.signInWithPassword({ email, password })
+    if (error && /invalid login credentials/i.test(error.message)) {
+      // no account yet → create it (signUp returns a session with confirm-email off)
+      const res = await supabase.auth.signUp({ email, password })
+      error = res.error
+      if (error && /already registered/i.test(error.message)) {
+        error = { message: 'Incorrect password.' }
+      }
+    }
     setBusy(false)
     if (error) setError(error.message)
-    else setStep('code')
-  }
-
-  const verify = async (e) => {
-    e.preventDefault()
-    setBusy(true)
-    setError('')
-    const { error } = await supabase.auth.verifyOtp({
-      email: email.trim(),
-      token: code.trim(),
-      type: 'email',
-    })
-    setBusy(false)
-    if (error) setError(error.message)
-    // success → App re-renders via onAuthStateChange
+    // success → App's onAuthStateChange swaps the screen
   }
 
   return (
     <div className="screen lock-screen">
       <h1>Workout Buddy</h1>
 
-      {step === 'email' ? (
-        <form className="lock-form" onSubmit={sendCode}>
-          <input
-            type="email"
-            inputMode="email"
-            autoComplete="email"
-            autoFocus
-            required
-            value={email}
-            placeholder="Email"
-            aria-label="Email"
-            onChange={(e) => {
-              setEmail(e.target.value)
-              setError('')
-            }}
-          />
-          <button
-            type="submit"
-            className="finish-button"
-            disabled={busy || email.trim() === ''}
-          >
-            {busy ? 'Sending…' : 'Send code'}
-          </button>
-          {error && <p className="lock-error">{error}</p>}
-        </form>
-      ) : (
-        <form className="lock-form" onSubmit={verify}>
-          <p className="lock-hint">Enter the 6-digit code sent to {email}</p>
-          <input
-            type="text"
-            inputMode="numeric"
-            autoComplete="one-time-code"
-            autoFocus
-            required
-            maxLength={6}
-            value={code}
-            placeholder="123456"
-            aria-label="6-digit code"
-            onChange={(e) => {
-              setCode(e.target.value.replace(/\D/g, ''))
-              setError('')
-            }}
-          />
-          <button
-            type="submit"
-            className="finish-button"
-            disabled={busy || code.length < 6}
-          >
-            {busy ? 'Verifying…' : 'Verify'}
-          </button>
-          {error && <p className="lock-error">{error}</p>}
-          <button
-            type="button"
-            className="delete-last-button"
-            onClick={() => {
-              setStep('email')
-              setCode('')
-              setError('')
-            }}
-          >
-            Use a different email
-          </button>
-        </form>
-      )}
+      <form className="lock-form" onSubmit={submit}>
+        <input
+          type="text"
+          autoCapitalize="none"
+          autoCorrect="off"
+          autoComplete="username"
+          autoFocus
+          required
+          value={username}
+          placeholder="Username"
+          aria-label="Username"
+          onChange={(e) => {
+            setUsername(e.target.value)
+            setError('')
+          }}
+        />
+        <input
+          type="password"
+          autoComplete="current-password"
+          required
+          minLength={6}
+          value={password}
+          placeholder="Password"
+          aria-label="Password"
+          onChange={(e) => {
+            setPassword(e.target.value)
+            setError('')
+          }}
+        />
+        <button
+          type="submit"
+          className="finish-button"
+          disabled={busy || username.trim() === '' || password.length < 6}
+        >
+          {busy ? 'Logging in…' : 'Log in'}
+        </button>
+        {error && <p className="lock-error">{error}</p>}
+      </form>
+
+      <button type="button" className="offline-button" onClick={onOffline}>
+        Use offline (no sync)
+      </button>
     </div>
   )
 }

@@ -434,6 +434,24 @@ h1 {
   font-size: 0.9375rem;
 }
 
+.offline-button {
+  margin-top: 18px;
+  width: 100%;
+  min-height: 48px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.offline-button:active {
+  background: var(--surface-pressed);
+}
+
 /* --- Exercise screen --- */
 
 .video-frame {

@@ -32,6 +32,11 @@ function App() {
   // auth: undefined = still checking, null = logged out, session = logged in.
   // when Supabase isn't configured, auth/sync are off and the app runs local-only.
   const [session, setSession] = useState(supabase ? undefined : null)
+  // "offline" = user chose to skip login and run local-only; persisted so we
+  // don't nag them every launch
+  const [offline, setOffline] = useState(
+    () => localStorage.getItem('workout-tracker:offline') === '1'
+  )
   const [syncStatus, setSyncStatus] = useState('idle')
   const [screen, setScreen] = useState('home')
   const [selectedDay, setSelectedDay] = useState(null)
@@ -84,8 +89,21 @@ function App() {
     setRest((r) => (r ? { ...r, endsAt: r.endsAt + 15000, total: r.total + 15 } : r))
   const dismissRest = () => setRest(null)
 
+  const goOffline = () => {
+    localStorage.setItem('workout-tracker:offline', '1')
+    setOffline(true)
+  }
+  const leaveOffline = () => {
+    localStorage.removeItem('workout-tracker:offline')
+    setOffline(false)
+  }
+  const signOut = () => {
+    leaveOffline()
+    supabase?.auth.signOut()
+  }
+
   if (session === undefined) return null // brief auth check on load
-  if (supabase && !session) return <Login />
+  if (supabase && !session && !offline) return <Login onOffline={goOffline} />
 
   const openDay = (day) =>
     withTransition(() => {
@@ -112,7 +130,14 @@ function App() {
       <Day day={selectedDay} exercises={data.exercises} onSelectExercise={openExercise} />
     )
   } else if (screen === 'history') {
-    screenEl = <History exercises={data.exercises} />
+    screenEl = (
+      <History
+        exercises={data.exercises}
+        authed={!!session}
+        onSignOut={signOut}
+        onLogin={leaveOffline}
+      />
+    )
   } else {
     screenEl = (
       <Home
@@ -163,7 +188,9 @@ function App() {
       {screenEl}
 
       <footer className="app-footer">
-        {supabase && <p className="sync-status">{SYNC_LABEL[syncStatus] ?? ''}</p>}
+        {supabase && session && (
+          <p className="sync-status">{SYNC_LABEL[syncStatus] ?? ''}</p>
+        )}
         <p>© 2026 Workout Buddy — all gains reserved</p>
         <p>Last updated {__BUILD_DATE__}</p>
       </footer>
