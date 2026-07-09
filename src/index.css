@@ -1073,6 +1073,85 @@ body::after {
   color: var(--accent);
 }
 
+/* --- collapsible History (scales as data grows) --- */
+.hist-heading {
+  font-size: 1rem;
+  font-weight: 800;
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  padding: 26px 0 6px;
+}
+
+/* each exercise collapses to a one-line PR summary; tap to drill in */
+.hist-group {
+  border-bottom: 1px solid var(--border);
+}
+
+.hist-summary {
+  list-style: none;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 52px;
+  padding: 8px 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.hist-summary::-webkit-details-marker {
+  display: none;
+}
+
+.hist-name {
+  font-size: 1rem;
+  font-weight: 800;
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+}
+
+.hist-summary-meta {
+  flex-shrink: 0;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+.hist-summary-meta::after {
+  content: ' ▾';
+}
+
+.hist-group[open] .hist-summary-meta::after {
+  content: ' ▴';
+}
+
+.hist-group .history-list {
+  padding: 2px 0 14px;
+}
+
+/* "show all" toggle for older workouts */
+.hist-more > summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 10px 0 2px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.hist-more > summary::-webkit-details-marker {
+  display: none;
+}
+
+.hist-more .history-list {
+  padding-top: 8px;
+}
+
 /* Day-screen cool-down stretches (collapsible) */
 .stretch-card {
   margin-top: 2px;

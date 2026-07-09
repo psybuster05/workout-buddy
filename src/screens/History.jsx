@@ -52,6 +52,19 @@ function History({ exercises, authed, onSignOut, onLogin }) {
   const doneOn = (date) =>
     store.sessions.filter((s) => s.date === date && s.sets.length > 0).length
 
+  const renderWorkout = (w) => (
+    <li key={w.date} className="history-entry workout-entry">
+      <span className="history-date">{w.date}</span>
+      <span className="workout-meta">
+        <span className="workout-day">{dayLabel(w.day)}</span>
+        <span className="workout-sub">
+          {w.endedAt ? formatDuration(w.endedAt - w.startedAt) : 'in progress'} ·{' '}
+          {doneOn(w.date)} exercise{doneOn(w.date) === 1 ? '' : 's'}
+        </span>
+      </span>
+    </li>
+  )
+
   return (
     <div className="screen">
       <h1>History</h1>
@@ -59,63 +72,61 @@ function History({ exercises, authed, onSignOut, onLogin }) {
       {workouts.length > 0 && (
         <section className="day-group">
           <h2>Workouts</h2>
-          <ul className="history-list">
-            {workouts.map((w) => (
-              <li key={w.date} className="history-entry workout-entry">
-                <span className="history-date">{w.date}</span>
-                <span className="workout-meta">
-                  <span className="workout-day">{dayLabel(w.day)}</span>
-                  <span className="workout-sub">
-                    {w.endedAt ? formatDuration(w.endedAt - w.startedAt) : 'in progress'} ·{' '}
-                    {doneOn(w.date)} exercise{doneOn(w.date) === 1 ? '' : 's'}
-                  </span>
-                </span>
-              </li>
-            ))}
-          </ul>
+          <ul className="history-list">{workouts.slice(0, 8).map(renderWorkout)}</ul>
+          {workouts.length > 8 && (
+            <details className="hist-more">
+              <summary>Show all {workouts.length}</summary>
+              <ul className="history-list">{workouts.slice(8).map(renderWorkout)}</ul>
+            </details>
+          )}
         </section>
       )}
 
+      <h2 className="hist-heading">Exercises</h2>
       {byExercise.length === 0 ? (
         <p className="placeholder">No workouts logged yet.</p>
       ) : (
-        byExercise.map(({ exercise, sessions }) => (
-          <section
-            key={exercise.id}
-            className="day-group"
-            style={{ '--accent': dayAccent(exercise.day) }}
-          >
-            <h2>{exercise.name}</h2>
-            {(() => {
-              const pr = personalRecord(sessions, exercise.tracking ?? 'weighted')
-              return pr ? <p className="pr-line">PR · {pr}</p> : null
-            })()}
-            <ul className="history-list">
-              {sessions.map((s) => {
-                const isArmed = armed === `${exercise.id}|${s.date}`
-                return (
-                  <li key={s.date} className="history-entry">
-                    <span className="history-date">{s.date}</span>
-                    <span className="history-sets">
-                      {formatSession(s, exercise.tracking ?? 'weighted')}
-                    </span>
-                    <button
-                      className={isArmed ? 'history-delete armed' : 'history-delete'}
-                      onClick={() => handleDelete(exercise.id, s.date)}
-                      aria-label={
-                        isArmed
-                          ? `Confirm delete ${exercise.name} on ${s.date}`
-                          : `Delete ${exercise.name} on ${s.date}`
-                      }
-                    >
-                      {isArmed ? 'Delete?' : '✕'}
-                    </button>
-                  </li>
-                )
-              })}
-            </ul>
-          </section>
-        ))
+        byExercise.map(({ exercise, sessions }) => {
+          const pr = personalRecord(sessions, exercise.tracking ?? 'weighted')
+          return (
+            <details
+              key={exercise.id}
+              className="hist-group"
+              style={{ '--accent': dayAccent(exercise.day) }}
+            >
+              <summary className="hist-summary">
+                <span className="hist-name">{exercise.name}</span>
+                <span className="hist-summary-meta">
+                  {pr ? `PR · ${pr}` : `${sessions.length} log${sessions.length === 1 ? '' : 's'}`}
+                </span>
+              </summary>
+              <ul className="history-list">
+                {sessions.map((s) => {
+                  const isArmed = armed === `${exercise.id}|${s.date}`
+                  return (
+                    <li key={s.date} className="history-entry">
+                      <span className="history-date">{s.date}</span>
+                      <span className="history-sets">
+                        {formatSession(s, exercise.tracking ?? 'weighted')}
+                      </span>
+                      <button
+                        className={isArmed ? 'history-delete armed' : 'history-delete'}
+                        onClick={() => handleDelete(exercise.id, s.date)}
+                        aria-label={
+                          isArmed
+                            ? `Confirm delete ${exercise.name} on ${s.date}`
+                            : `Delete ${exercise.name} on ${s.date}`
+                        }
+                      >
+                        {isArmed ? 'Delete?' : '✕'}
+                      </button>
+                    </li>
+                  )
+                })}
+              </ul>
+            </details>
+          )
+        })
       )}
 
       <button className="export-button" onClick={handleExport}>
