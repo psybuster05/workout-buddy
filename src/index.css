@@ -213,6 +213,9 @@ h1 {
   view-transition-name: app-footer;
   /* margin-top:auto pushes the footer to the bottom when content is short;
      padding-top keeps a gap above it on tall pages */
+  /* sit above the bottom fade-to-black (body::after, z-index 15) */
+  position: relative;
+  z-index: 16;
   margin: auto 16px 0;
   padding-top: 44px;
   text-align: center;

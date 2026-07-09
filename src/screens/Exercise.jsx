@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { deleteLastSet, lastSession, logSet, todaySession } from '../storage.js'
+import { deleteLastSet, lastSession, loadStore, logSet, todaySession } from '../storage.js'
+import { personalRecord } from '../format.js'
 import { dayAccent } from '../theme.js'
 
 function Exercise({ exercise, onStartRest }) {
@@ -61,9 +62,17 @@ function Exercise({ exercise, onStartRest }) {
   const historySets = historyIsToday ? sets : (last?.sets ?? [])
   const historyDate = historyIsToday ? null : last?.date
 
+  // PR across all logged sessions of this exercise (today's already persisted,
+  // so a new PR shows the moment you finish the set)
+  const pr = personalRecord(
+    loadStore().sessions.filter((s) => s.exerciseId === exercise.id),
+    mode
+  )
+
   return (
     <div className="screen" style={{ '--accent': dayAccent(exercise.day) }}>
       <h1 className="exercise-title">{exercise.name}</h1>
+      {pr && <p className="pr-line">PR · {pr}</p>}
 
       <section className="session-zone">
         {exercise.target && (
