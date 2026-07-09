@@ -221,6 +221,12 @@ h1 {
   line-height: 1.7;
 }
 
+.sync-status {
+  color: var(--text-dim);
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
 .day-group h2 {
   font-size: 1rem;
   font-weight: 800;
@@ -421,6 +427,11 @@ h1 {
 .lock-error {
   color: var(--accent);
   font-weight: 700;
+}
+
+.lock-hint {
+  color: var(--text-dim);
+  font-size: 0.9375rem;
 }
 
 /* --- Exercise screen --- */
@@ -859,6 +870,42 @@ input.counter-value::-webkit-inner-spin-button {
 .history-sets {
   font-size: 1.0625rem;
   font-weight: 600;
+}
+
+/* whole-workout rows (History → Workouts section): date + day/duration stack */
+.workout-meta {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.workout-day {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.workout-sub {
+  font-size: 0.875rem;
+  color: var(--text-dim);
+}
+
+.signout-button {
+  margin-top: 14px;
+  width: 100%;
+  min-height: 48px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.signout-button:active {
+  background: var(--surface-pressed);
 }
 
 .export-button {

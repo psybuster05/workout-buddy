@@ -1,17 +1,7 @@
 import { useEffect, useState } from 'react'
 import { dayAccent, dayLabel } from '../theme.js'
 import { finishWorkout, startWorkout, todaySession, todayWorkout } from '../storage.js'
-
-// mm:ss, or h:mm:ss once a workout passes an hour
-function formatDuration(ms) {
-  const total = Math.floor(ms / 1000)
-  const h = Math.floor(total / 3600)
-  const m = Math.floor((total % 3600) / 60)
-  const s = total % 60
-  const mm = String(m).padStart(2, '0')
-  const ss = String(s).padStart(2, '0')
-  return h > 0 ? `${h}:${mm}:${ss}` : `${mm}:${ss}`
-}
+import { formatDuration } from '../format.js'
 
 function Day({ day, exercises, onSelectExercise }) {
   const dayExercises = exercises.filter((e) => e.day === day)

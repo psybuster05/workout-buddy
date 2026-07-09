@@ -26,6 +26,15 @@ export function loadStore() {
   return { schemaVersion: 1, sessions: [], workouts: [] }
 }
 
+// listeners fire after every successful local write so the sync layer can push
+// to the cloud without every mutator having to know about it
+const listeners = new Set()
+
+export function onStoreChange(cb) {
+  listeners.add(cb)
+  return () => listeners.delete(cb)
+}
+
 function saveStore(store) {
   try {
     localStorage.setItem(KEY, JSON.stringify(store))
@@ -33,6 +42,13 @@ function saveStore(store) {
     // quota/private-mode failure: keep going on in-memory state rather than
     // crashing mid-workout; the set still shows in the current session
   }
+  for (const cb of listeners) cb(store)
+}
+
+// Overwrite the whole store (used by cloud-sync merge and JSON import), then
+// notify listeners. Kept separate from the granular mutators.
+export function replaceStore(store) {
+  saveStore(store)
 }
 
 // Append a set to today's session for this exercise, creating the session on

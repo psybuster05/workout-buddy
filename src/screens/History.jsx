@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { deleteSession, exportJSON, loadStore } from '../storage.js'
-import { formatSession } from '../format.js'
-import { dayAccent } from '../theme.js'
+import { formatSession, formatDuration } from '../format.js'
+import { dayAccent, dayLabel } from '../theme.js'
+import { supabase } from '../supabase.js'
 
 function History({ exercises }) {
   const [store, setStore] = useState(() => loadStore())
@@ -47,9 +48,33 @@ function History({ exercises }) {
     setTimeout(() => URL.revokeObjectURL(url), 1000)
   }
 
+  const workouts = [...(store.workouts ?? [])].sort((a, b) => (a.date < b.date ? 1 : -1))
+  const doneOn = (date) =>
+    store.sessions.filter((s) => s.date === date && s.sets.length > 0).length
+
   return (
     <div className="screen">
       <h1>History</h1>
+
+      {workouts.length > 0 && (
+        <section className="day-group">
+          <h2>Workouts</h2>
+          <ul className="history-list">
+            {workouts.map((w) => (
+              <li key={w.date} className="history-entry workout-entry">
+                <span className="history-date">{w.date}</span>
+                <span className="workout-meta">
+                  <span className="workout-day">{dayLabel(w.day)}</span>
+                  <span className="workout-sub">
+                    {w.endedAt ? formatDuration(w.endedAt - w.startedAt) : 'in progress'} ·{' '}
+                    {doneOn(w.date)} exercise{doneOn(w.date) === 1 ? '' : 's'}
+                  </span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {byExercise.length === 0 ? (
         <p className="placeholder">No workouts logged yet.</p>
@@ -92,6 +117,12 @@ function History({ exercises }) {
       <button className="export-button" onClick={handleExport}>
         Export JSON
       </button>
+
+      {supabase && (
+        <button className="signout-button" onClick={() => supabase.auth.signOut()}>
+          Sign out
+        </button>
+      )}
     </div>
   )
 }

@@ -5,8 +5,8 @@ Personal workout tracker web app. One user (Jon), used on an iPhone browser mid-
 
 ## Tech stack
 - React (Vite) 
-- No backend. No accounts. No cloud.
-- Data: exercises hardcoded in `src/data/exercises.json`; workout history in localStorage
+- localStorage is the source of truth (offline-first). Optional **Supabase** cloud sync (email OTP auth) backs it up so iOS's ~7-day eviction can't lose history — off until credentials are set in `src/supabaseConfig.js`.
+- Data: exercises hardcoded in `src/data/exercises.json`; workout history in localStorage, synced to Supabase when configured
 - Hosting: GitHub Pages
 - Target device: iPhone 17 Pro Max, Safari, added to home screen
 
@@ -55,7 +55,7 @@ Personal workout tracker web app. One user (Jon), used on an iPhone browser mid-
 - Keep dependencies minimal; no UI framework unless there's a concrete reason
 
 ## Out of scope for v1 (do not build unless asked)
-Cloud sync, accounts, charts/graphs, in-app exercise editing, PWA service-worker complexity beyond add-to-home-screen basics.
+Charts/graphs, in-app exercise editing, PWA service-worker/offline-launch (the app still needs network to *load* — sync makes data durable, not the shell offline). (Cloud sync + accounts were added for the RC — see changelog.)
 
 ## Build order / status
 - [x] 1. Repo scaffold + this file + exercises.json + Home list rendering
@@ -190,6 +190,14 @@ Cloud sync, accounts, charts/graphs, in-app exercise editing, PWA service-worker
 - Home mega-button titles spell the day out via `dayLabel(day)` in theme.js (`Mon — Push → Monday — Push`); the Day screen h1 uses it too. Data string stays "Mon — Push" so History / theme keys / exercises.json don't ripple. Longest "WEDNESDAY — PULL" fits one line (1.5rem on Home, 30px h1 on Day — exactly to the edge).
 - Home day-buttons and the Day screen are vertically centered: their `.screen` gets `flex:1; justify-content:center` (works because `.app` is the min-height:100dvh flex column). Content taller than the viewport still top-aligns + scrolls (flex item min-height:auto = content), so nothing clips; footer stays pinned bottom.
 - Day screen spacing: `.day-screen` is a flex column with `gap:14px` (h1 padding-bottom zeroed) so the title → Workout card → exercise list share one rhythm; the card→list gap (14px) now reads consistently with the 10px between exercise buttons instead of touching.
+
+### 2026-07-08 — RC: Supabase cloud sync + whole-workout history
+- **Why:** localStorage-only history dies to iOS's ~7-day eviction. Cloud sync makes it durable + recoverable on any device. Deliberately crosses the old "no backend/cloud" line.
+- **Auth:** email 6-digit OTP (`signInWithOtp`/`verifyOtp`), src/screens/Login.jsx. Must be email (not anon/device-id) — an anon id lives in the same localStorage iOS wipes, so it'd orphan the cloud row. Replaced the courtesy password gate (auth.js + Lock.jsx **deleted**).
+- **Model:** one JSONB row per user in a Supabase `stores` table, RLS-locked to `auth.uid()`. localStorage stays source of truth (offline-first); every local write → debounced push (via new `storage.onStoreChange` + `replaceStore`). On login/reconnect: `pullMergePush` does a **union merge** (`mergeStores` in src/sync.js, unit-tested in sync.test.js): sessions keyed exercise+date (more sets wins), workouts keyed date (finished/newer wins). Empty-local ∪ remote = full restore. Caveat: cross-device deletes can be resurrected (no tombstones — noted).
+- **Config:** `src/supabaseConfig.js` holds URL + anon key (public-safe under RLS). `isSupabaseConfigured()` gates everything — **with placeholders, sync/auth are OFF and the app runs exactly as before (local-only)**. Jon must: create a Supabase project, enable Email OTP, set Site URL, run the `stores` table + RLS SQL (in the plan file), paste URL+anon key. Then it's live.
+- Bundle grew ~65→120 KB gz (supabase-js). Added vitest (`npm test`).
+- **Whole-workout history:** History screen gets a "Workouts" section (newest-first) — date, `dayLabel(day)`, duration (`endedAt−startedAt` or "in progress"), and count of exercises done that date. `formatDuration` moved to format.js (shared with Day.jsx). Subtle sign-out + a footer sync-status line ("Synced to cloud" / "Offline — will sync") appear only when Supabase is configured.
 
 ### 2026-07-08 — Burger menu → Home History button + header timer icon
 - **Burger menu killed** (overkill for 2 items). History is now a `.home-history` outline button below the day buttons (Home only — it's occasional); the Rest Timer is a `.timer-button` stopwatch-SVG icon in the sticky header, present on every screen, taps to `startRest(90)`. Removed all `.menu*` markup/CSS + `menuOpen` state. (Considered a bottom tab bar — rejected: one main flow + 2 utilities, and it'd fight the floating rest bar.)
