@@ -43,7 +43,7 @@ function Day({ day, exercises, onSelectExercise }) {
     : 0
 
   return (
-    <div className="screen" style={{ '--accent': dayAccent(day) }}>
+    <div className="screen day-screen" style={{ '--accent': dayAccent(day) }}>
       <h1>{dayLabel(day)}</h1>
 
       <div className="zone-card workout-card">

@@ -233,10 +233,26 @@ h1 {
 
 /* Home: 3 tall day mega-buttons with per-day photo backgrounds */
 .home-days {
+  flex: 1;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: 14px;
   padding-top: 8px;
+}
+
+/* Day screen: center its content vertically too, with even spacing between the
+   title, the Workout card, and the exercise list (matches the list's rhythm) */
+.day-screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 14px;
+}
+
+.day-screen h1 {
+  padding-bottom: 0;
 }
 
 .day-button {
