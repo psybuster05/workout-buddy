@@ -6,7 +6,6 @@ function Exercise({ exercise, onStartRest }) {
   // weighted (default): weight + reps · reps-only: no weight row ·
   // time: no weight row, counter is seconds stored in the reps field
   const mode = exercise.tracking ?? 'weighted'
-  const repStep = mode === 'time' ? 5 : 1
   // "last time" = most recent previous day; today's in-progress sets reload
   // from storage so leaving and reopening the screen mid-workout loses nothing
   const [last] = useState(() => lastSession(exercise.id))
@@ -111,9 +110,9 @@ function Exercise({ exercise, onStartRest }) {
           <div className="counter-row">
             <button
               className="counter-button"
-              onClick={() => setReps((r) => Math.max(0, r - repStep))}
+              onClick={() => setReps((r) => Math.max(0, r - 1))}
               disabled={reps === 0}
-              aria-label={mode === 'time' ? 'Subtract 5 seconds' : 'Subtract one rep'}
+              aria-label={mode === 'time' ? 'Subtract one second' : 'Subtract one rep'}
             >
               −
             </button>
@@ -125,8 +124,8 @@ function Exercise({ exercise, onStartRest }) {
             </div>
             <button
               className="counter-button"
-              onClick={() => setReps((r) => r + repStep)}
-              aria-label={mode === 'time' ? 'Add 5 seconds' : 'Add one rep'}
+              onClick={() => setReps((r) => r + 1)}
+              aria-label={mode === 'time' ? 'Add one second' : 'Add one rep'}
             >
               +
             </button>
