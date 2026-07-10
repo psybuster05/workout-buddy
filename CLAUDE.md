@@ -5,7 +5,7 @@ Personal workout tracker web app. One user (Jon), used on an iPhone browser mid-
 
 ## Tech stack
 - React (Vite) 
-- localStorage is the source of truth (offline-first). Optional **Supabase** cloud sync (email OTP auth) backs it up so iOS's ~7-day eviction can't lose history — off until credentials are set in `src/supabaseConfig.js`.
+- localStorage is the source of truth (offline-first). Optional **Supabase** cloud sync (username + password auth — username maps to a synthetic `@workoutbuddy.app` email; "Confirm email" must stay OFF in Supabase) backs it up so iOS's ~7-day eviction can't lose history — off until credentials are set in `src/supabaseConfig.js`. "Use offline" on the login screen skips sync entirely.
 - Data: exercises hardcoded in `src/data/exercises.json`; workout history in localStorage, synced to Supabase when configured
 - Hosting: GitHub Pages
 - Target device: iPhone 17 Pro Max, Safari, added to home screen
@@ -14,7 +14,7 @@ Personal workout tracker web app. One user (Jon), used on an iPhone browser mid-
 1. **Home** — 3 day mega-buttons (Mon–Push / Wed–Pull / Fri–Legs) with per-day photo backgrounds. Tap → Day screen.
 2. **Day** (middle) — whole-workout tracker (Start/Finish → live elapsed from a stored startedAt timestamp, "N of M done" derived from today's logged sets, Restart) + that day's exercise list (done ones get a ✓). Tap an exercise → Exercise. Back → Home.
 3. **Exercise** — YouTube embed (iframe), written form cues below it, then live session zone: weight input, large rep counter buttons, "Finish set" button that logs the set and auto-starts the rest timer. Back → Day.
-4. **History** — chronological list per exercise: date, sets × reps × weight. Plus a "Export JSON" button that dumps all localStorage history.
+4. **History** — a "Workouts" feed (newest-first, capped at 8 + "Show all", each expandable to the exercises done that day, two-tap deletable), then per-exercise collapsible accordions (PR summary on the closed row; sessions with two-tap delete inside). Export JSON + sign-out/log-in live at the bottom, de-emphasized.
 
 ## Data shapes
 ```json
@@ -38,7 +38,7 @@ Personal workout tracker web app. One user (Jon), used on an iPhone browser mid-
       "exerciseId": "goblet-squat",
       "date": "2026-07-06",
       "unit": "lbs",
-      "sets": [{ "reps": 8, "weight": 50 }]
+      "sets": [{ "reps": 8, "weight": 50, "failure": true }]
     }
   ],
   "workouts": [
@@ -46,7 +46,7 @@ Personal workout tracker web app. One user (Jon), used on an iPhone browser mid-
   ]
 }
 ```
-`workouts` is one record per calendar date (whole-day timer). `endedAt` null = in progress. Backfilled to `[]` in loadStore for old stores. "Exercises done" is derived from `sessions`, not stored here.
+`workouts` is one record per calendar date (whole-day timer). `endedAt` null = in progress. Backfilled to `[]` in loadStore for old stores. "Exercises done" is derived from `sessions`, not stored here. `failure` on a set is optional (present only when true); time-mode exercises store seconds in `reps`, non-weighted modes store `weight: 0`.
 
 ## Conventions
 - Weight unit: lbs for now (gym plates); revisit if it bugs me
@@ -181,8 +181,13 @@ Charts/graphs, in-app exercise editing, PWA service-worker/offline-launch (the a
 - Day-button photos: **public/days/{push,pull,leg}.jpg** (note `leg`, singular; runtime URL via `import.meta.env.BASE_URL`). Current set = plain action photos (chest press / dumbbell row / barbell squat) Jon dropped in as `push2.jpg`/`pull2.webp`/`leg2.jpg` at mixed sizes+formats. Normalized with **sharp**: `resize(1024×400, fit:cover, position:sharp.strategy.attention)` (subject-aware crop keeps the lifter in frame) → mozjpeg q82 → ~35–48 KB each. theme.js `dayImage(day)` maps day→file; swap the files to restyle, no code change.
 - (Earlier the source banners had a checkerboard *baked into pixels* — AI faux-transparency, not alpha; that set was masked out with sharp, but has since been replaced by the plain photos above.)
 - **sharp** now a devDependency — image tooling (resize/compress/convert/flatten/crop/mask) available for future asset jobs; run one-off scripts from the project root so `node_modules` resolves. Not imported at build time (Vite doesn't touch it).
-- **sharp** now a devDependency — image tooling (resize/compress/convert/flatten/crop) is available for future asset jobs; run one-off scripts from the project root so `node_modules` resolves. Not used at build time (Vite doesn't import it).
 - Calories deferred (needs body weight + MET; body-weight tracking still out of scope). `workouts` record can gain a `calories` field later.
+
+### 2026-07-10 — Refactor: App.jsx decomposed (no behavior change)
+- Post-RC structure pass. App.jsx (248→125 lines) was doing five jobs; extracted: **src/hooks/useCloudSync.js** (session tracking, sync-status sub, userId-keyed sync wiring, offline/sign-out), **src/hooks/useRestTimer.js** (rest state + audioCtxRef + start/extend/dismiss — startRest stays synchronous so the iOS audio-unlock keeps its user-gesture context), **src/components/AppHeader.jsx** + **src/icons.jsx** (SyncIcon/StopwatchIcon; all CSS classes unchanged).
+- storage.js: `mutate(fn)` helper collapses the load→modify→save pattern in the six mutators. History.jsx: the two two-tap delete handlers share one `armOrCommit(key, commit)` helper. index.css: dropped a duplicate `min-height: 100dvh` line.
+- Review verdict on the rest: no dead CSS, no schema drift — sync.js/format.js/RestTimer/Day/Exercise left alone on purpose.
+- Verified: build + 5/5 vitest + lint + preview smoke test (nav, finish-set→rest timer, +15s/Skip, header timer, two-tap deletes). Real-phone beep check after deploy is the remaining ask.
 
 ### 2026-07-09 — RC feedback batch: stretches, PRs, failure flag, checkpoint sync, login redesign
 - **Stretches** (src/data/stretches.js): per-day cool-down list (`stretchesByDay`), 4 each with cues. Day.jsx shows a collapsible `.stretch-card` below the exercise list, accent-bar cues like the Form card.
