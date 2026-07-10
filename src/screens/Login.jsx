@@ -40,34 +40,38 @@ function Login({ onOffline }) {
         <p className="login-tagline">Train. Track. Repeat.</p>
 
         <form className="login-card" onSubmit={submit}>
-          <input
-            type="text"
-            autoCapitalize="none"
-            autoCorrect="off"
-            autoComplete="username"
-            autoFocus
-            required
-            value={username}
-            placeholder="Username"
-            aria-label="Username"
-            onChange={(e) => {
-              setUsername(e.target.value)
-              setError('')
-            }}
-          />
-          <input
-            type="password"
-            autoComplete="current-password"
-            required
-            minLength={6}
-            value={password}
-            placeholder="Password"
-            aria-label="Password"
-            onChange={(e) => {
-              setPassword(e.target.value)
-              setError('')
-            }}
-          />
+          <label className="field">
+            <span className="field-label">Username</span>
+            <input
+              type="text"
+              autoCapitalize="none"
+              autoCorrect="off"
+              autoComplete="username"
+              autoFocus
+              required
+              value={username}
+              placeholder="e.g. jon"
+              onChange={(e) => {
+                setUsername(e.target.value)
+                setError('')
+              }}
+            />
+          </label>
+          <label className="field">
+            <span className="field-label">Password</span>
+            <input
+              type="password"
+              autoComplete="current-password"
+              required
+              minLength={6}
+              value={password}
+              placeholder="At least 6 characters"
+              onChange={(e) => {
+                setPassword(e.target.value)
+                setError('')
+              }}
+            />
+          </label>
           <button
             type="submit"
             className="finish-button"

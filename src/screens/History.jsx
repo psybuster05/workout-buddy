@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { deleteSession, exportJSON, loadStore } from '../storage.js'
+import { deleteSession, deleteWorkout, exportJSON, loadStore } from '../storage.js'
 import { formatSession, formatDuration, personalRecord } from '../format.js'
 import { dayAccent, dayLabel } from '../theme.js'
 import { supabase } from '../supabase.js'
@@ -23,6 +23,20 @@ function History({ exercises, authed, onSignOut, onLogin }) {
     }
     clearTimeout(disarmTimer.current)
     deleteSession(exerciseId, date)
+    setArmed(null)
+    setStore(loadStore())
+  }
+
+  const handleDeleteWorkout = (date) => {
+    const key = `workout|${date}`
+    if (armed !== key) {
+      setArmed(key)
+      clearTimeout(disarmTimer.current)
+      disarmTimer.current = setTimeout(() => setArmed(null), 3000)
+      return
+    }
+    clearTimeout(disarmTimer.current)
+    deleteWorkout(date)
     setArmed(null)
     setStore(loadStore())
   }
@@ -52,18 +66,30 @@ function History({ exercises, authed, onSignOut, onLogin }) {
   const doneOn = (date) =>
     store.sessions.filter((s) => s.date === date && s.sets.length > 0).length
 
-  const renderWorkout = (w) => (
-    <li key={w.date} className="history-entry workout-entry">
-      <span className="history-date">{w.date}</span>
-      <span className="workout-meta">
-        <span className="workout-day">{dayLabel(w.day)}</span>
-        <span className="workout-sub">
-          {w.endedAt ? formatDuration(w.endedAt - w.startedAt) : 'in progress'} ·{' '}
-          {doneOn(w.date)} exercise{doneOn(w.date) === 1 ? '' : 's'}
+  const renderWorkout = (w) => {
+    const isArmed = armed === `workout|${w.date}`
+    return (
+      <li key={w.date} className="history-entry workout-entry">
+        <span className="history-date">{w.date}</span>
+        <span className="workout-meta">
+          <span className="workout-day">{dayLabel(w.day)}</span>
+          <span className="workout-sub">
+            {w.endedAt ? formatDuration(w.endedAt - w.startedAt) : 'in progress'} ·{' '}
+            {doneOn(w.date)} exercise{doneOn(w.date) === 1 ? '' : 's'}
+          </span>
         </span>
-      </span>
-    </li>
-  )
+        <button
+          className={isArmed ? 'history-delete armed' : 'history-delete'}
+          onClick={() => handleDeleteWorkout(w.date)}
+          aria-label={
+            isArmed ? `Confirm delete workout on ${w.date}` : `Delete workout on ${w.date}`
+          }
+        >
+          {isArmed ? 'Delete?' : '✕'}
+        </button>
+      </li>
+    )
+  }
 
   return (
     <div className="screen">

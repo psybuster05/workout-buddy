@@ -140,6 +140,14 @@ export function deleteSession(exerciseId, date) {
   saveStore(store)
 }
 
+// Remove one whole-day workout record (the timer entry). Leaves that day's
+// exercise sessions alone — they're deleted separately from the exercise list.
+export function deleteWorkout(date) {
+  const store = loadStore()
+  store.workouts = store.workouts.filter((w) => w.date !== date)
+  saveStore(store)
+}
+
 // Most recent session from a previous day — "last time", not today's sets.
 export function lastSession(exerciseId) {
   const date = todayISO()
