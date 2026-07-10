@@ -19,6 +19,12 @@ export const stretchesByDay = {
     { name: 'Figure-4 Glute', cue: 'Ankle over the opposite knee, sit back into it. 30s/side.' },
     { name: 'Wall Calf Stretch', cue: 'Back leg straight, heel down, lean into the wall. 30s/side.' },
   ],
+  Cardio: [
+    { name: 'Wall Calf Stretch', cue: 'Back leg straight, heel down, lean into the wall. 30s/side.' },
+    { name: 'Standing Quad', cue: 'Heel to glute, knees together, tuck the hips. 30s/side.' },
+    { name: 'Hamstring Hinge', cue: 'Hinge over one straight leg, keep the back flat. 30s/side.' },
+    { name: 'Kneeling Hip Flexor', cue: 'Half-kneel, tuck the pelvis, shift forward gently. 30s/side.' },
+  ],
 }
 
 export function stretchesFor(day) {

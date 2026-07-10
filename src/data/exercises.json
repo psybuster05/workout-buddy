@@ -1,5 +1,5 @@
 {
-  "days": ["Mon — Push", "Wed — Pull", "Fri — Legs"],
+  "days": ["Mon — Push", "Wed — Pull", "Fri — Legs", "Cardio"],
   "exercises": [
     {
       "id": "flat-dumbbell-press",
@@ -226,6 +226,63 @@
         "Slow tempo beats heavy weight here"
       ],
       "restSeconds": 90
+    },
+    {
+      "id": "incline-walk",
+      "name": "Incline Walk / Walk",
+      "day": "Cardio",
+      "target": { "goal": "20–40 min" },
+      "tracking": "cardio",
+      "instructions": [
+        "Zone 2 pace — you can hold a conversation, but singing would be hard",
+        "On a treadmill, 2.5–3.5 mph at 5–12% incline beats flat-and-fast",
+        "Tall posture, don't hang on the rails — swing the arms",
+        "Log minutes; distance is optional if you're outside or the display shows it"
+      ],
+      "restSeconds": 0
+    },
+    {
+      "id": "run",
+      "name": "Run / Jog",
+      "day": "Cardio",
+      "target": { "goal": "15–30 min" },
+      "tracking": "cardio",
+      "instructions": [
+        "Easy conversational pace for most runs — slow is the point",
+        "Short quick steps, feet landing under your hips, not out in front",
+        "Relaxed shoulders and hands; breathe through a rhythm you can keep",
+        "Build time before speed — add ~10% a week, no hero jumps"
+      ],
+      "restSeconds": 0
+    },
+    {
+      "id": "jump-rope",
+      "name": "Jump Rope",
+      "day": "Cardio",
+      "target": { "goal": "5–10 min in rounds" },
+      "tracking": "cardio",
+      "videoUrl": "https://www.youtube.com/embed/s-8tbwbEZ68",
+      "instructions": [
+        "Elbows pinned to your sides — the wrists spin the rope, not the arms",
+        "Jump barely an inch off the floor, land soft on the balls of the feet",
+        "Rope length: stand on the middle, handles reach about armpit height",
+        "Go in short rounds (30–60s) with rest between; log total minutes"
+      ],
+      "restSeconds": 60
+    },
+    {
+      "id": "cardio-machine",
+      "name": "Bike / Row / Machine",
+      "day": "Cardio",
+      "target": { "goal": "15–30 min" },
+      "tracking": "cardio",
+      "instructions": [
+        "Zone 2 effort — steady, conversational, sweat without gasping",
+        "Rowing: legs push first, then lean, then pull — reverse on the way back",
+        "Bike: seat height so the knee stays slightly bent at the bottom",
+        "Log minutes; add distance if the console shows it"
+      ],
+      "restSeconds": 0
     }
   ]
 }

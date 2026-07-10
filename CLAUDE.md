@@ -11,8 +11,8 @@ Personal workout tracker web app. One user (Jon), used on an iPhone browser mid-
 - Target device: iPhone 17 Pro Max, Safari, added to home screen
 
 ## Core screens
-1. **Home** — 3 day mega-buttons (Mon–Push / Wed–Pull / Fri–Legs) with per-day photo backgrounds. Tap → Day screen.
-2. **Day** (middle) — whole-workout tracker (Start/Finish → live elapsed from a stored startedAt timestamp, "N of M done" derived from today's logged sets, Restart) + that day's exercise list (done ones get a ✓). Pencil beside the title toggles edit mode: tap exercises to disable/re-enable them for the day (disabled ones are hidden outside edit mode; counts use enabled only; History keeps their sessions). Tap an exercise → Exercise. Back → Home.
+1. **Home** — 4 day mega-buttons (Mon–Push / Wed–Pull / Fri–Legs / Cardio) with per-day photo backgrounds. Tap → Day screen.
+2. **Day** (middle) — whole-workout tracker (Start/Finish → live elapsed from a stored startedAt timestamp, "N of M done" derived from today's logged sets, Restart) + that day's exercise list (done ones get a ✓). Pencil beside the title toggles edit mode: tap exercises to disable/re-enable them for the day (disabled ones are hidden outside edit mode; counts use enabled only; History keeps their sessions). Lifting days also get a collapsible **Cardio finisher** card (the Cardio day's enabled exercises, tappable to log, ✓ when done today, not counted in "N of M"). Tap an exercise → Exercise. Back → Home.
 3. **Exercise** — YouTube embed (iframe), written form cues below it, then live session zone: weight input, large rep counter buttons, "Finish set" button that logs the set and auto-starts the rest timer. Back → Day.
 4. **History** — a "Workouts" feed (newest-first, capped at 8 + "Show all", each expandable to the exercises done that day, two-tap deletable), then per-exercise collapsible accordions (PR summary on the closed row; sessions with two-tap delete inside). Export JSON + sign-out/log-in live at the bottom, de-emphasized.
 
@@ -24,8 +24,8 @@ Personal workout tracker web app. One user (Jon), used on an iPhone browser mid-
   "name": "Goblet Squat",
   "day": "Fri — Legs",
   "target": { "sets": "4", "reps": "10–15" },
-  "tracking": "weighted | reps-only | time (optional, default weighted)",
-  "videoUrl": "https://www.youtube.com/embed/VIDEO_ID",
+  "tracking": "weighted | reps-only | time | cardio (optional, default weighted)",
+  "videoUrl": "https://www.youtube.com/embed/VIDEO_ID (optional — omit to hide the video frame)",
   "instructions": ["Cue 1", "Cue 2"],
   "restSeconds": 90
 }
@@ -49,7 +49,7 @@ Personal workout tracker web app. One user (Jon), used on an iPhone browser mid-
   }
 }
 ```
-`workouts` is one record per calendar date (whole-day timer). `endedAt` null = in progress. Backfilled to `[]` in loadStore for old stores. "Exercises done" is derived from `sessions`, not stored here. `failure` on a set is optional (present only when true); time-mode exercises store seconds in `reps`, non-weighted modes store `weight: 0`. `disabled` maps exerciseId → `{ off, at }` (Day-screen edit mode); entries keep their timestamp so sync merges toggles last-write-wins — backfilled to `{}` for old stores.
+`workouts` is one record per calendar date (whole-day timer). `endedAt` null = in progress. Backfilled to `[]` in loadStore for old stores. "Exercises done" is derived from `sessions`, not stored here. `failure` on a set is optional (present only when true); time-mode exercises store seconds in `reps`, non-weighted modes store `weight: 0`; **cardio** mode stores minutes in `reps` and miles in `weight` (0 = distance unrecorded) — no schema change. Cardio exercises use `target: { goal: "20–40 min" }` (rendered as a "Goal:" line) and `restSeconds: 0` = no auto rest timer after logging. `disabled` maps exerciseId → `{ off, at }` (Day-screen edit mode); entries keep their timestamp so sync merges toggles last-write-wins — backfilled to `{}` for old stores.
 
 ## Conventions
 - Weight unit: lbs for now (gym plates); revisit if it bugs me
@@ -185,6 +185,17 @@ Charts/graphs, in-app exercise editing, PWA service-worker/offline-launch (the a
 - (Earlier the source banners had a checkerboard *baked into pixels* — AI faux-transparency, not alpha; that set was masked out with sharp, but has since been replaced by the plain photos above.)
 - **sharp** now a devDependency — image tooling (resize/compress/convert/flatten/crop/mask) available for future asset jobs; run one-off scripts from the project root so `node_modules` resolves. Not imported at build time (Vite doesn't touch it).
 - Calories deferred (needs body weight + MET; body-weight tracking still out of scope). `workouts` record can gain a `calories` field later.
+
+### 2026-07-10 — Cardio: 4th day + finisher card on lifting days
+- New **"Cardio" day** (amber `#ffb02e`) with 4 `tracking: "cardio"` exercises: incline-walk, run, jump-rope, cardio-machine. Cardio logs **minutes (reps field) + optional miles (weight field)** — zero storage/sync changes, same trick as time mode. Minutes render as a typeable input (not 32 taps); distance steps ±0.1 mi; failure toggle hidden.
+- Data-driven behaviors: `target.goal` → "Goal:" line; `videoUrl` optional (walk/run/machine have none — Exercise hides the frame; jump-rope keeps an oEmbed-verified Jump Rope Dudes video); `restSeconds: 0` = no auto rest timer after logging (jump-rope keeps 60s round rest).
+- **Cardio finisher** card on lifting days (Day.jsx, stretch-card shell, amber accent): enabled cardio exercises as tappable rows → same Exercise logging screen, ✓ when logged today, NOT counted in "N of M done". Managed (enable/disable) from the Cardio day's edit mode, which works there like any day.
+- format.js: cardio formatSession ("32 min · 2.1 mi", multi "32 + 18 min · 3.4 mi") + personalRecord ("longest 45 min · best 2.1 mi"); first **format.test.js** (6 cases, 12 total).
+- `public/days/cardio.jpg` is a **sharp-generated amber placeholder** (gradient + jump-rope arc, 6.6 KB) — swap in a real photo any time, no code change. Cardio cool-down stretches added.
+- Known caveat (accepted): `workouts` is one record per date, so starting a Cardio "workout" on a date you already lifted restarts that date's timer. Real usage (finisher on lift days, standalone cardio on other dates) doesn't hit it.
+
+### 2026-07-10 — Weekday dropped from day labels
+- Display labels are now just the workout name — Home mega-buttons / Day h1 / History workout rows say "Push" / "Pull" / "Legs". theme.js `dayLabel` derives it (everything after the "—"), replacing the spelled-out DAY_LABELS map; data strings stay "Mon — Push" so History, theme keys, and exercises.json don't ripple. New days need no label entry.
 
 ### 2026-07-10 — Three new exercises + Day-screen edit mode (enable/disable)
 - exercises.json additions: **Incline Dumbbell Press** (Push, 3 × 8–12 — reuses the old `incline-dumbbell-press` id on purpose, so the orphaned old-program history reattaches), **Dumbbell Pullover** (Pull, 3 × 10–15, Jon's spec), **Bulgarian Split Squat** (Legs, 2–3 × 8–12/leg, per-leg logging like reverse lunges). All videos oEmbed-verified (ScottHermanFitness / Buff Dudes ×2); ATHLEAN-X's split-squat video rejected for profanity in the title (it shows on the iframe).

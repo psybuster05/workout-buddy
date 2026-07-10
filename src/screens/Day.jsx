@@ -23,6 +23,12 @@ function Day({ day, exercises, onSelectExercise }) {
   const [editing, setEditing] = useState(false)
   const [disabled, setDisabled] = useState(() => getDisabledIds())
   const activeExercises = dayExercises.filter((e) => !disabled.has(e.id))
+  // cardio finisher on lifting days: the Cardio day's (enabled) exercises,
+  // tappable to log — extra credit, not part of "N of M done"
+  const cardioExercises =
+    day === 'Cardio'
+      ? []
+      : exercises.filter((e) => e.day === 'Cardio' && !disabled.has(e.id))
 
   const active = workout && !workout.endedAt
 
@@ -128,6 +134,33 @@ function Day({ day, exercises, onSelectExercise }) {
           )
         })}
       </ul>
+
+      {cardioExercises.length > 0 && (
+        <details
+          className="stretch-card cardio-card"
+          style={{ '--accent': dayAccent('Cardio') }}
+        >
+          <summary>
+            <span className="stretch-title">Cardio finisher</span>
+            <span className="stretch-count">{cardioExercises.length}</span>
+          </summary>
+          <ul className="cardio-list">
+            {cardioExercises.map((e) => {
+              const done = (todaySession(e.id)?.sets.length ?? 0) > 0
+              return (
+                <li key={e.id}>
+                  <button
+                    className={done ? 'cardio-row is-done' : 'cardio-row'}
+                    onClick={() => onSelectExercise(e.id)}
+                  >
+                    {e.name}
+                  </button>
+                </li>
+              )
+            })}
+          </ul>
+        </details>
+      )}
 
       {stretches.length > 0 && (
         <details className="stretch-card">

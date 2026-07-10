@@ -2,10 +2,16 @@
 //   weighted  — "3×8 @ 45 lbs", mixed "10×30, 8×35 lbs"
 //   reps-only — "3×8", mixed "8, 6, 5 reps"
 //   time      — "3×30s", mixed "30s, 25s, 20s" (seconds live in the reps field)
+//   cardio    — "32 min · 2.1 mi", multi "32 + 18 min · 3.4 mi"
+//               (minutes live in the reps field, miles in weight; 0 mi = unrecorded)
 export function formatSession(s, mode = 'weighted') {
   const reps = new Set(s.sets.map((x) => x.reps))
   let base
-  if (mode === 'time') {
+  if (mode === 'cardio') {
+    const mins = s.sets.map((x) => x.reps).join(' + ')
+    const miles = Math.round(s.sets.reduce((sum, x) => sum + (x.weight || 0), 0) * 10) / 10
+    base = miles > 0 ? `${mins} min · ${miles} mi` : `${mins} min`
+  } else if (mode === 'time') {
     base = reps.size === 1
       ? `${s.sets.length}×${s.sets[0].reps}s`
       : s.sets.map((x) => `${x.reps}s`).join(', ')
@@ -27,9 +33,15 @@ export function formatSession(s, mode = 'weighted') {
 //   weighted  — estimated 1RM (Epley: w·(1+reps/30)) + heaviest weight lifted
 //   reps-only — most reps in a set
 //   time      — longest hold (seconds)
+//   cardio    — longest single entry (minutes) + best distance (miles, if any logged)
 export function personalRecord(sessions, mode = 'weighted') {
   const sets = sessions.flatMap((s) => s.sets)
   if (sets.length === 0) return null
+  if (mode === 'cardio') {
+    const longest = Math.max(...sets.map((x) => x.reps))
+    const bestMi = Math.max(...sets.map((x) => x.weight || 0))
+    return bestMi > 0 ? `longest ${longest} min · best ${bestMi} mi` : `longest ${longest} min`
+  }
   if (mode === 'time') return `best ${Math.max(...sets.map((x) => x.reps))}s`
   if (mode === 'reps-only') return `best ${Math.max(...sets.map((x) => x.reps))} reps`
   const est1rm = Math.max(...sets.map((x) => x.weight * (1 + x.reps / 30)))

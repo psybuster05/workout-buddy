@@ -4,21 +4,18 @@ const DAY_ACCENTS = {
   'Mon — Push': '#ff3b3b',
   'Wed — Pull': '#3b9dff',
   'Fri — Legs': '#2ee66e',
+  Cardio: '#ffb02e',
 }
 
 export function dayAccent(day) {
   return DAY_ACCENTS[day] ?? '#ff3b3b'
 }
 
-// spelled-out day labels for the Home mega-buttons (data stays "Mon — Push")
-const DAY_LABELS = {
-  'Mon — Push': 'Monday — Push',
-  'Wed — Pull': 'Wednesday — Pull',
-  'Fri — Legs': 'Friday — Legs',
-}
-
+// display label = just the workout name ("Mon — Push" → "Push"); the data
+// string keeps the weekday so History / theme keys / exercises.json don't ripple
 export function dayLabel(day) {
-  return DAY_LABELS[day] ?? day
+  const i = day.indexOf('—')
+  return i === -1 ? day : day.slice(i + 1).trim()
 }
 
 // per-day mega-button background photos, served from public/days/ (runtime URL,
@@ -27,6 +24,7 @@ const DAY_IMAGES = {
   'Mon — Push': 'push.jpg',
   'Wed — Pull': 'pull.jpg',
   'Fri — Legs': 'leg.jpg',
+  Cardio: 'cardio.jpg',
 }
 
 export function dayImage(day) {
