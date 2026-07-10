@@ -263,6 +263,46 @@ h1 {
   padding-bottom: 0;
 }
 
+/* day title + pencil toggle for edit mode (enable/disable exercises) */
+.day-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.edit-day-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text-dim);
+}
+
+.edit-day-button.on {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.edit-hint {
+  color: var(--text-dim);
+  font-size: 0.9375rem;
+  line-height: 1.4;
+  text-align: center;
+  padding: 0 4px;
+}
+
+/* a disabled exercise, visible only in edit mode — dimmed, dashed, struck */
+.exercise-button.is-off {
+  opacity: 0.45;
+  border-style: dashed;
+  text-decoration: line-through;
+}
+
 .day-button {
   position: relative;
   min-height: 132px;

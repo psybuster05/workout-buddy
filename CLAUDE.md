@@ -12,7 +12,7 @@ Personal workout tracker web app. One user (Jon), used on an iPhone browser mid-
 
 ## Core screens
 1. **Home** — 3 day mega-buttons (Mon–Push / Wed–Pull / Fri–Legs) with per-day photo backgrounds. Tap → Day screen.
-2. **Day** (middle) — whole-workout tracker (Start/Finish → live elapsed from a stored startedAt timestamp, "N of M done" derived from today's logged sets, Restart) + that day's exercise list (done ones get a ✓). Tap an exercise → Exercise. Back → Home.
+2. **Day** (middle) — whole-workout tracker (Start/Finish → live elapsed from a stored startedAt timestamp, "N of M done" derived from today's logged sets, Restart) + that day's exercise list (done ones get a ✓). Pencil beside the title toggles edit mode: tap exercises to disable/re-enable them for the day (disabled ones are hidden outside edit mode; counts use enabled only; History keeps their sessions). Tap an exercise → Exercise. Back → Home.
 3. **Exercise** — YouTube embed (iframe), written form cues below it, then live session zone: weight input, large rep counter buttons, "Finish set" button that logs the set and auto-starts the rest timer. Back → Day.
 4. **History** — a "Workouts" feed (newest-first, capped at 8 + "Show all", each expandable to the exercises done that day, two-tap deletable), then per-exercise collapsible accordions (PR summary on the closed row; sessions with two-tap delete inside). Export JSON + sign-out/log-in live at the bottom, de-emphasized.
 
@@ -43,10 +43,13 @@ Personal workout tracker web app. One user (Jon), used on an iPhone browser mid-
   ],
   "workouts": [
     { "date": "2026-07-06", "day": "Fri — Legs", "startedAt": 1783466550465, "endedAt": 1783470000000 }
-  ]
+  ],
+  "disabled": {
+    "preacher-curl": { "off": true, "at": 1783680117103 }
+  }
 }
 ```
-`workouts` is one record per calendar date (whole-day timer). `endedAt` null = in progress. Backfilled to `[]` in loadStore for old stores. "Exercises done" is derived from `sessions`, not stored here. `failure` on a set is optional (present only when true); time-mode exercises store seconds in `reps`, non-weighted modes store `weight: 0`.
+`workouts` is one record per calendar date (whole-day timer). `endedAt` null = in progress. Backfilled to `[]` in loadStore for old stores. "Exercises done" is derived from `sessions`, not stored here. `failure` on a set is optional (present only when true); time-mode exercises store seconds in `reps`, non-weighted modes store `weight: 0`. `disabled` maps exerciseId → `{ off, at }` (Day-screen edit mode); entries keep their timestamp so sync merges toggles last-write-wins — backfilled to `{}` for old stores.
 
 ## Conventions
 - Weight unit: lbs for now (gym plates); revisit if it bugs me
@@ -182,6 +185,12 @@ Charts/graphs, in-app exercise editing, PWA service-worker/offline-launch (the a
 - (Earlier the source banners had a checkerboard *baked into pixels* — AI faux-transparency, not alpha; that set was masked out with sharp, but has since been replaced by the plain photos above.)
 - **sharp** now a devDependency — image tooling (resize/compress/convert/flatten/crop/mask) available for future asset jobs; run one-off scripts from the project root so `node_modules` resolves. Not imported at build time (Vite doesn't touch it).
 - Calories deferred (needs body weight + MET; body-weight tracking still out of scope). `workouts` record can gain a `calories` field later.
+
+### 2026-07-10 — Three new exercises + Day-screen edit mode (enable/disable)
+- exercises.json additions: **Incline Dumbbell Press** (Push, 3 × 8–12 — reuses the old `incline-dumbbell-press` id on purpose, so the orphaned old-program history reattaches), **Dumbbell Pullover** (Pull, 3 × 10–15, Jon's spec), **Bulgarian Split Squat** (Legs, 2–3 × 8–12/leg, per-leg logging like reverse lunges). All videos oEmbed-verified (ScottHermanFitness / Buff Dudes ×2); ATHLEAN-X's split-squat video rejected for profanity in the title (it shows on the iframe).
+- **Edit mode** (Day screen): pencil icon (`PencilIcon` in icons.jsx) beside the day title toggles it; a hint line appears ("Tap an exercise to remove it from this day…"); tapping an exercise toggles instead of navigating. Disabled exercises show dimmed/dashed/struck (`.is-off`) in edit mode and are hidden outside it; Home's count and the Day "N of M done" use enabled only; History still shows their sessions (history is history).
+- **Storage**: `store.disabled` = `{ [exerciseId]: { off, at } }`, backfilled to `{}` in loadStore. `getDisabledIds()` / `toggleExercise(id)` in storage.js. Entries are LWW tombstones — `mergeStores` keeps the newer `at` per id (6th unit test), so a stale cloud copy can't resurrect a re-enabled exercise. Deliberately in the synced store (not a separate key) so toggles survive eviction/restore.
+- CSS: `.day-title-row`, `.edit-day-button` (44px touch target, accent when active), `.edit-hint`, `.exercise-button.is-off`.
 
 ### 2026-07-10 — Refactor: App.jsx decomposed (no behavior change)
 - Post-RC structure pass. App.jsx (248→125 lines) was doing five jobs; extracted: **src/hooks/useCloudSync.js** (session tracking, sync-status sub, userId-keyed sync wiring, offline/sign-out), **src/hooks/useRestTimer.js** (rest state + audioCtxRef + start/extend/dismiss — startRest stays synchronous so the iOS audio-unlock keeps its user-gesture context), **src/components/AppHeader.jsx** + **src/icons.jsx** (SyncIcon/StopwatchIcon; all CSS classes unchanged).

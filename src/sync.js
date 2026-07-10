@@ -35,7 +35,15 @@ export function mergeStores(a, b) {
       return (y.startedAt ?? 0) >= (x.startedAt ?? 0) ? y : x
     }
   )
-  return { schemaVersion: A.schemaVersion ?? B.schemaVersion ?? 1, sessions, workouts }
+  // disabled-exercise toggles keyed by exercise id — the newer flip wins (LWW),
+  // so re-enabling on one device can't be undone by a stale cloud copy
+  const disabled = {}
+  for (const src of [A.disabled ?? {}, B.disabled ?? {}]) {
+    for (const [id, t] of Object.entries(src)) {
+      if (!disabled[id] || (t.at ?? 0) > (disabled[id].at ?? 0)) disabled[id] = t
+    }
+  }
+  return { schemaVersion: A.schemaVersion ?? B.schemaVersion ?? 1, sessions, workouts, disabled }
 }
 
 // --- status (footer text + header button) ------------------------------------

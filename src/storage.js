@@ -15,15 +15,17 @@ export function loadStore() {
     if (raw) {
       const store = JSON.parse(raw)
       if (store && Array.isArray(store.sessions)) {
-        // workouts added later — backfill for stores written before it existed
+        // workouts / disabled added later — backfill for older stores
         if (!Array.isArray(store.workouts)) store.workouts = []
+        if (!store.disabled || typeof store.disabled !== 'object' || Array.isArray(store.disabled))
+          store.disabled = {}
         return store
       }
     }
   } catch {
     // corrupt JSON or storage blocked — fall through to an empty store
   }
-  return { schemaVersion: 1, sessions: [], workouts: [] }
+  return { schemaVersion: 1, sessions: [], workouts: [], disabled: {} }
 }
 
 // listeners fire after every successful local write so the sync layer can push
@@ -154,6 +156,27 @@ export function deleteSession(exerciseId, date) {
 export function deleteWorkout(date) {
   mutate((store) => {
     store.workouts = store.workouts.filter((w) => w.date !== date)
+  })
+}
+
+// --- per-exercise enable/disable (Day-screen edit mode) -------------------
+// `disabled` is a map: exerciseId → { off: bool, at: ms }. Entries keep their
+// timestamp so cross-device sync can merge toggles last-write-wins (a stale
+// cloud copy can't resurrect an exercise you re-enabled).
+
+const disabledIds = (store) =>
+  new Set(Object.keys(store.disabled).filter((id) => store.disabled[id].off))
+
+export function getDisabledIds() {
+  return disabledIds(loadStore())
+}
+
+// Flip one exercise on/off for its day. Returns the updated disabled-id Set.
+export function toggleExercise(exerciseId) {
+  return mutate((store) => {
+    const off = store.disabled[exerciseId]?.off ?? false
+    store.disabled[exerciseId] = { off: !off, at: Date.now() }
+    return disabledIds(store)
   })
 }
 

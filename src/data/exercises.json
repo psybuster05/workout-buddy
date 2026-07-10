@@ -16,6 +16,20 @@
       "restSeconds": 90
     },
     {
+      "id": "incline-dumbbell-press",
+      "name": "Incline Dumbbell Press",
+      "day": "Mon — Push",
+      "target": { "sets": "3", "reps": "8–12" },
+      "videoUrl": "https://www.youtube.com/embed/8iPEnn-ltC8",
+      "instructions": [
+        "Bench at 30–45° — higher hits shoulders more than chest",
+        "Dumbbells start at upper-chest level, elbows about 45° from torso",
+        "Press up and slightly together over the collarbones",
+        "Lower under control to a full stretch, no bouncing off the chest"
+      ],
+      "restSeconds": 90
+    },
+    {
       "id": "overhead-press",
       "name": "Overhead Press",
       "day": "Mon — Push",
@@ -102,6 +116,20 @@
       "restSeconds": 90
     },
     {
+      "id": "dumbbell-pullover",
+      "name": "Dumbbell Pullover",
+      "day": "Wed — Pull",
+      "target": { "sets": "3", "reps": "10–15" },
+      "videoUrl": "https://www.youtube.com/embed/Qc4L9I3pHnw",
+      "instructions": [
+        "Upper back on the bench, feet planted, hips slightly below shoulders",
+        "Hold one dumbbell with both palms flat under the top plate, arms up over chest",
+        "Slight elbow bend held constant — lower the bell in an arc behind your head",
+        "Stop at a deep lat stretch, then pull back over the chest with the lats, not the arms"
+      ],
+      "restSeconds": 90
+    },
+    {
       "id": "incline-dumbbell-curl",
       "name": "Incline Dumbbell Curl",
       "day": "Wed — Pull",
@@ -168,6 +196,20 @@
         "Lower until both knees hit ~90°, torso tall",
         "Front heel stays planted — drive through it to stand",
         "All reps one leg, then switch; log reps per leg"
+      ],
+      "restSeconds": 90
+    },
+    {
+      "id": "bulgarian-split-squat",
+      "name": "Bulgarian Split Squat",
+      "day": "Fri — Legs",
+      "target": { "sets": "2–3", "reps": "8–12 / leg" },
+      "videoUrl": "https://www.youtube.com/embed/DeCnHqrN22U",
+      "instructions": [
+        "Top of rear foot on the bench, front foot far enough forward to stay balanced",
+        "Feet hip-width apart, not on a tightrope — dumbbells at your sides",
+        "Drop the back knee straight down, torso tall (lean forward slightly for more glute)",
+        "Drive up through the front heel; all reps one leg, then switch — log reps per leg"
       ],
       "restSeconds": 90
     },

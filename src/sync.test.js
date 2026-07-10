@@ -49,14 +49,36 @@ describe('mergeStores', () => {
       schemaVersion: 1,
       sessions: [session('bench', '2026-07-01', [{ reps: 8, weight: 45 }])],
       workouts: [workout('2026-07-01', 'Mon — Push', 1000, 2000)],
+      disabled: { 'calf-raise': { off: true, at: 500 } },
     }
-    const local = { schemaVersion: 1, sessions: [], workouts: [] }
+    const local = { schemaVersion: 1, sessions: [], workouts: [], disabled: {} }
     expect(mergeStores(remote, local)).toEqual(remote)
   })
 
   it('tolerates null / missing fields', () => {
-    expect(mergeStores(null, null)).toEqual({ schemaVersion: 1, sessions: [], workouts: [] })
-    const only = { schemaVersion: 1, sessions: [session('x', '2026-07-01', [{ reps: 1, weight: 0 }])], workouts: [] }
+    expect(mergeStores(null, null)).toEqual({
+      schemaVersion: 1,
+      sessions: [],
+      workouts: [],
+      disabled: {},
+    })
+    const only = {
+      schemaVersion: 1,
+      sessions: [session('x', '2026-07-01', [{ reps: 1, weight: 0 }])],
+      workouts: [],
+      disabled: {},
+    }
     expect(mergeStores(only, null)).toEqual(only)
+  })
+
+  it('disabled toggles merge last-write-wins per exercise', () => {
+    // device A disabled it at t=100; device B re-enabled it later at t=200
+    const a = { sessions: [], workouts: [], disabled: { bench: { off: true, at: 100 } } }
+    const b = { sessions: [], workouts: [], disabled: { bench: { off: false, at: 200 } } }
+    expect(mergeStores(a, b).disabled.bench).toEqual({ off: false, at: 200 })
+    expect(mergeStores(b, a).disabled.bench).toEqual({ off: false, at: 200 }) // order-independent
+    // disjoint ids just union
+    const c = { sessions: [], workouts: [], disabled: { squat: { off: true, at: 50 } } }
+    expect(Object.keys(mergeStores(a, c).disabled).sort()).toEqual(['bench', 'squat'])
   })
 })

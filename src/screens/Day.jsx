@@ -1,15 +1,28 @@
 import { useEffect, useState } from 'react'
 import { dayAccent, dayLabel } from '../theme.js'
-import { finishWorkout, startWorkout, todaySession, todayWorkout } from '../storage.js'
+import {
+  finishWorkout,
+  getDisabledIds,
+  startWorkout,
+  todaySession,
+  todayWorkout,
+  toggleExercise,
+} from '../storage.js'
 import { formatDuration } from '../format.js'
 import { flush } from '../sync.js'
 import { stretchesFor } from '../data/stretches.js'
+import { PencilIcon } from '../icons.jsx'
 
 function Day({ day, exercises, onSelectExercise }) {
   const dayExercises = exercises.filter((e) => e.day === day)
   const stretches = stretchesFor(day)
   const [workout, setWorkout] = useState(() => todayWorkout())
   const [now, setNow] = useState(() => Date.now())
+  // edit mode: tap the pencil, then tap exercises to disable/re-enable them for
+  // this day. Disabled ones are hidden outside edit mode but keep their history.
+  const [editing, setEditing] = useState(false)
+  const [disabled, setDisabled] = useState(() => getDisabledIds())
+  const activeExercises = dayExercises.filter((e) => !disabled.has(e.id))
 
   const active = workout && !workout.endedAt
 
@@ -27,7 +40,7 @@ function Day({ day, exercises, onSelectExercise }) {
     }
   }, [active])
 
-  const doneIds = dayExercises
+  const doneIds = activeExercises
     .filter((e) => (todaySession(e.id)?.sets.length ?? 0) > 0)
     .map((e) => e.id)
 
@@ -37,7 +50,23 @@ function Day({ day, exercises, onSelectExercise }) {
 
   return (
     <div className="screen day-screen" style={{ '--accent': dayAccent(day) }}>
-      <h1>{dayLabel(day)}</h1>
+      <div className="day-title-row">
+        <h1>{dayLabel(day)}</h1>
+        <button
+          className={editing ? 'edit-day-button on' : 'edit-day-button'}
+          aria-label="Edit this day's exercises"
+          aria-pressed={editing}
+          onClick={() => setEditing((v) => !v)}
+        >
+          <PencilIcon />
+        </button>
+      </div>
+      {editing && (
+        <p className="edit-hint">
+          Tap an exercise to remove it from this day — tap it again to add it back. Tap the
+          pencil when you're done.
+        </p>
+      )}
 
       <div className="zone-card workout-card">
         <span className="zone-card-label">Workout</span>
@@ -50,7 +79,7 @@ function Day({ day, exercises, onSelectExercise }) {
           <>
             <div className="workout-elapsed">{formatDuration(elapsed)}</div>
             <div className="workout-done">
-              {doneIds.length} of {dayExercises.length} exercises done
+              {doneIds.length} of {activeExercises.length} exercises done
             </div>
             {active ? (
               <button
@@ -75,18 +104,29 @@ function Day({ day, exercises, onSelectExercise }) {
       </div>
 
       <ul className="exercise-list">
-        {dayExercises.map((e) => (
-          <li key={e.id}>
-            <button
-              className={
-                doneIds.includes(e.id) ? 'exercise-button is-done' : 'exercise-button'
-              }
-              onClick={() => onSelectExercise(e.id)}
-            >
-              {e.name}
-            </button>
-          </li>
-        ))}
+        {(editing ? dayExercises : activeExercises).map((e) => {
+          const off = disabled.has(e.id)
+          const cls = [
+            'exercise-button',
+            doneIds.includes(e.id) && 'is-done',
+            editing && off && 'is-off',
+          ]
+            .filter(Boolean)
+            .join(' ')
+          return (
+            <li key={e.id}>
+              <button
+                className={cls}
+                aria-pressed={editing ? !off : undefined}
+                onClick={() =>
+                  editing ? setDisabled(toggleExercise(e.id)) : onSelectExercise(e.id)
+                }
+              >
+                {e.name}
+              </button>
+            </li>
+          )
+        })}
       </ul>
 
       {stretches.length > 0 && (
