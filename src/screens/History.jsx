@@ -121,10 +121,15 @@ function History({ exercises, authed, onSignOut, onLogin }) {
               style={{ '--accent': dayAccent(exercise.day) }}
             >
               <summary className="hist-summary">
-                <span className="hist-name">{exercise.name}</span>
-                <span className="hist-summary-meta">
-                  {pr ? `PR · ${pr}` : `${sessions.length} log${sessions.length === 1 ? '' : 's'}`}
+                <span className="hist-summary-text">
+                  <span className="hist-name">{exercise.name}</span>
+                  <span className="hist-summary-meta">
+                    {pr
+                      ? `PR · ${pr}`
+                      : `${sessions.length} log${sessions.length === 1 ? '' : 's'}`}
+                  </span>
                 </span>
+                <span className="hist-chevron" />
               </summary>
               <ul className="history-list">
                 {sessions.map((s) => {
