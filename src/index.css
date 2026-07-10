@@ -970,6 +970,53 @@ input.counter-value::-webkit-inner-spin-button {
   color: var(--text-dim);
 }
 
+/* expandable workout → reveals the exercises done that day */
+.workout-detail > summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+.workout-detail > summary::-webkit-details-marker {
+  display: none;
+}
+
+.workout-detail[open] .hist-chevron::after {
+  content: '▴';
+}
+
+.workout-exercises {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 6px 6px 16px;
+}
+
+.workout-exercises li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.workout-ex-name {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.workout-ex-sets {
+  flex-shrink: 0;
+  font-size: 0.9375rem;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.workout-empty {
+  padding: 10px 6px 6px 16px;
+  font-size: 0.9375rem;
+  color: var(--text-dim);
+}
+
 .signout-button {
   margin-top: 14px;
   width: 100%;
