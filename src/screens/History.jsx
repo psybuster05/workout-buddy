@@ -6,15 +6,15 @@ import { supabase } from '../supabase.js'
 
 function History({ exercises, authed, onSignOut, onLogin }) {
   const [store, setStore] = useState(() => loadStore())
-  // delete needs two taps: the first arms the button, the second commits;
-  // an armed button disarms itself after a beat so a stray tap can't linger
+  // which delete button is armed (keyed by exercise|date or workout|date), or null
   const [armed, setArmed] = useState(null)
   const disarmTimer = useRef(null)
 
   useEffect(() => () => clearTimeout(disarmTimer.current), [])
 
-  const handleDelete = (exerciseId, date) => {
-    const key = `${exerciseId}|${date}`
+  // Two-tap delete: the first tap arms `key`, the second (same key) commits.
+  // An armed button disarms itself after 3s so a stray tap can't linger.
+  const armOrCommit = (key, commit) => {
     if (armed !== key) {
       setArmed(key)
       clearTimeout(disarmTimer.current)
@@ -22,24 +22,16 @@ function History({ exercises, authed, onSignOut, onLogin }) {
       return
     }
     clearTimeout(disarmTimer.current)
-    deleteSession(exerciseId, date)
+    commit()
     setArmed(null)
     setStore(loadStore())
   }
 
-  const handleDeleteWorkout = (date) => {
-    const key = `workout|${date}`
-    if (armed !== key) {
-      setArmed(key)
-      clearTimeout(disarmTimer.current)
-      disarmTimer.current = setTimeout(() => setArmed(null), 3000)
-      return
-    }
-    clearTimeout(disarmTimer.current)
-    deleteWorkout(date)
-    setArmed(null)
-    setStore(loadStore())
-  }
+  const handleDelete = (exerciseId, date) =>
+    armOrCommit(`${exerciseId}|${date}`, () => deleteSession(exerciseId, date))
+
+  const handleDeleteWorkout = (date) =>
+    armOrCommit(`workout|${date}`, () => deleteWorkout(date))
 
   const byExercise = exercises
     .map((exercise) => ({

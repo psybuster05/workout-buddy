@@ -1,14 +1,16 @@
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { flushSync } from 'react-dom'
 import Home from './screens/Home.jsx'
 import Day from './screens/Day.jsx'
 import Exercise from './screens/Exercise.jsx'
 import History from './screens/History.jsx'
 import Login from './screens/Login.jsx'
+import AppHeader from './components/AppHeader.jsx'
 import RestTimer from './components/RestTimer.jsx'
 import { supabase } from './supabase.js'
-import { onStoreChange } from './storage.js'
-import { markDirty, flush, syncNow, pullMergePush, setSyncUser, onSyncStatus } from './sync.js'
+import { syncNow } from './sync.js'
+import { useCloudSync } from './hooks/useCloudSync.js'
+import { useRestTimer } from './hooks/useRestTimer.js'
 import data from './data/exercises.json'
 
 // animate screen swaps with the View Transitions API where available
@@ -30,88 +32,12 @@ const SYNC_LABEL = {
 }
 
 function App() {
-  // auth: undefined = still checking, null = logged out, session = logged in.
-  // when Supabase isn't configured, auth/sync are off and the app runs local-only.
-  const [session, setSession] = useState(supabase ? undefined : null)
-  // "offline" = user chose to skip login and run local-only; persisted so we
-  // don't nag them every launch
-  const [offline, setOffline] = useState(
-    () => localStorage.getItem('workout-tracker:offline') === '1'
-  )
-  const [syncStatus, setSyncStatus] = useState('idle')
+  const { session, offline, syncStatus, goOffline, leaveOffline, signOut } = useCloudSync()
+  const { rest, startRest, extendRest, dismissRest, audioCtxRef } = useRestTimer()
+
   const [screen, setScreen] = useState('home')
   const [selectedDay, setSelectedDay] = useState(null)
   const [exerciseId, setExerciseId] = useState(null)
-  // rest lives at the app level (not inside Exercise) so it keeps running while
-  // Jon navigates between exercises mid-rest. { endsAt, total, id } | null
-  const [rest, setRest] = useState(null)
-  const audioCtxRef = useRef(null)
-
-  // track the Supabase session
-  useEffect(() => {
-    if (!supabase) return
-    supabase.auth.getSession().then(({ data }) => setSession(data.session ?? null))
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setSession(s ?? null))
-    return () => sub.subscription.unsubscribe()
-  }, [])
-
-  useEffect(() => {
-    if (!supabase) return
-    return onSyncStatus(setSyncStatus)
-  }, [])
-
-  // once logged in, wire cloud sync: push on every local write, pull+merge now
-  // and whenever we regain connectivity
-  const userId = session?.user?.id ?? null
-  useEffect(() => {
-    if (!supabase || !userId) return
-    setSyncUser(userId)
-    // don't push per write — just mark dirty; push at checkpoints below
-    const unsub = onStoreChange(markDirty)
-    const onOnline = () => pullMergePush(userId)
-    const onHide = () => {
-      if (document.hidden) flush()
-    }
-    window.addEventListener('online', onOnline)
-    document.addEventListener('visibilitychange', onHide)
-    window.addEventListener('pagehide', flush)
-    const interval = setInterval(flush, 120000) // periodic safety net
-    pullMergePush(userId)
-    return () => {
-      unsub()
-      window.removeEventListener('online', onOnline)
-      document.removeEventListener('visibilitychange', onHide)
-      window.removeEventListener('pagehide', flush)
-      clearInterval(interval)
-    }
-  }, [userId])
-
-  // called from the Finish-set tap, so the AudioContext unlock keeps its
-  // required user-gesture context. id changes per rest (remounts the timer)
-  // but not on extend (no flicker).
-  const startRest = (seconds) => {
-    if (!audioCtxRef.current && window.AudioContext) {
-      audioCtxRef.current = new AudioContext()
-    }
-    audioCtxRef.current?.resume?.()
-    setRest({ endsAt: Date.now() + seconds * 1000, total: seconds, id: Date.now() })
-  }
-  const extendRest = () =>
-    setRest((r) => (r ? { ...r, endsAt: r.endsAt + 15000, total: r.total + 15 } : r))
-  const dismissRest = () => setRest(null)
-
-  const goOffline = () => {
-    localStorage.setItem('workout-tracker:offline', '1')
-    setOffline(true)
-  }
-  const leaveOffline = () => {
-    localStorage.removeItem('workout-tracker:offline')
-    setOffline(false)
-  }
-  const signOut = () => {
-    leaveOffline()
-    supabase?.auth.signOut()
-  }
 
   if (session === undefined) return null // brief auth check on load
   if (supabase && !session && !offline) return <Login onOffline={goOffline} />
@@ -162,64 +88,15 @@ function App() {
 
   return (
     <div className="app">
-      <header className="app-header">
-        {screen === 'home' ? (
-          <button className="app-brand" onClick={goHome}>
-            Workout Buddy
-          </button>
-        ) : (
-          <button className="back-button" onClick={goBack}>
-            ‹ Back
-          </button>
-        )}
-        <div className="header-actions">
-          {supabase && session && (
-            <button
-              className={`timer-button sync-button sync-${syncStatus}`}
-              aria-label="Sync now"
-              onClick={() => syncNow()}
-            >
-              <svg
-                viewBox="0 0 24 24"
-                width="21"
-                height="21"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <polyline points="23 4 23 10 17 10" />
-                <polyline points="1 20 1 14 7 14" />
-                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
-              </svg>
-            </button>
-          )}
-          <button
-            className="timer-button"
-            aria-label="Start rest timer"
-            onClick={() => startRest(90)}
-          >
-            <svg
-              viewBox="0 0 24 24"
-              width="22"
-              height="22"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <line x1="9" y1="2.5" x2="15" y2="2.5" />
-              <line x1="12" y1="2.5" x2="12" y2="6" />
-              <circle cx="12" cy="14" r="8" />
-              <line x1="12" y1="14" x2="12" y2="9.5" />
-            </svg>
-          </button>
-        </div>
-      </header>
+      <AppHeader
+        isHome={screen === 'home'}
+        onHome={goHome}
+        onBack={goBack}
+        showSync={!!(supabase && session)}
+        syncStatus={syncStatus}
+        onSyncNow={() => syncNow()}
+        onStartRest={startRest}
+      />
 
       {screenEl}
 

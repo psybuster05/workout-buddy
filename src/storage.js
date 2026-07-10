@@ -51,38 +51,47 @@ export function replaceStore(store) {
   saveStore(store)
 }
 
+// Read-modify-write helper for the granular mutators: load the store, let fn
+// mutate it in place (and optionally return a value), then persist + notify.
+function mutate(fn) {
+  const store = loadStore()
+  const result = fn(store)
+  saveStore(store)
+  return result
+}
+
 // Append a set to today's session for this exercise, creating the session on
 // the first set. Writes through to localStorage immediately so nothing is lost
 // if Safari kills the tab mid-workout. Returns the updated session.
 export function logSet(exerciseId, set) {
-  const store = loadStore()
   const date = todayISO()
-  let session = store.sessions.find((s) => s.exerciseId === exerciseId && s.date === date)
-  if (!session) {
-    session = { exerciseId, date, unit: UNIT, sets: [] }
-    store.sessions.push(session)
-  }
-  session.sets.push(set)
-  saveStore(store)
-  return session
+  return mutate((store) => {
+    let session = store.sessions.find((s) => s.exerciseId === exerciseId && s.date === date)
+    if (!session) {
+      session = { exerciseId, date, unit: UNIT, sets: [] }
+      store.sessions.push(session)
+    }
+    session.sets.push(set)
+    return session
+  })
 }
 
 // Remove the most recent set from today's session (in-workout undo of an
 // accidental entry). Drops the session entirely if that empties it, so we
 // never leave a zero-set session behind. Returns the remaining sets.
 export function deleteLastSet(exerciseId) {
-  const store = loadStore()
   const date = todayISO()
-  const session = store.sessions.find(
-    (s) => s.exerciseId === exerciseId && s.date === date
-  )
-  if (!session || session.sets.length === 0) return []
-  session.sets.pop()
-  if (session.sets.length === 0) {
-    store.sessions = store.sessions.filter((s) => s !== session)
-  }
-  saveStore(store)
-  return session.sets
+  return mutate((store) => {
+    const session = store.sessions.find(
+      (s) => s.exerciseId === exerciseId && s.date === date
+    )
+    if (!session || session.sets.length === 0) return []
+    session.sets.pop()
+    if (session.sets.length === 0) {
+      store.sessions = store.sessions.filter((s) => s !== session)
+    }
+    return session.sets
+  })
 }
 
 export function todaySession(exerciseId) {
@@ -105,47 +114,47 @@ export function todayWorkout() {
 
 // Begin (or restart) today's workout — stamps startedAt, clears endedAt.
 export function startWorkout(day) {
-  const store = loadStore()
   const date = todayISO()
-  let workout = store.workouts.find((w) => w.date === date)
-  if (!workout) {
-    workout = { date, day, startedAt: 0, endedAt: null }
-    store.workouts.push(workout)
-  }
-  workout.day = day
-  workout.startedAt = Date.now()
-  workout.endedAt = null
-  saveStore(store)
-  return workout
+  return mutate((store) => {
+    let workout = store.workouts.find((w) => w.date === date)
+    if (!workout) {
+      workout = { date, day, startedAt: 0, endedAt: null }
+      store.workouts.push(workout)
+    }
+    workout.day = day
+    workout.startedAt = Date.now()
+    workout.endedAt = null
+    return workout
+  })
 }
 
 // Stop today's workout — stamps endedAt so duration is frozen.
 export function finishWorkout() {
-  const store = loadStore()
   const date = todayISO()
-  const workout = store.workouts.find((w) => w.date === date)
-  if (!workout) return null
-  workout.endedAt = Date.now()
-  saveStore(store)
-  return workout
+  return mutate((store) => {
+    const workout = store.workouts.find((w) => w.date === date)
+    if (!workout) return null
+    workout.endedAt = Date.now()
+    return workout
+  })
 }
 
 // Remove one logged session (accidental entries). A session is uniquely
 // identified by exercise + date since logSet keeps one per exercise per day.
 export function deleteSession(exerciseId, date) {
-  const store = loadStore()
-  store.sessions = store.sessions.filter(
-    (s) => !(s.exerciseId === exerciseId && s.date === date)
-  )
-  saveStore(store)
+  mutate((store) => {
+    store.sessions = store.sessions.filter(
+      (s) => !(s.exerciseId === exerciseId && s.date === date)
+    )
+  })
 }
 
 // Remove one whole-day workout record (the timer entry). Leaves that day's
 // exercise sessions alone — they're deleted separately from the exercise list.
 export function deleteWorkout(date) {
-  const store = loadStore()
-  store.workouts = store.workouts.filter((w) => w.date !== date)
-  saveStore(store)
+  mutate((store) => {
+    store.workouts = store.workouts.filter((w) => w.date !== date)
+  })
 }
 
 // Most recent session from a previous day — "last time", not today's sets.
