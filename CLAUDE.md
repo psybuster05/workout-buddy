@@ -8,7 +8,7 @@ Personal workout tracker web app. One user (Jon), used on an iPhone browser mid-
 - localStorage is the source of truth (offline-first). Optional **Supabase** cloud sync (username + password auth — username maps to a synthetic `@workoutbuddy.app` email; "Confirm email" must stay OFF in Supabase) backs it up so iOS's ~7-day eviction can't lose history — off until credentials are set in `src/supabaseConfig.js`. "Use offline" on the login screen skips sync entirely.
 - Data: exercises hardcoded in `src/data/exercises.json`; workout history in localStorage, synced to Supabase when configured
 - Hosting: GitHub Pages
-- Target device: iPhone 17 Pro Max, Safari, added to home screen
+- Target device: iPhone 17 Pro Max, Safari, added to home screen. Responsive as of 2026-07-10: single centered column everywhere; ≥700px widens the column (`--col` 480→600) and adds hover states for pointer devices; the top/bottom fades span the full viewport at any width
 
 ## Core screens
 1. **Home** — 4 day mega-buttons (Mon–Push / Wed–Pull / Fri–Legs / Cardio) with per-day photo backgrounds. Tap → Day screen.
@@ -25,6 +25,7 @@ Personal workout tracker web app. One user (Jon), used on an iPhone browser mid-
   "day": "Fri — Legs",
   "target": { "sets": "4", "reps": "10–15" },
   "tracking": "weighted | reps-only | time | cardio (optional, default weighted)",
+  "defaultOff": "true (optional — starts disabled until enabled in Day-screen edit mode)",
   "videoUrl": "https://www.youtube.com/embed/VIDEO_ID (optional — omit to hide the video frame)",
   "instructions": ["Cue 1", "Cue 2"],
   "restSeconds": 90
@@ -185,6 +186,19 @@ Charts/graphs, in-app exercise editing, PWA service-worker/offline-launch (the a
 - (Earlier the source banners had a checkerboard *baked into pixels* — AI faux-transparency, not alpha; that set was masked out with sharp, but has since been replaced by the plain photos above.)
 - **sharp** now a devDependency — image tooling (resize/compress/convert/flatten/crop/mask) available for future asset jobs; run one-off scripts from the project root so `node_modules` resolves. Not imported at build time (Vite doesn't touch it).
 - Calories deferred (needs body weight + MET; body-weight tracking still out of scope). `workouts` record can gain a `calories` field later.
+
+### 2026-07-10 — Confetti, Workout Tracker label, History-only footer, machine exercises
+- **Confetti** (src/confetti.js, dependency-free): Finish Workout fires a two-popper canvas burst in the day's accent + brand colors; canvas self-removes when the last particle falls; skipped under prefers-reduced-motion.
+- Day screen's "Workout" card label → **"Workout Tracker"**.
+- **Footer only on History** now (App.jsx conditional) — `.screen` bottom padding bumped to 48px so scrolling pages clear the fixed bottom fade without it.
+- **3 machine exercises, disabled by default** (`defaultOff: true` in exercises.json): Tricep Pushdown (Push), Lat Pulldown (Pull), Leg Press (Legs) — all reuse orphaned old-program ids so pre-WFH history reattaches, and all videos oEmbed-verified. Seeding: loadStore backfills missing `disabled` entries for defaultOff ids in-memory as `{ off: true, at: 0 }` — `at: 0` loses to any real toggle in the LWW sync merge, so enabling on one device sticks everywhere; nothing is written until the next mutation.
+- **Full-bleed header fade fix**: the top gradient moved off `.app-header` (column-width) onto an absolutely-positioned 100vw `::before`, so it spans the viewport on wide screens like the bottom fade; `html { overflow-x: clip }` guards the scrollbar overhang.
+
+### 2026-07-10 — Responsive pass + real cardio banner
+- Real cardio photo: Jon's cardio.webp normalized with the sharp recipe (1024×400 attention crop → mozjpeg q82, 41 KB) → public/days/cardio.jpg, replacing the generated placeholder. Source .webp deleted after conversion.
+- **Responsive**: layout stays one centered column on every device (phone-first). `--col` var (480px) drives both `.app` max-width and the fixed `.rest-timer` max-width (`--col` − 24) so they can't drift apart; `@media (min-width: 700px)` (iPad mini portrait and up) widens to 600px + day buttons to 160px. Small phones already safe — counter buttons are flex:1, only the 110px value is fixed.
+- **Hover states** under `@media (hover: hover) and (pointer: fine)` (laptop/desktop only; touch keeps :active): surface buttons → `--surface-pressed`, counter steppers → accent border, CTAs → brightness bump, day buttons → brightness, text buttons → opacity. Plus `cursor: pointer` on buttons/summaries.
+- Preview-pane note: emulated viewports wider than the pane letterbox the screenshot (page scaled into the top-left corner) — measure with getBoundingClientRect, don't trust the shot.
 
 ### 2026-07-10 — Cardio: 4th day + finisher card on lifting days
 - New **"Cardio" day** (amber `#ffb02e`) with 4 `tracking: "cardio"` exercises: incline-walk, run, jump-rope, cardio-machine. Cardio logs **minutes (reps field) + optional miles (weight field)** — zero storage/sync changes, same trick as time mode. Minutes render as a typeable input (not 32 taps); distance steps ±0.1 mi; failure toggle hidden.

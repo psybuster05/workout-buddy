@@ -10,6 +10,7 @@ import {
 } from '../storage.js'
 import { formatDuration } from '../format.js'
 import { flush } from '../sync.js'
+import { burstConfetti } from '../confetti.js'
 import { stretchesFor } from '../data/stretches.js'
 import { PencilIcon } from '../icons.jsx'
 
@@ -75,7 +76,7 @@ function Day({ day, exercises, onSelectExercise }) {
       )}
 
       <div className="zone-card workout-card">
-        <span className="zone-card-label">Workout</span>
+        <span className="zone-card-label">Workout Tracker</span>
 
         {!workout ? (
           <button className="finish-button" onClick={() => setWorkout(startWorkout(day))}>
@@ -93,6 +94,7 @@ function Day({ day, exercises, onSelectExercise }) {
                 onClick={() => {
                   setWorkout(finishWorkout())
                   flush() // sync checkpoint: push right after a workout ends
+                  burstConfetti(dayAccent(day)) // you earned it
                 }}
               >
                 Finish Workout

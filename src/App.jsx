@@ -100,13 +100,15 @@ function App() {
 
       {screenEl}
 
-      <footer className="app-footer">
-        {supabase && session && (
-          <p className="sync-status">{SYNC_LABEL[syncStatus] ?? ''}</p>
-        )}
-        <p>© 2026 Workout Buddy — all gains reserved</p>
-        <p>Last updated {__BUILD_DATE__}</p>
-      </footer>
+      {screen === 'history' && (
+        <footer className="app-footer">
+          {supabase && session && (
+            <p className="sync-status">{SYNC_LABEL[syncStatus] ?? ''}</p>
+          )}
+          <p>© 2026 Workout Buddy — all gains reserved</p>
+          <p>Last updated {__BUILD_DATE__}</p>
+        </footer>
+      )}
 
       {rest && (
         <RestTimer

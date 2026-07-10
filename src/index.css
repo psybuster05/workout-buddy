@@ -1,5 +1,8 @@
 :root {
   color-scheme: dark;
+  /* app column width — the layout is one centered column on every device;
+     widened via media query on tablets/laptops (rest bar follows) */
+  --col: 480px;
   --bg: #0a0a0c;
   --surface: rgba(22, 22, 28, 0.55);
   --surface-pressed: rgba(255, 255, 255, 0.12);
@@ -17,9 +20,12 @@
 }
 
 /* background lives on html only — body stays transparent so the fixed
-   body::before backdrop (z-index -1) isn't hidden behind body's own fill */
+   body::before backdrop (z-index -1) isn't hidden behind body's own fill.
+   overflow-x clip: the header's full-bleed 100vw fade can overhang the
+   vertical scrollbar's width on desktop — clip it instead of scrolling */
 html {
   background: var(--bg);
+  overflow-x: clip;
 }
 
 html,
@@ -50,7 +56,7 @@ body::before {
 
 /* centered app column holding the global header, the active screen, footer */
 .app {
-  max-width: 480px;
+  max-width: var(--col);
   margin: 0 auto;
   position: relative;
   /* sticky-footer column so the footer sits at the viewport bottom on short
@@ -62,7 +68,9 @@ body::before {
 }
 
 .screen {
-  padding: 4px 16px 16px;
+  /* extra bottom padding clears the fixed bottom fade now that most screens
+     have no footer under the content */
+  padding: 4px 16px 48px;
 }
 
 /* sports-poster headings */
@@ -121,13 +129,27 @@ h1 {
   justify-content: space-between;
   gap: 12px;
   padding: calc(14px + env(safe-area-inset-top)) 16px 30px;
+  pointer-events: none;
+}
+
+/* the fade lives on a full-bleed pseudo, not the header itself — the header
+   is column-width, but the fade must span the whole viewport on wide screens
+   (mirrors the full-width body::after bottom fade) */
+.app-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100vw;
+  z-index: -1;
   background: linear-gradient(
     to bottom,
     var(--bg) 0%,
     var(--bg) 55%,
     transparent 100%
   );
-  pointer-events: none;
 }
 
 .app-brand {
@@ -751,7 +773,7 @@ input.counter-value::-webkit-inner-spin-button {
   transform: translateX(-50%);
   bottom: calc(env(safe-area-inset-bottom) + 12px);
   width: calc(100% - 24px);
-  max-width: 456px;
+  max-width: calc(var(--col) - 24px);
   z-index: 50;
   /* stay put during page transitions instead of sliding with the root snapshot */
   view-transition-name: rest-bar;
@@ -1106,6 +1128,59 @@ body::after {
   z-index: 15;
   pointer-events: none;
   background: linear-gradient(to bottom, transparent, var(--bg));
+}
+
+/* --- responsive: other devices --------------------------------------------
+   The layout is one centered column everywhere (phone-first). On tablets and
+   laptops the column just gets roomier — everything inside is fluid. */
+
+/* iPad mini portrait (744px) and up: wider column, beefier day buttons */
+@media (min-width: 700px) {
+  :root {
+    --col: 600px;
+  }
+
+  .day-button {
+    min-height: 160px;
+  }
+}
+
+/* mouse/trackpad devices: hover feedback (touch keeps :active only) */
+@media (hover: hover) and (pointer: fine) {
+  button,
+  details > summary {
+    cursor: pointer;
+  }
+
+  .exercise-button:hover,
+  .cardio-row:hover,
+  .home-history:hover,
+  .timer-button:hover,
+  .edit-day-button:hover,
+  .delete-last-button:hover,
+  .export-button:hover,
+  .signout-button:hover {
+    background: var(--surface-pressed);
+  }
+
+  .counter-button:hover:not(:disabled) {
+    border-color: var(--accent);
+  }
+
+  .finish-button:hover {
+    filter: brightness(1.12);
+  }
+
+  .day-button:hover {
+    filter: brightness(1.15);
+  }
+
+  .app-brand:hover,
+  .back-button:hover,
+  .history-delete:hover,
+  .login-offline:hover {
+    opacity: 0.75;
+  }
 }
 
 /* header actions: sync (when logged in) + rest-timer buttons */

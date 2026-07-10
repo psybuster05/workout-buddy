@@ -1,5 +1,11 @@
+import data from './data/exercises.json'
+
 const KEY = 'workout-tracker:v1'
 const UNIT = 'lbs'
+
+// exercises marked defaultOff in exercises.json start disabled until the user
+// enables them in Day-screen edit mode
+const DEFAULT_OFF_IDS = data.exercises.filter((e) => e.defaultOff).map((e) => e.id)
 
 // local date, not toISOString() — a 9pm workout must not roll into tomorrow (UTC)
 function todayISO() {
@@ -19,13 +25,23 @@ export function loadStore() {
         if (!Array.isArray(store.workouts)) store.workouts = []
         if (!store.disabled || typeof store.disabled !== 'object' || Array.isArray(store.disabled))
           store.disabled = {}
-        return store
+        return seedDefaultOff(store)
       }
     }
   } catch {
     // corrupt JSON or storage blocked — fall through to an empty store
   }
-  return { schemaVersion: 1, sessions: [], workouts: [], disabled: {} }
+  return seedDefaultOff({ schemaVersion: 1, sessions: [], workouts: [], disabled: {} })
+}
+
+// In-memory backfill (persisted on the next mutation): defaultOff exercises
+// with no explicit toggle read as disabled. at: 0 means any real user toggle
+// (at: now) wins the last-write-wins sync merge, on this or any other device.
+function seedDefaultOff(store) {
+  for (const id of DEFAULT_OFF_IDS) {
+    if (!(id in store.disabled)) store.disabled[id] = { off: true, at: 0 }
+  }
+  return store
 }
 
 // listeners fire after every successful local write so the sync layer can push

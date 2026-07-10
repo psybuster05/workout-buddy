@@ -72,6 +72,21 @@
       "restSeconds": 90
     },
     {
+      "id": "tricep-pushdown",
+      "name": "Tricep Pushdown",
+      "day": "Mon — Push",
+      "target": { "sets": "3", "reps": "10–15" },
+      "defaultOff": true,
+      "videoUrl": "https://www.youtube.com/embed/_w-HpW70nSQ",
+      "instructions": [
+        "Cable at the top, chest out, shoulder blades back",
+        "Elbows pinned to your sides — they're the only joint that moves",
+        "Push down to full lockout, squeeze the triceps a beat",
+        "Control the bar back up to chest height, no shoulder roll"
+      ],
+      "restSeconds": 90
+    },
+    {
       "id": "assisted-hangs",
       "name": "Assisted Hangs / Progression",
       "day": "Wed — Pull",
@@ -158,6 +173,21 @@
       "restSeconds": 90
     },
     {
+      "id": "lat-pulldown",
+      "name": "Lat Pulldown",
+      "day": "Wed — Pull",
+      "target": { "sets": "3–4", "reps": "8–12" },
+      "defaultOff": true,
+      "videoUrl": "https://www.youtube.com/embed/CAwf7n6Luuc",
+      "instructions": [
+        "Grip just outside shoulder width, thighs locked under the pads",
+        "Slight lean back, chest up — pull the bar to the upper chest",
+        "Drive the elbows down and back, don't yank with the biceps",
+        "Slow stretch back to the top — full hang between reps"
+      ],
+      "restSeconds": 90
+    },
+    {
       "id": "goblet-squat",
       "name": "Goblet Squat",
       "day": "Fri — Legs",
@@ -224,6 +254,21 @@
         "Full stretch at the bottom — pause there",
         "Drive up as high as possible, hold the top 1 second",
         "Slow tempo beats heavy weight here"
+      ],
+      "restSeconds": 90
+    },
+    {
+      "id": "leg-press",
+      "name": "Leg Press",
+      "day": "Fri — Legs",
+      "target": { "sets": "3–4", "reps": "10–12" },
+      "defaultOff": true,
+      "videoUrl": "https://www.youtube.com/embed/CHPHn-OnTqE",
+      "instructions": [
+        "Feet shoulder width, mid-platform; back and hips stay glued to the pad",
+        "Lower until knees hit ~90° — don't let the hips curl off the seat",
+        "Press through mid-foot and heels, knees tracking over toes",
+        "Never lock the knees hard at the top — keep a soft finish"
       ],
       "restSeconds": 90
     },
