@@ -328,6 +328,20 @@
         "Log minutes; add distance if the console shows it"
       ],
       "restSeconds": 0
+    },
+    {
+      "id": "stairmaster",
+      "name": "StairMaster",
+      "day": "Cardio",
+      "target": { "goal": "10–20 min" },
+      "tracking": "cardio",
+      "instructions": [
+        "Fingertips on the rails for balance only — no leaning or death-grip",
+        "Full foot on each step, push through the heel, stand tall",
+        "Steady conversational pace beats a sprint you can't hold",
+        "Log minutes; distance can stay blank (the mi field doesn't apply)"
+      ],
+      "restSeconds": 0
     }
   ]
 }
