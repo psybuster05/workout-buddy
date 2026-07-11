@@ -5,6 +5,7 @@ import Day from './screens/Day.jsx'
 import Exercise from './screens/Exercise.jsx'
 import History from './screens/History.jsx'
 import Login from './screens/Login.jsx'
+import ResetPassword from './screens/ResetPassword.jsx'
 import AppHeader from './components/AppHeader.jsx'
 import RestTimer from './components/RestTimer.jsx'
 import { supabase } from './supabase.js'
@@ -32,7 +33,16 @@ const SYNC_LABEL = {
 }
 
 function App() {
-  const { session, offline, syncStatus, goOffline, leaveOffline, signOut } = useCloudSync()
+  const {
+    session,
+    offline,
+    syncStatus,
+    recovery,
+    clearRecovery,
+    goOffline,
+    leaveOffline,
+    signOut,
+  } = useCloudSync()
   const { rest, startRest, extendRest, dismissRest, audioCtxRef } = useRestTimer()
 
   const [screen, setScreen] = useState('home')
@@ -40,6 +50,8 @@ function App() {
   const [exerciseId, setExerciseId] = useState(null)
 
   if (session === undefined) return null // brief auth check on load
+  // arrived via a password-reset email link → set the new password first
+  if (recovery && session) return <ResetPassword onDone={clearRecovery} />
   if (supabase && !session && !offline) return <Login onOffline={goOffline} />
 
   const openDay = (day) =>

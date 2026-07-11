@@ -17,12 +17,19 @@ export function useCloudSync() {
     () => localStorage.getItem('workout-tracker:offline') === '1'
   )
   const [syncStatus, setSyncStatus] = useState('idle')
+  // true while the user arrived via a password-reset email link — App shows
+  // the choose-a-new-password screen until it's cleared
+  const [recovery, setRecovery] = useState(false)
 
   // track the Supabase session
   useEffect(() => {
     if (!supabase) return
     supabase.auth.getSession().then(({ data }) => setSession(data.session ?? null))
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setSession(s ?? null))
+    const { data: sub } = supabase.auth.onAuthStateChange((event, s) => {
+      setSession(s ?? null)
+      if (event === 'PASSWORD_RECOVERY') setRecovery(true)
+      if (event === 'SIGNED_OUT') setRecovery(false)
+    })
     return () => sub.subscription.unsubscribe()
   }, [])
 
@@ -68,6 +75,16 @@ export function useCloudSync() {
     leaveOffline()
     supabase?.auth.signOut()
   }
+  const clearRecovery = () => setRecovery(false)
 
-  return { session, offline, syncStatus, goOffline, leaveOffline, signOut }
+  return {
+    session,
+    offline,
+    syncStatus,
+    recovery,
+    clearRecovery,
+    goOffline,
+    leaveOffline,
+    signOut,
+  }
 }

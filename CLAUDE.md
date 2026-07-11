@@ -5,7 +5,7 @@ Personal workout tracker web app. One user (Jon), used on an iPhone browser mid-
 
 ## Tech stack
 - React (Vite) 
-- localStorage is the source of truth (offline-first). Optional **Supabase** cloud sync (username + password auth — username maps to a synthetic `@workoutbuddy.app` email; "Confirm email" must stay OFF in Supabase) backs it up so iOS's ~7-day eviction can't lose history — off until credentials are set in `src/supabaseConfig.js`. "Use offline" on the login screen skips sync entirely.
+- localStorage is the source of truth (offline-first). Optional **Supabase** cloud sync (real email/password auth with "Confirm email" ON + Google OAuth; forgot-password reset flow; requires Site URL + redirect URLs configured in Supabase, Google provider keys, and "Secure email change" OFF) backs it up so iOS's ~7-day eviction can't lose history — off until credentials are set in `src/supabaseConfig.js`. "Use offline" on the login screen skips sync entirely.
 - Data: exercises hardcoded in `src/data/exercises.json`; workout history in localStorage, synced to Supabase when configured
 - Hosting: GitHub Pages
 - Target device: iPhone 17 Pro Max, Safari, added to home screen. Responsive as of 2026-07-10: single centered column everywhere; ≥700px widens the column (`--col` 480→600) and adds hover states for pointer devices; the top/bottom fades span the full viewport at any width
@@ -73,6 +73,16 @@ Charts/graphs, in-app exercise editing, PWA service-worker/offline-launch (the a
 - 2026-07-06 — Project scoped in Chat. Pivoted from idle-miner idea to workout tracker for smaller, finishable scope. Repo is canonical source of truth; Chat project is design-only; no Cowork for this project.
 
 ## Changelog
+
+### 2026-07-11 — Auth overhaul: real email/password + Google OAuth
+- **Why:** the username scheme silently created a NEW account on a typo ("jno" ≠ "jon") because sign-in fell back to signUp; and with "Confirm email" now ON in Supabase, synthetic `@workoutbuddy.app` addresses can't receive the link, so new signups were broken anyway.
+- **Login.jsx rewritten**: explicit sign-in / create-account / reset-password modes (no auto-signup fallback — wrong creds say "Wrong email or password."). Google OAuth button (`signInWithOAuth`, redirects via `SITE_URL`). Confirm-email handling: signup → "Check your email" state; unconfirmed sign-in → resend-confirmation button; existing-email signup detected via Supabase's empty-`identities` anti-enumeration response.
+- **Forgot password**: `resetPasswordForEmail` → email link → `PASSWORD_RECOVERY` event (tracked in useCloudSync) → new ResetPassword.jsx screen (`updateUser({ password })`) gated in App before everything else.
+- **`SITE_URL`** (supabase.js) = `origin + BASE_URL`, window-guarded for vitest; all auth emails and OAuth redirect there.
+- **Change account email** (History, under sign-out): `updateUser({ email })` + confirmation link — this is the migration path for the old `jon@workoutbuddy.app` account to a real inbox (same user id, same cloud data; password reset works afterward). Once the account email matches his Google email, Google sign-in auto-links to the same account (Supabase links verified matching emails).
+- **Jon's Supabase dashboard checklist (feature is inert until done):** ① Auth → URL Configuration: Site URL `https://psybuster05.github.io/workout-buddy/`, add redirect `http://localhost:5173/workout-buddy/`. ② Providers → Google: create OAuth client in Google Cloud Console (Web app, authorized redirect URI `https://idogwtyvlxmlmsgrysyx.supabase.co/auth/v1/callback`), paste client id + secret, enable. ③ Auth → Email: keep "Confirm email" ON, turn "Secure email change" OFF (old synthetic address has no inbox). Built-in email sender is rate-limited (~2-4/hour) — fine for one user; custom SMTP if it ever matters.
+- Apple (needs $99/yr dev account) and Facebook/X (dev-portal + review hoops) deliberately deferred.
+- Not testable by Claude end-to-end (needs a real inbox + Google keys): confirmation click, reset click, Google round-trip. Verified: wrong-creds honesty, all mode UIs, build/tests/lint.
 
 ### 2026-07-06 — Init decisions
 - Vanilla JS, no build step. Single index.html, screens toggled via JS. No router.

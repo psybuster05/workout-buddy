@@ -575,6 +575,114 @@ h1 {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* "Continue with Google" — white per Google's branding, works over the card */
+.oauth-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 52px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1f1f1f;
+  background: #fff;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.oauth-button:active {
+  filter: brightness(0.9);
+}
+
+.login-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-dim);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.login-divider::before,
+.login-divider::after {
+  content: '';
+  flex: 1;
+  border-top: 1px solid var(--border);
+}
+
+.login-links {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+.login-link {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.login-notice {
+  color: var(--text-dim);
+  font-size: 0.9375rem;
+  text-align: center;
+}
+
+.login-sent-title {
+  font-size: 1.25rem;
+  font-weight: 900;
+  font-style: italic;
+  text-transform: uppercase;
+}
+
+.login-sent-body {
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+/* change-account-email row on History (below sign-out) */
+.change-email {
+  margin-top: 14px;
+  display: flex;
+  gap: 8px;
+}
+
+.change-email input {
+  flex: 1;
+  min-height: 48px;
+  padding: 0 14px;
+  font-size: 1rem;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.change-email .signout-button {
+  margin-top: 0;
+  width: auto;
+  padding: 0 16px;
+  flex-shrink: 0;
+}
+
+.change-email-msg {
+  margin-top: 10px;
+  color: var(--text-dim);
+  font-size: 0.9375rem;
+  text-align: center;
+}
+
 /* --- Exercise screen --- */
 
 .video-frame {
@@ -1178,8 +1286,13 @@ body::after {
   .app-brand:hover,
   .back-button:hover,
   .history-delete:hover,
-  .login-offline:hover {
+  .login-offline:hover,
+  .login-link:hover {
     opacity: 0.75;
+  }
+
+  .oauth-button:hover {
+    filter: brightness(0.92);
   }
 }
 

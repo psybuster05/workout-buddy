@@ -2,13 +2,18 @@ import { useEffect, useRef, useState } from 'react'
 import { deleteSession, deleteWorkout, exportJSON, loadStore } from '../storage.js'
 import { formatSession, formatDuration, personalRecord } from '../format.js'
 import { dayAccent, dayLabel } from '../theme.js'
-import { supabase } from '../supabase.js'
+import { supabase, SITE_URL } from '../supabase.js'
 
 function History({ exercises, authed, onSignOut, onLogin }) {
   const [store, setStore] = useState(() => loadStore())
   // which delete button is armed (keyed by exercise|date or workout|date), or null
   const [armed, setArmed] = useState(null)
   const disarmTimer = useRef(null)
+  // change-account-email (e.g. migrating off the old synthetic username email
+  // so password reset can actually reach an inbox)
+  const [emailOpen, setEmailOpen] = useState(false)
+  const [newEmail, setNewEmail] = useState('')
+  const [emailMsg, setEmailMsg] = useState('')
 
   useEffect(() => () => clearTimeout(disarmTimer.current), [])
 
@@ -181,9 +186,47 @@ function History({ exercises, authed, onSignOut, onLogin }) {
 
       {supabase &&
         (authed ? (
-          <button className="signout-button" onClick={onSignOut}>
-            Sign out
-          </button>
+          <>
+            <button className="signout-button" onClick={onSignOut}>
+              Sign out
+            </button>
+            {emailOpen ? (
+              <form
+                className="change-email"
+                onSubmit={async (e) => {
+                  e.preventDefault()
+                  const { error } = await supabase.auth.updateUser(
+                    { email: newEmail },
+                    { emailRedirectTo: SITE_URL }
+                  )
+                  setEmailMsg(
+                    error
+                      ? error.message
+                      : `Confirmation sent to ${newEmail} — click the link to finish.`
+                  )
+                  if (!error) setEmailOpen(false)
+                }}
+              >
+                <input
+                  type="email"
+                  required
+                  autoFocus
+                  placeholder="new@email.com"
+                  value={newEmail}
+                  onChange={(e) => setNewEmail(e.target.value)}
+                  aria-label="New account email"
+                />
+                <button type="submit" className="signout-button">
+                  Send link
+                </button>
+              </form>
+            ) : (
+              <button className="signout-button" onClick={() => setEmailOpen(true)}>
+                Change account email
+              </button>
+            )}
+            {emailMsg && <p className="change-email-msg">{emailMsg}</p>}
+          </>
         ) : (
           <button className="signout-button" onClick={onLogin}>
             Log in to back up
