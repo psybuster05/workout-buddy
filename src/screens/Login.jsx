@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { supabase, SITE_URL } from '../supabase.js'
+import { supabase, SITE_URL, AUTH_REDIRECT_ERROR } from '../supabase.js'
 
 // Real email/password auth ("Confirm email" is ON in Supabase — signups must
 // click the emailed link) plus Google OAuth. Sign-in and sign-up are separate,
@@ -33,7 +33,9 @@ function Login({ onOffline }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [busy, setBusy] = useState(false)
-  const [error, setError] = useState('')
+  // seeded with any error a failed OAuth/email-link callback carried back in
+  // the URL — otherwise those failures look like a silent bounce to this screen
+  const [error, setError] = useState(AUTH_REDIRECT_ERROR)
   const [notice, setNotice] = useState('')
   const [unconfirmed, setUnconfirmed] = useState(false)
 

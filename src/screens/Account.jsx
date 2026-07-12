@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { supabase, SITE_URL } from '../supabase.js'
 
 // Account management, reached from the person icon in the header. Signed in:
@@ -9,6 +9,15 @@ function Account({ session, onSignOut, onLogin }) {
   const [emailOpen, setEmailOpen] = useState(false)
   const [newEmail, setNewEmail] = useState('')
   const [emailMsg, setEmailMsg] = useState('')
+  // the cached session can hold a stale email after a change confirmed in
+  // another browser (the emailed link) — ask the server for current truth
+  const [email, setEmail] = useState(session?.user?.email)
+  useEffect(() => {
+    if (!session) return
+    supabase.auth.getUser().then(({ data }) => {
+      if (data?.user?.email) setEmail(data.user.email)
+    })
+  }, [session])
 
   const changeEmail = async (e) => {
     e.preventDefault()
@@ -30,7 +39,7 @@ function Account({ session, onSignOut, onLogin }) {
         <>
           <div className="zone-card">
             <span className="zone-card-label">Signed in as</span>
-            <p className="account-email">{session.user.email}</p>
+            <p className="account-email">{email}</p>
           </div>
 
           {emailOpen ? (
