@@ -39,7 +39,7 @@ function Account({ session, onSignOut, onLogin }) {
   }
 
   return (
-    <div className="screen">
+    <div className="screen account-screen">
       <h1>Account</h1>
 
       <div className="zone-card">

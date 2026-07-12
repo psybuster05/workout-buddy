@@ -769,9 +769,12 @@ h1 {
 }
 
 /* Imperial / Metric segmented toggle (Account) */
+/* segmented switch: the two buttons read as one connected control */
 .unit-toggle {
   display: flex;
-  gap: 8px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
 }
 
 .unit-toggle button {
@@ -784,16 +787,35 @@ h1 {
   letter-spacing: 0.03em;
   color: var(--text-dim);
   background: transparent;
-  border: 1px solid var(--border);
-  border-radius: 10px;
+  border: none;
+  border-radius: 0;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+  transition: background 0.12s, color 0.12s;
+}
+
+/* hairline divider between the two segments */
+.unit-toggle button + button {
+  border-left: 1px solid var(--border);
 }
 
 .unit-toggle button.on {
   color: var(--bg);
   background: var(--accent);
-  border-color: var(--accent);
+}
+
+/* Account screen: even breathing room between the stacked sections. The gap
+   is the single spacing source — zero the child margins that would stack. */
+.account-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.account-screen .signout-button,
+.account-screen .change-email,
+.account-screen .change-email-msg {
+  margin-top: 0;
 }
 
 /* change-account-email row on the Account screen */
