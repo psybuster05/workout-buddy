@@ -11,6 +11,7 @@ import {
 import { formatDuration } from '../format.js'
 import { flush } from '../sync.js'
 import { burstConfetti } from '../confetti.js'
+import FitText from '../components/FitText.jsx'
 import { stretchesFor } from '../data/stretches.js'
 import { PencilIcon } from '../icons.jsx'
 
@@ -112,7 +113,7 @@ function Day({ day, exercises, onSelectExercise }) {
       </div>
 
       <ul className="exercise-list">
-        {(editing ? dayExercises : activeExercises).map((e) => {
+        {(editing ? dayExercises : activeExercises).map((e, i) => {
           const off = disabled.has(e.id)
           const cls = [
             'exercise-button',
@@ -130,7 +131,11 @@ function Day({ day, exercises, onSelectExercise }) {
                   editing ? setDisabled(toggleExercise(e.id)) : onSelectExercise(e.id)
                 }
               >
-                {e.name}
+                <span className="exercise-num" aria-hidden="true">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <FitText className="exercise-name">{e.name}</FitText>
+                <span className="exercise-go" aria-hidden="true" />
               </button>
             </li>
           )

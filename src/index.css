@@ -330,20 +330,32 @@ h1 {
 
 .day-button {
   position: relative;
+  isolation: isolate;
   min-height: 132px;
-  padding: 20px 22px;
+  padding: 20px 22px 18px;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  gap: 2px;
+  gap: 10px;
   text-align: left;
-  border: 1px solid var(--border);
+  /* sharp editorial rectangle: accent-tinted hairline + solid accent edge
+     on the left (slice experiment retired — verdict: worth a shot) */
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--border));
   border-left: 5px solid var(--accent);
-  border-radius: 18px;
+  border-radius: 0;
   overflow: hidden;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  /* accent-tinted dark scrim over the day photo so the title stays legible */
+  background: #101014;
+  color: var(--text);
+}
+
+/* photo + accent-tinted scrim on their own layer so press/hover can zoom it */
+.day-button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
   background:
     linear-gradient(
       110deg,
@@ -352,15 +364,40 @@ h1 {
       rgba(10, 10, 12, 0.85) 100%
     ),
     var(--day-img) center / cover no-repeat;
-  color: var(--text);
+  transition: transform 400ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* speed stripes, top-right — pure decoration */
+.day-button::after {
+  content: '';
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  width: 78px;
+  height: 24px;
+  pointer-events: none;
+  /* -76deg gradient axis → stripe lines lean 14° from vertical, matching
+     the chip skew and the sliced right edge */
+  background: repeating-linear-gradient(
+    -76deg,
+    var(--accent) 0 4px,
+    transparent 4px 14px
+  );
+  opacity: 0.55;
+  -webkit-mask-image: linear-gradient(to left, #000 30%, transparent);
+  mask-image: linear-gradient(to left, #000 30%, transparent);
 }
 
 .day-button:active {
   filter: brightness(1.08);
 }
 
+.day-button:active::before {
+  transform: scale(1.05);
+}
+
 .day-button-title {
-  font-size: 1.5rem;
+  font-size: 1.625rem;
   font-weight: 900;
   font-style: italic;
   text-transform: uppercase;
@@ -368,12 +405,37 @@ h1 {
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
 }
 
+/* skewed accent slab under the title — athletic underline */
+.day-button-title::after {
+  content: '';
+  display: block;
+  width: 46px;
+  height: 5px;
+  margin-top: 8px;
+  background: var(--accent);
+  border-radius: 1px;
+  transform: skewX(-24deg);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--accent) 70%, transparent);
+}
+
+/* sliced corner: the bottom-right is cut at 45° and an accent blade runs
+   along the cut — the silhouette change and the color live in one move */
+/* exercise count as a skewed frosted chip */
 .day-button-sub {
-  font-size: 0.8125rem;
-  font-weight: 700;
+  align-self: flex-start;
+  padding: 5px 12px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  font-style: italic;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: rgba(245, 245, 247, 0.75);
+  letter-spacing: 0.08em;
+  color: var(--text);
+  background: rgba(10, 10, 12, 0.55);
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  border-radius: 4px;
+  transform: skewX(-14deg);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 
 /* Day screen workout tracker */
@@ -406,13 +468,6 @@ h1 {
   color: var(--text-dim);
 }
 
-.exercise-button.is-done::after {
-  content: '✓';
-  float: right;
-  color: var(--accent);
-  font-weight: 800;
-}
-
 .exercise-list {
   list-style: none;
   display: flex;
@@ -420,26 +475,78 @@ h1 {
   gap: 10px;
 }
 
-/* Big touch targets: full-width, tall, generous text */
+/* Big touch targets: full-width, tall, generous text. Sporty anatomy:
+   outlined index numeral · name · accent chevron */
 .exercise-button {
-  display: block;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
   width: 100%;
   min-height: 64px;
-  padding: 16px 20px;
-  font-size: 1.1875rem;
-  font-weight: 700;
+  padding: 14px 16px 14px 18px;
   text-align: left;
   color: var(--text);
   background: var(--surface);
   border: 1px solid var(--border);
-  border-left: 4px solid var(--accent);
   border-radius: 14px;
+  overflow: hidden;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
 
+/* the skewed blade replaces the old flat left border */
 .exercise-button:active {
   background: var(--surface-pressed);
+}
+
+.exercise-num {
+  flex-shrink: 0;
+  min-width: 2.2ch;
+  font-size: 1.3125rem;
+  font-weight: 900;
+  font-style: italic;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  color: transparent;
+  -webkit-text-stroke: 1.5px color-mix(in srgb, var(--accent) 85%, transparent);
+}
+
+.exercise-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 1.125rem;
+  font-weight: 800;
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  line-height: 1.25;
+  /* one line, always — FitText shrinks the font per button until it fits */
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.exercise-go {
+  flex-shrink: 0;
+}
+
+.exercise-go::before {
+  content: '›';
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--accent);
+  opacity: 0.8;
+}
+
+.exercise-button.is-done .exercise-go::before {
+  content: '✓';
+  font-size: 1.1875rem;
+  opacity: 1;
+}
+
+.exercise-button.is-done .exercise-num {
+  -webkit-text-stroke-color: color-mix(in srgb, var(--text-dim) 65%, transparent);
 }
 
 .back-button {
@@ -659,6 +766,34 @@ h1 {
   font-weight: 700;
   line-height: 1.5;
   overflow-wrap: anywhere;
+}
+
+/* Imperial / Metric segmented toggle (Account) */
+.unit-toggle {
+  display: flex;
+  gap: 8px;
+}
+
+.unit-toggle button {
+  flex: 1;
+  min-height: 48px;
+  font-size: 0.9375rem;
+  font-weight: 800;
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-dim);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.unit-toggle button.on {
+  color: var(--bg);
+  background: var(--accent);
+  border-color: var(--accent);
 }
 
 /* change-account-email row on the Account screen */
@@ -1291,6 +1426,10 @@ body::after {
 
   .day-button:hover {
     filter: brightness(1.15);
+  }
+
+  .day-button:hover::before {
+    transform: scale(1.06);
   }
 
   .app-brand:hover,

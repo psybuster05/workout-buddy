@@ -54,7 +54,7 @@ Personal workout tracker web app. One user (Jon), used on an iPhone browser mid-
 `workouts` is one record per calendar date (whole-day timer). `endedAt` null = in progress. Backfilled to `[]` in loadStore for old stores. "Exercises done" is derived from `sessions`, not stored here. `failure` on a set is optional (present only when true); time-mode exercises store seconds in `reps`, non-weighted modes store `weight: 0`; **cardio** mode stores minutes in `reps` and miles in `weight` (0 = distance unrecorded) — no schema change. Cardio exercises use `target: { goal: "20–40 min" }` (rendered as a "Goal:" line) and `restSeconds: 0` = no auto rest timer after logging. `disabled` maps exerciseId → `{ off, at }` (Day-screen edit mode); entries keep their timestamp so sync merges toggles last-write-wins — backfilled to `{}` for old stores.
 
 ## Conventions
-- Weight unit: lbs for now (gym plates); revisit if it bugs me
+- Weight unit: **storage is canonical lbs, always** (sessions keep `unit: "lbs"`; sync merges and history never mix units). The Account screen has an Imperial/Metric toggle (device-local key `workout-tracker:unit`, NOT synced) that converts at the display/input boundary only — kg shown to 0.1, stepper ±1.25 kg vs ±2.5 lbs, entered kg stored back as lbs (2 decimals). Cardio's weight field is miles and never converts.
 - Timer must keep running / recover sanely if the phone locks or Safari backgrounds the tab — test this specifically, it's the most likely real-world failure
 - Written instructions must be useful WITHOUT the video loading (bad gym reception)
 - Keep dependencies minimal; no UI framework unless there's a concrete reason
@@ -90,6 +90,7 @@ Charts/graphs, in-app exercise editing, PWA service-worker/offline-launch (the a
 - **Jon's Supabase dashboard checklist (feature is inert until done):** ① Auth → URL Configuration: Site URL `https://psybuster05.github.io/workout-buddy/`, add redirect `http://localhost:5173/workout-buddy/`. ② Providers → Google: create OAuth client in Google Cloud Console (Web app, authorized redirect URI `https://idogwtyvlxmlmsgrysyx.supabase.co/auth/v1/callback`), paste client id + secret, enable. ③ Auth → Email: keep "Confirm email" ON, turn "Secure email change" OFF (old synthetic address has no inbox). Built-in email sender is rate-limited (~2-4/hour) — fine for one user; custom SMTP if it ever matters.
 - Apple (needs $99/yr dev account) and Facebook/X (dev-portal + review hoops) deliberately deferred.
 - Not testable by Claude end-to-end (needs a real inbox + Google keys): confirmation click, reset click, Google round-trip. Verified: wrong-creds honesty, all mode UIs, build/tests/lint.
+- **2026-07-11 live outcome:** Google sign-in confirmed working end-to-end on Jon's account. The blocker was an invalid Google client secret in Supabase (surfaced by the auth-callback error display added that day; re-pasting a fresh `GOCSPX-` secret fixed it). Jon deleted all old accounts first, so the app now runs on a single Google-linked account (psybuster05@gmail.com) — the synthetic-email era is fully retired. Note: Google Cloud Console shows client secrets only once, at creation; use "Add secret" to mint a new one if unsaved.
 
 ### 2026-07-06 — Init decisions
 - Vanilla JS, no build step. Single index.html, screens toggled via JS. No router.

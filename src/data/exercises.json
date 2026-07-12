@@ -107,6 +107,7 @@
       "day": "Wed — Pull",
       "target": { "sets": "3", "reps": "6–10" },
       "tracking": "reps-only",
+      "defaultOff": true,
       "videoUrl": "https://www.youtube.com/embed/9M8ylnbriB0",
       "instructions": [
         "Start from a dead hang, arms completely straight",

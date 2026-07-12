@@ -21,6 +21,28 @@ describe('formatSession (cardio)', () => {
   })
 })
 
+describe('kg display unit (storage stays lbs)', () => {
+  it('formatSession converts weighted sessions to kg', () => {
+    const s = session([
+      { reps: 8, weight: 45 },
+      { reps: 8, weight: 45 },
+      { reps: 8, weight: 45 },
+    ])
+    expect(formatSession(s, 'weighted', 'kg')).toBe('3×8 @ 20.4 kg')
+    expect(formatSession(s, 'weighted')).toBe('3×8 @ 45 lbs') // default untouched
+  })
+
+  it('personalRecord converts est. 1RM and top weight to kg', () => {
+    const sessions = [session([{ reps: 8, weight: 45 }])]
+    expect(personalRecord(sessions, 'weighted', 'kg')).toBe('est. 1RM 26 kg · top 20.4 kg')
+  })
+
+  it('cardio distance never converts (weight field is miles)', () => {
+    const s = session([{ reps: 32, weight: 2.1 }])
+    expect(formatSession(s, 'cardio', 'kg')).toBe('32 min · 2.1 mi')
+  })
+})
+
 describe('personalRecord (cardio)', () => {
   it('longest minutes and best distance across sessions', () => {
     const sessions = [

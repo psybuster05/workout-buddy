@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase, SITE_URL } from '../supabase.js'
+import { getWeightUnit, setWeightUnit } from '../units.js'
 
 // Account management, reached from the person icon in the header. Signed in:
 // shows the account email, change-email (the migration path off the old
@@ -9,6 +10,12 @@ function Account({ session, onSignOut, onLogin }) {
   const [emailOpen, setEmailOpen] = useState(false)
   const [newEmail, setNewEmail] = useState('')
   const [emailMsg, setEmailMsg] = useState('')
+  // display unit for lifted weights (device-local preference; storage is lbs)
+  const [unit, setUnit] = useState(() => getWeightUnit())
+  const chooseUnit = (u) => {
+    setWeightUnit(u)
+    setUnit(u)
+  }
   // the cached session can hold a stale email after a change confirmed in
   // another browser (the emailed link) — ask the server for current truth
   const [email, setEmail] = useState(session?.user?.email)
@@ -34,6 +41,28 @@ function Account({ session, onSignOut, onLogin }) {
   return (
     <div className="screen">
       <h1>Account</h1>
+
+      <div className="zone-card">
+        <span className="zone-card-label">Weight unit</span>
+        <div className="unit-toggle" role="group" aria-label="Weight unit">
+          <button
+            type="button"
+            className={unit === 'lbs' ? 'on' : ''}
+            aria-pressed={unit === 'lbs'}
+            onClick={() => chooseUnit('lbs')}
+          >
+            Imperial (lbs)
+          </button>
+          <button
+            type="button"
+            className={unit === 'kg' ? 'on' : ''}
+            aria-pressed={unit === 'kg'}
+            onClick={() => chooseUnit('kg')}
+          >
+            Metric (kg)
+          </button>
+        </div>
+      </div>
 
       {session ? (
         <>

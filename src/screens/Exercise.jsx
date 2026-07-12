@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { deleteLastSet, lastSession, loadStore, logSet, todaySession } from '../storage.js'
 import { personalRecord } from '../format.js'
 import { dayAccent } from '../theme.js'
+import { getWeightUnit, lbsToDisplay, displayToLbs, weightStep } from '../units.js'
 
 function Exercise({ exercise, onStartRest }) {
   // weighted (default): weight + reps · reps-only: no weight row ·
@@ -9,6 +10,9 @@ function Exercise({ exercise, onStartRest }) {
   // cardio: minutes in the reps field + optional distance (mi) in weight
   const mode = exercise.tracking ?? 'weighted'
   const cardio = mode === 'cardio'
+  // display unit for lifted weights (storage stays lbs; cardio's weight
+  // field is miles and never converts)
+  const unit = getWeightUnit()
   // "last time" = most recent previous day; today's in-progress sets reload
   // from storage so leaving and reopening the screen mid-workout loses nothing
   const [last] = useState(() => lastSession(exercise.id))
@@ -21,7 +25,9 @@ function Exercise({ exercise, onStartRest }) {
   }
   const [weight, setWeight] = useState(() => {
     const w = lastSetFor(sets.length)?.weight
-    return w ? String(w) : ''
+    if (!w) return ''
+    // stored lbs → display unit for lifts; cardio's field is miles, as-is
+    return String(cardio ? w : lbsToDisplay(w, unit))
   })
   const [reps, setReps] = useState(() => lastSetFor(sets.length)?.reps ?? 0)
   // "to failure" flag for the set being entered; resets after each Finish set
@@ -31,21 +37,27 @@ function Exercise({ exercise, onStartRest }) {
     cardio
       ? `Set ${i + 1} — ${s.reps} min` + (s.weight > 0 ? ` · ${s.weight} mi` : '')
       : `Set ${i + 1} — ${s.reps} ${mode === 'time' ? 'sec' : 'reps'}` +
-        (mode === 'weighted' ? ` @ ${s.weight} lbs` : '') +
+        (mode === 'weighted' ? ` @ ${lbsToDisplay(s.weight, unit)} ${unit}` : '') +
         (s.failure ? ' · F' : '')
 
   const adjustWeight = (delta) => {
     setWeight((w) => {
       const next = Math.max(0, (Number(w) || 0) + delta)
-      return String(Math.round(next * 10) / 10)
+      // 2 decimals so 1.25 kg steps don't drift (2.5 → 3.75 → 5 …)
+      return String(Math.round(next * 100) / 100)
     })
   }
 
   const finishSet = () => {
     const session = logSet(exercise.id, {
       reps,
-      // cardio stores miles in the weight slot; non-weighted lifts store 0
-      weight: mode === 'weighted' || cardio ? Number(weight) || 0 : 0,
+      // lifts store lbs (converted from the display unit); cardio stores
+      // miles in the weight slot; non-weighted modes store 0
+      weight: cardio
+        ? Number(weight) || 0
+        : mode === 'weighted'
+          ? displayToLbs(Number(weight) || 0, unit)
+          : 0,
       ...(failure ? { failure: true } : {}),
     })
     setSets([...session.sets])
@@ -72,18 +84,20 @@ function Exercise({ exercise, onStartRest }) {
   // so a new PR shows the moment you finish the set)
   const pr = personalRecord(
     loadStore().sessions.filter((s) => s.exerciseId === exercise.id),
-    mode
+    mode,
+    unit
   )
 
   // shared stepper row: weight (lbs, ±2.5) for lifts, distance (mi, ±0.1) for
   // cardio — same state and styles, different units
+  const step = cardio ? 0.1 : weightStep(unit)
   const weightRow = (
     <div className="counter-row">
       <button
         className="counter-button"
-        onClick={() => adjustWeight(cardio ? -0.1 : -2.5)}
+        onClick={() => adjustWeight(-step)}
         disabled={(Number(weight) || 0) === 0}
-        aria-label={cardio ? 'Subtract 0.1 miles' : 'Subtract 2.5 lbs'}
+        aria-label={cardio ? 'Subtract 0.1 miles' : `Subtract ${step} ${unit}`}
       >
         −
       </button>
@@ -94,18 +108,18 @@ function Exercise({ exercise, onStartRest }) {
           type="number"
           inputMode="decimal"
           min="0"
-          step={cardio ? '0.1' : '2.5'}
+          step={String(step)}
           value={weight}
           onChange={(e) => setWeight(e.target.value)}
           placeholder="0"
-          aria-label={cardio ? 'Distance in miles (optional)' : 'Weight in lbs'}
+          aria-label={cardio ? 'Distance in miles (optional)' : `Weight in ${unit}`}
         />
-        <span className="counter-sub">{cardio ? 'mi' : 'lbs'}</span>
+        <span className="counter-sub">{cardio ? 'mi' : unit}</span>
       </div>
       <button
         className="counter-button"
-        onClick={() => adjustWeight(cardio ? 0.1 : 2.5)}
-        aria-label={cardio ? 'Add 0.1 miles' : 'Add 2.5 lbs'}
+        onClick={() => adjustWeight(step)}
+        aria-label={cardio ? 'Add 0.1 miles' : `Add ${step} ${unit}`}
       >
         +
       </button>

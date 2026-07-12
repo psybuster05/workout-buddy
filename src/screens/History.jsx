@@ -2,8 +2,11 @@ import { useEffect, useRef, useState } from 'react'
 import { deleteSession, deleteWorkout, exportJSON, loadStore } from '../storage.js'
 import { formatSession, formatDuration, personalRecord } from '../format.js'
 import { dayAccent, dayLabel } from '../theme.js'
+import { getWeightUnit } from '../units.js'
+
 function History({ exercises }) {
   const [store, setStore] = useState(() => loadStore())
+  const unit = getWeightUnit()
   // which delete button is armed (keyed by exercise|date or workout|date), or null
   const [armed, setArmed] = useState(null)
   const disarmTimer = useRef(null)
@@ -92,7 +95,7 @@ function History({ exercises }) {
               <li key={session.exerciseId}>
                 <span className="workout-ex-name">{exercise?.name ?? session.exerciseId}</span>
                 <span className="workout-ex-sets">
-                  {formatSession(session, exercise?.tracking ?? 'weighted')}
+                  {formatSession(session, exercise?.tracking ?? 'weighted', unit)}
                 </span>
               </li>
             ))}
@@ -126,7 +129,7 @@ function History({ exercises }) {
         <p className="placeholder">No workouts logged yet.</p>
       ) : (
         byExercise.map(({ exercise, sessions }) => {
-          const pr = personalRecord(sessions, exercise.tracking ?? 'weighted')
+          const pr = personalRecord(sessions, exercise.tracking ?? 'weighted', unit)
           return (
             <details
               key={exercise.id}
@@ -151,7 +154,7 @@ function History({ exercises }) {
                     <li key={s.date} className="history-entry">
                       <span className="history-date">{s.date}</span>
                       <span className="history-sets">
-                        {formatSession(s, exercise.tracking ?? 'weighted')}
+                        {formatSession(s, exercise.tracking ?? 'weighted', unit)}
                       </span>
                       <button
                         className={isArmed ? 'history-delete armed' : 'history-delete'}
