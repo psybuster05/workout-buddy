@@ -230,9 +230,12 @@ h1 {
   height: 18px;
 }
 
-.app-footer {
+/* bottom block: sync-status line (every screen when logged in) + the footer
+   (History and Account only). One wrapper owns the sticky-bottom margin so the
+   two never fight over margin-top: auto. */
+.app-bottom {
   view-transition-name: app-footer;
-  /* margin-top:auto pushes the footer to the bottom when content is short;
+  /* margin-top:auto pushes it to the bottom when content is short;
      padding-top keeps a gap above it on tall pages */
   /* sit above the bottom fade-to-black (body::after, z-index 15) */
   position: relative;
@@ -651,7 +654,14 @@ h1 {
   line-height: 1.5;
 }
 
-/* change-account-email row on History (below sign-out) */
+.account-email {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+/* change-account-email row on the Account screen */
 .change-email {
   margin-top: 14px;
   display: flex;

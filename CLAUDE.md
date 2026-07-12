@@ -14,7 +14,8 @@ Personal workout tracker web app. One user (Jon), used on an iPhone browser mid-
 1. **Home** — 4 day mega-buttons (Mon–Push / Wed–Pull / Fri–Legs / Cardio) with per-day photo backgrounds. Tap → Day screen.
 2. **Day** (middle) — whole-workout tracker (Start/Finish → live elapsed from a stored startedAt timestamp, "N of M done" derived from today's logged sets, Restart) + that day's exercise list (done ones get a ✓). Pencil beside the title toggles edit mode: tap exercises to disable/re-enable them for the day (disabled ones are hidden outside edit mode; counts use enabled only; History keeps their sessions). Lifting days also get a collapsible **Cardio finisher** card (the Cardio day's enabled exercises, tappable to log, ✓ when done today, not counted in "N of M"). Tap an exercise → Exercise. Back → Home.
 3. **Exercise** — YouTube embed (iframe), written form cues below it, then live session zone: weight input, large rep counter buttons, "Finish set" button that logs the set and auto-starts the rest timer. Back → Day.
-4. **History** — a "Workouts" feed (newest-first, capped at 8 + "Show all", each expandable to the exercises done that day, two-tap deletable), then per-exercise collapsible accordions (PR summary on the closed row; sessions with two-tap delete inside). Export JSON + sign-out/log-in live at the bottom, de-emphasized.
+4. **History** — a "Workouts" feed (newest-first, capped at 8 + "Show all", each expandable to the exercises done that day, two-tap deletable), then per-exercise collapsible accordions (PR summary on the closed row; sessions with two-tap delete inside). Export JSON at the bottom, de-emphasized.
+5. **Account** — person icon in the header (button order: rest → sync → account; account shows whenever Supabase is configured). Signed in: "Signed in as" email card, change account email, sign out. Offline mode: explains device-only storage + "Log in to back up". The footer (© + build date) renders on History and Account only; the sync-status line renders at the bottom of **every** screen when logged in (one `.app-bottom` wrapper owns the sticky-bottom margin).
 
 ## Data shapes
 ```json
@@ -73,6 +74,12 @@ Charts/graphs, in-app exercise editing, PWA service-worker/offline-launch (the a
 - 2026-07-06 — Project scoped in Chat. Pivoted from idle-miner idea to workout tracker for smaller, finishable scope. Repo is canonical source of truth; Chat project is design-only; no Cowork for this project.
 
 ## Changelog
+
+### 2026-07-11 — Account screen + header person button
+- New **Account screen** (src/screens/Account.jsx), reached via a **person icon** in the header (order: rest → sync → account; PersonIcon added to icons.jsx). Sign out, change-account-email, and "Log in to back up" moved there from History (History now ends at Export JSON).
+- Account shows a "Signed in as {email}" zone-card when authed; an "Offline mode" explainer card otherwise. The header account button shows whenever Supabase is configured (even logged out/offline — it's the path back to Login); sync button still needs a session.
+- **Bottom block restructured**: `.app-bottom` wrapper (App.jsx) owns the sticky-bottom margin + view-transition-name; inside it, the **sync-status line now renders on every screen when logged in** (was footer/History-only) and the © footer renders on History + Account only.
+- Verified offline-mode states in preview (header ordering, Account cards, History stripped, footer placement); signed-in layout is the same JSX with `showSync`/session booleans flipped — Jon eyeballs it on the phone after deploy.
 
 ### 2026-07-11 — Auth overhaul: real email/password + Google OAuth
 - **Why:** the username scheme silently created a NEW account on a typo ("jno" ≠ "jon") because sign-in fell back to signUp; and with "Confirm email" now ON in Supabase, synthetic `@workoutbuddy.app` addresses can't receive the link, so new signups were broken anyway.

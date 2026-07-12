@@ -4,6 +4,7 @@ import Home from './screens/Home.jsx'
 import Day from './screens/Day.jsx'
 import Exercise from './screens/Exercise.jsx'
 import History from './screens/History.jsx'
+import Account from './screens/Account.jsx'
 import Login from './screens/Login.jsx'
 import ResetPassword from './screens/ResetPassword.jsx'
 import AppHeader from './components/AppHeader.jsx'
@@ -66,6 +67,7 @@ function App() {
     })
   const goHome = () => withTransition(() => setScreen('home'))
   const goHistory = () => withTransition(() => setScreen('history'))
+  const goAccount = () => withTransition(() => setScreen('account'))
   // back is contextual: exercise → its day, everything else → home
   const goBack = () =>
     withTransition(() => setScreen(screen === 'exercise' ? 'day' : 'home'))
@@ -79,14 +81,9 @@ function App() {
       <Day day={selectedDay} exercises={data.exercises} onSelectExercise={openExercise} />
     )
   } else if (screen === 'history') {
-    screenEl = (
-      <History
-        exercises={data.exercises}
-        authed={!!session}
-        onSignOut={signOut}
-        onLogin={leaveOffline}
-      />
-    )
+    screenEl = <History exercises={data.exercises} />
+  } else if (screen === 'account') {
+    screenEl = <Account session={session} onSignOut={signOut} onLogin={leaveOffline} />
   } else {
     screenEl = (
       <Home
@@ -108,18 +105,24 @@ function App() {
         syncStatus={syncStatus}
         onSyncNow={() => syncNow()}
         onStartRest={startRest}
+        showAccount={!!supabase}
+        onAccount={goAccount}
       />
 
       {screenEl}
 
-      {screen === 'history' && (
-        <footer className="app-footer">
+      {(!!(supabase && session) || screen === 'history' || screen === 'account') && (
+        <div className="app-bottom">
           {supabase && session && (
             <p className="sync-status">{SYNC_LABEL[syncStatus] ?? ''}</p>
           )}
-          <p>© 2026 Workout Buddy — all gains reserved</p>
-          <p>Last updated {__BUILD_DATE__}</p>
-        </footer>
+          {(screen === 'history' || screen === 'account') && (
+            <footer className="app-footer">
+              <p>© 2026 Workout Buddy — all gains reserved</p>
+              <p>Last updated {__BUILD_DATE__}</p>
+            </footer>
+          )}
+        </div>
       )}
 
       {rest && (

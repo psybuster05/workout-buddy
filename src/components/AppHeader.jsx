@@ -1,10 +1,20 @@
-import { SyncIcon, StopwatchIcon } from '../icons.jsx'
+import { SyncIcon, StopwatchIcon, PersonIcon } from '../icons.jsx'
 
-// Sticky app header: brand (Home) or back button on the left, sync + rest-timer
-// icon buttons on the right. Purely presentational — App owns the handlers and
-// decides whether the sync button shows (only when Supabase is configured and
-// logged in).
-function AppHeader({ isHome, onBack, onHome, showSync, syncStatus, onSyncNow, onStartRest }) {
+// Sticky app header: brand (Home) or back button on the left; rest-timer,
+// sync, and account icon buttons on the right (in that order). Purely
+// presentational — App owns the handlers and decides which buttons show
+// (sync needs a login; account just needs Supabase configured).
+function AppHeader({
+  isHome,
+  onBack,
+  onHome,
+  showSync,
+  syncStatus,
+  onSyncNow,
+  onStartRest,
+  showAccount,
+  onAccount,
+}) {
   return (
     <header className="app-header">
       {isHome ? (
@@ -17,6 +27,13 @@ function AppHeader({ isHome, onBack, onHome, showSync, syncStatus, onSyncNow, on
         </button>
       )}
       <div className="header-actions">
+        <button
+          className="timer-button"
+          aria-label="Start rest timer"
+          onClick={() => onStartRest(90)}
+        >
+          <StopwatchIcon />
+        </button>
         {showSync && (
           <button
             className={`timer-button sync-button sync-${syncStatus}`}
@@ -26,13 +43,11 @@ function AppHeader({ isHome, onBack, onHome, showSync, syncStatus, onSyncNow, on
             <SyncIcon />
           </button>
         )}
-        <button
-          className="timer-button"
-          aria-label="Start rest timer"
-          onClick={() => onStartRest(90)}
-        >
-          <StopwatchIcon />
-        </button>
+        {showAccount && (
+          <button className="timer-button" aria-label="Account" onClick={onAccount}>
+            <PersonIcon />
+          </button>
+        )}
       </div>
     </header>
   )
