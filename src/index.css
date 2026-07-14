@@ -477,20 +477,39 @@ h1 {
 }
 
 .workout-card .finish-button,
-.workout-card .delete-last-button {
+.workout-card .workout-button {
   width: 100%;
 }
 
-/* Pause/Resume + Finish sit side by side while a workout is active */
+/* Pause/Resume stacks above Finish while a workout is active */
 .workout-actions {
   display: flex;
+  flex-direction: column;
   gap: 10px;
   width: 100%;
 }
 
-.workout-actions .delete-last-button,
-.workout-actions .finish-button {
-  flex: 1;
+/* secondary workout control (Pause / Resume / Restart): same athletic type as
+   Finish, but an accent outline instead of a filled slab — reads as a sibling,
+   not a control from another app */
+.workout-button {
+  min-height: 56px;
+  font-size: 1.0625rem;
+  font-weight: 800;
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  background: transparent;
+  border: 2px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  border-radius: 16px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.workout-button:active {
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  border-color: var(--accent);
 }
 
 /* completed exercises get a check + dimmed name on the day list */
@@ -1474,6 +1493,11 @@ body::after {
 
   .finish-button:hover {
     filter: brightness(1.12);
+  }
+
+  .workout-button:hover {
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+    border-color: var(--accent);
   }
 
   .day-button:hover {

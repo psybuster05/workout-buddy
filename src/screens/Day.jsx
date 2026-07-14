@@ -97,7 +97,7 @@ function Day({ day, exercises, onSelectExercise }) {
             {active ? (
               <div className="workout-actions">
                 <button
-                  className="delete-last-button"
+                  className="workout-button"
                   onClick={() =>
                     setWorkout(paused ? resumeWorkout() : pauseWorkout())
                   }
@@ -116,7 +116,7 @@ function Day({ day, exercises, onSelectExercise }) {
               </div>
             ) : (
               <button
-                className="delete-last-button"
+                className="workout-button"
                 onClick={() => setWorkout(startWorkout(day))}
               >
                 Restart
