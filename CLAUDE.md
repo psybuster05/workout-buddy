@@ -206,7 +206,7 @@ Charts/graphs, in-app exercise editing, PWA service-worker/offline-launch (the a
 - Calories deferred (needs body weight + MET; body-weight tracking still out of scope). `workouts` record can gain a `calories` field later.
 
 ### 2026-07-10 — Confetti, Workout Tracker label, History-only footer, machine exercises
-- **Confetti** (src/confetti.js, dependency-free): Finish Workout fires a two-popper canvas burst in the day's accent + brand colors; canvas self-removes when the last particle falls; skipped under prefers-reduced-motion.
+- **Confetti** (src/confetti.js, dependency-free): Finish Workout fires a two-popper canvas burst in the day's accent + brand colors; canvas self-removes when the last particle falls; skipped under prefers-reduced-motion. *(Removed 2026-07-14 — it was invisible on iOS with Reduce Motion on, and Jon opted to drop the feature rather than override the accessibility setting. src/confetti.js deleted.)*
 - Day screen's "Workout" card label → **"Workout Tracker"**.
 - **Footer only on History** now (App.jsx conditional) — `.screen` bottom padding bumped to 48px so scrolling pages clear the fixed bottom fade without it.
 - **3 machine exercises, disabled by default** (`defaultOff: true` in exercises.json): Tricep Pushdown (Push), Lat Pulldown (Pull), Leg Press (Legs) — all reuse orphaned old-program ids so pre-WFH history reattaches, and all videos oEmbed-verified. Seeding: loadStore backfills missing `disabled` entries for defaultOff ids in-memory as `{ off: true, at: 0 }` — `at: 0` loses to any real toggle in the LWW sync merge, so enabling on one device sticks everywhere; nothing is written until the next mutation.

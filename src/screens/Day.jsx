@@ -10,7 +10,6 @@ import {
 } from '../storage.js'
 import { formatDuration } from '../format.js'
 import { flush } from '../sync.js'
-import { burstConfetti } from '../confetti.js'
 import FitText from '../components/FitText.jsx'
 import { stretchesFor } from '../data/stretches.js'
 import { PencilIcon } from '../icons.jsx'
@@ -95,7 +94,6 @@ function Day({ day, exercises, onSelectExercise }) {
                 onClick={() => {
                   setWorkout(finishWorkout())
                   flush() // sync checkpoint: push right after a workout ends
-                  burstConfetti(dayAccent(day)) // you earned it
                 }}
               >
                 Finish Workout
