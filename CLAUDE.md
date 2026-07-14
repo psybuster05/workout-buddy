@@ -75,6 +75,12 @@ Charts/graphs, in-app exercise editing, PWA service-worker/offline-launch (the a
 
 ## Changelog
 
+### 2026-07-14 — Pause/Resume on the workout timer
+- Active workouts now have **Pause / Resume** beside Finish Workout (`.workout-actions` row). Paused state dims + pulses the clock and swaps the "N of M done" line for "Paused".
+- Data model (no migration): workout records gain `pausedMs` (total paused) + `pausedAt` (open-pause stamp, null while running); `startedAt`/`endedAt` stay true wall-clock stamps. Elapsed = `endedAt ?? pausedAt ?? now) − startedAt − pausedMs` via new **`workoutElapsed(w, now)`** in format.js (shared by Day + anywhere duration is shown). Old records lacking the fields compute exactly as before.
+- storage.js: `pauseWorkout` (sets `pausedAt`), `resumeWorkout` (banks the span into `pausedMs`, clears `pausedAt`), and `finishWorkout` now closes an open pause first so paused time is never counted. `startWorkout`/Restart reset both fields.
+- Day.jsx ticks only while *running* (frozen while paused). Sync unaffected (extra fields ride along in the per-date workout record).
+
 ### 2026-07-11 — Account screen + header person button
 - New **Account screen** (src/screens/Account.jsx), reached via a **person icon** in the header (order: rest → sync → account; PersonIcon added to icons.jsx). Sign out, change-account-email, and "Log in to back up" moved there from History (History now ends at Export JSON).
 - Account shows a "Signed in as {email}" zone-card when authed; an "Offline mode" explainer card otherwise. The header account button shows whenever Supabase is configured (even logged out/offline — it's the path back to Login); sync button still needs a session.

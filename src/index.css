@@ -458,9 +458,39 @@ h1 {
   color: var(--text-dim);
 }
 
+/* paused: the frozen clock dims and slowly pulses so it's clearly not running */
+.workout-elapsed.is-paused {
+  color: var(--text-dim);
+  animation: paused-pulse 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .workout-elapsed.is-paused {
+    animation: none;
+  }
+}
+
+@keyframes paused-pulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+
 .workout-card .finish-button,
 .workout-card .delete-last-button {
   width: 100%;
+}
+
+/* Pause/Resume + Finish sit side by side while a workout is active */
+.workout-actions {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.workout-actions .delete-last-button,
+.workout-actions .finish-button {
+  flex: 1;
 }
 
 /* completed exercises get a check + dimmed name on the day list */

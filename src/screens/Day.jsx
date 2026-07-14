@@ -3,12 +3,14 @@ import { dayAccent, dayLabel } from '../theme.js'
 import {
   finishWorkout,
   getDisabledIds,
+  pauseWorkout,
+  resumeWorkout,
   startWorkout,
   todaySession,
   todayWorkout,
   toggleExercise,
 } from '../storage.js'
-import { formatDuration } from '../format.js'
+import { formatDuration, workoutElapsed } from '../format.js'
 import { flush } from '../sync.js'
 import FitText from '../components/FitText.jsx'
 import { stretchesFor } from '../data/stretches.js'
@@ -32,11 +34,13 @@ function Day({ day, exercises, onSelectExercise }) {
       : exercises.filter((e) => e.day === 'Cardio' && !disabled.has(e.id))
 
   const active = workout && !workout.endedAt
+  const paused = active && !!workout.pausedAt
+  const running = active && !paused
 
-  // tick while a workout is running; elapsed derives from the startedAt
-  // timestamp, so it stays correct across navigation / app close / reopen
+  // tick only while running; elapsed derives from timestamps so it stays
+  // correct across navigation / app close / reopen (and is frozen while paused)
   useEffect(() => {
-    if (!active) return
+    if (!running) return
     const tick = () => setNow(Date.now())
     tick()
     const id = setInterval(tick, 1000)
@@ -45,15 +49,13 @@ function Day({ day, exercises, onSelectExercise }) {
       clearInterval(id)
       document.removeEventListener('visibilitychange', tick)
     }
-  }, [active])
+  }, [running])
 
   const doneIds = activeExercises
     .filter((e) => (todaySession(e.id)?.sets.length ?? 0) > 0)
     .map((e) => e.id)
 
-  const elapsed = workout
-    ? (workout.endedAt ?? now) - workout.startedAt
-    : 0
+  const elapsed = workoutElapsed(workout, now)
 
   return (
     <div className="screen day-screen" style={{ '--accent': dayAccent(day) }}>
@@ -84,20 +86,34 @@ function Day({ day, exercises, onSelectExercise }) {
           </button>
         ) : (
           <>
-            <div className="workout-elapsed">{formatDuration(elapsed)}</div>
+            <div className={paused ? 'workout-elapsed is-paused' : 'workout-elapsed'}>
+              {formatDuration(elapsed)}
+            </div>
             <div className="workout-done">
-              {doneIds.length} of {activeExercises.length} exercises done
+              {paused
+                ? 'Paused'
+                : `${doneIds.length} of ${activeExercises.length} exercises done`}
             </div>
             {active ? (
-              <button
-                className="finish-button"
-                onClick={() => {
-                  setWorkout(finishWorkout())
-                  flush() // sync checkpoint: push right after a workout ends
-                }}
-              >
-                Finish Workout
-              </button>
+              <div className="workout-actions">
+                <button
+                  className="delete-last-button"
+                  onClick={() =>
+                    setWorkout(paused ? resumeWorkout() : pauseWorkout())
+                  }
+                >
+                  {paused ? 'Resume' : 'Pause'}
+                </button>
+                <button
+                  className="finish-button"
+                  onClick={() => {
+                    setWorkout(finishWorkout())
+                    flush() // sync checkpoint: push right after a workout ends
+                  }}
+                >
+                  Finish Workout
+                </button>
+              </div>
             ) : (
               <button
                 className="delete-last-button"

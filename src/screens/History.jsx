@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { deleteSession, deleteWorkout, exportJSON, loadStore } from '../storage.js'
-import { formatSession, formatDuration, personalRecord } from '../format.js'
+import { formatSession, formatDuration, personalRecord, workoutElapsed } from '../format.js'
 import { dayAccent, dayLabel } from '../theme.js'
 import { getWeightUnit } from '../units.js'
 
@@ -71,7 +71,7 @@ function History({ exercises }) {
           <span className="workout-meta">
             <span className="workout-day">{dayLabel(w.day)}</span>
             <span className="workout-sub">
-              {w.endedAt ? formatDuration(w.endedAt - w.startedAt) : 'in progress'} ·{' '}
+              {w.endedAt ? formatDuration(workoutElapsed(w)) : 'in progress'} ·{' '}
               {done.length} exercise{done.length === 1 ? '' : 's'}
             </span>
           </span>

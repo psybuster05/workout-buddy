@@ -54,6 +54,16 @@ export function personalRecord(sessions, mode = 'weighted', unit = 'lbs') {
   return `est. 1RM ${Math.round(lbsToDisplay(est1rm, unit))} ${unit} · top ${lbsToDisplay(topWeight, unit)} ${unit}`
 }
 
+// True elapsed time of a workout, excluding paused spans. Handles old records
+// with no pause fields (pausedMs ?? 0, no pausedAt). Frozen when ended, and
+// frozen at the pause instant while paused; otherwise counts up to `now`.
+export function workoutElapsed(w, now = Date.now()) {
+  if (!w) return 0
+  const paused = w.pausedMs ?? 0
+  const end = w.endedAt ?? w.pausedAt ?? now
+  return Math.max(0, end - w.startedAt - paused)
+}
+
 // elapsed workout time: mm:ss, or h:mm:ss once past an hour
 export function formatDuration(ms) {
   const total = Math.floor(ms / 1000)

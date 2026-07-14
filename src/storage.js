@@ -130,7 +130,12 @@ export function todayWorkout() {
   return loadStore().workouts.find((w) => w.date === date) ?? null
 }
 
-// Begin (or restart) today's workout — stamps startedAt, clears endedAt.
+// Pause model: startedAt/endedAt stay true wall-clock stamps; `pausedMs` is
+// total time spent paused and `pausedAt` marks an open pause (null while
+// running). Elapsed subtracts pausedMs — see workoutElapsed in format.js. Old
+// records lacking these fields compute exactly as before (pausedMs ?? 0).
+
+// Begin (or restart) today's workout — stamps startedAt, clears endedAt/pauses.
 export function startWorkout(day) {
   const date = todayISO()
   return mutate((store) => {
@@ -142,16 +147,46 @@ export function startWorkout(day) {
     workout.day = day
     workout.startedAt = Date.now()
     workout.endedAt = null
+    workout.pausedMs = 0
+    workout.pausedAt = null
     return workout
   })
 }
 
-// Stop today's workout — stamps endedAt so duration is frozen.
+// Pause today's running workout — freezes the clock by marking the pause start.
+export function pauseWorkout() {
+  const date = todayISO()
+  return mutate((store) => {
+    const workout = store.workouts.find((w) => w.date === date)
+    if (!workout || workout.endedAt || workout.pausedAt) return workout ?? null
+    workout.pausedAt = Date.now()
+    return workout
+  })
+}
+
+// Resume — bank the paused span into pausedMs and clear the open pause.
+export function resumeWorkout() {
+  const date = todayISO()
+  return mutate((store) => {
+    const workout = store.workouts.find((w) => w.date === date)
+    if (!workout || !workout.pausedAt) return workout ?? null
+    workout.pausedMs = (workout.pausedMs ?? 0) + (Date.now() - workout.pausedAt)
+    workout.pausedAt = null
+    return workout
+  })
+}
+
+// Stop today's workout — stamps endedAt so duration is frozen. If it was
+// paused, close that span into pausedMs first so the pause isn't counted.
 export function finishWorkout() {
   const date = todayISO()
   return mutate((store) => {
     const workout = store.workouts.find((w) => w.date === date)
     if (!workout) return null
+    if (workout.pausedAt) {
+      workout.pausedMs = (workout.pausedMs ?? 0) + (Date.now() - workout.pausedAt)
+      workout.pausedAt = null
+    }
     workout.endedAt = Date.now()
     return workout
   })
