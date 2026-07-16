@@ -1184,52 +1184,40 @@ input.counter-value::-webkit-inner-spin-button {
 }
 
 /* ── weight / reps ribbon ─────────────────────────────────────────────────
-   flick a ruler-style tape; the tick under the centre caret is selected. The
-   big readout is tappable to type an exact value. */
+   flick a ruler-style tape; the tick under the centre caret is the value (no
+   separate readout). Unit sits below; tap the tape to type an exact value. */
 .ribbon {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 2px;
 }
 
-.ribbon-readout {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
+/* the unit, centred under the tape */
+.ribbon-unit {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--text-dim);
 }
 
-.ribbon-value,
+/* type box replaces the tape while editing, centred where the number was */
 .ribbon-input {
   font-family: inherit;
-  font-size: 2.5rem;
+  font-size: 1.875rem;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
   color: var(--text);
   background: transparent;
   border: none;
-  padding: 0;
+  padding: 2px 4px;
+  width: 5ch;
   text-align: center;
   line-height: 1;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.ribbon-value {
-  cursor: pointer;
-}
-
-.ribbon-input {
-  width: 4ch;
-  /* keep the type box on the accent so it's clearly editable */
   outline: 2px solid var(--accent);
   outline-offset: 3px;
-  border-radius: 6px;
-}
-
-.ribbon-unit {
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: var(--text-dim);
+  border-radius: 8px;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* chevron | tape | chevron */
@@ -1269,7 +1257,13 @@ input.counter-value::-webkit-inner-spin-button {
   position: relative;
   flex: 1;
   min-width: 0;
-  height: 60px;
+  height: 74px;
+}
+/* while typing, the tape is swapped for a centred input */
+.ribbon-track-wrap.is-typing {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* the fixed centre marker the selected tick snaps under */
@@ -1322,32 +1316,53 @@ input.counter-value::-webkit-inner-spin-button {
   scroll-behavior: auto; /* track the cursor 1:1, no smoothing lag */
 }
 
+/* --emph (0..1, set from JS by nearness to the caret) drives the pop. With no
+   separate readout, the centred label grows into the value display; marks get a
+   subtler height/brightness lift. transform + opacity only, so no layout on
+   scroll. */
 .ribbon-tick {
   flex: 0 0 var(--item);
   scroll-snap-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  padding-top: 8px;
+  gap: 8px;
+  padding-top: 6px;
+}
+
+/* faded lead-in ticks before the minimum — never a snap target, never selected */
+.ribbon-tick.is-lead {
+  scroll-snap-align: none;
+}
+.ribbon-tick.is-lead .ribbon-mark {
+  opacity: 0.3;
 }
 
 .ribbon-mark {
   width: 2px;
-  height: 14px;
+  height: 12px;
   background: var(--border);
   border-radius: 2px;
+  opacity: calc(0.55 + var(--emph, 0) * 0.45);
+  transform: scaleY(calc(1 + var(--emph, 0) * 0.5));
+  transform-origin: bottom;
+  transition: transform 0.08s linear, opacity 0.08s linear;
 }
 .ribbon-mark.major {
-  height: 22px;
+  height: 18px;
   background: var(--text-dim);
 }
 
 .ribbon-tick-label {
-  font-size: 0.8125rem;
-  font-weight: 700;
+  font-size: 0.9375rem;
+  font-weight: 800;
   font-variant-numeric: tabular-nums;
-  color: var(--text-dim);
+  color: color-mix(in srgb, var(--text-dim), var(--text) calc(var(--emph, 0) * 100%));
+  opacity: calc(0.6 + var(--emph, 0) * 0.4);
+  /* the centred number grows to ~2x to become the value readout */
+  transform: scale(calc(1 + var(--emph, 0) * 1.1));
+  transform-origin: center;
+  transition: transform 0.08s linear, opacity 0.08s linear;
 }
 
 /* --- rest timer --- */
