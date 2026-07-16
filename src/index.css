@@ -1183,6 +1183,173 @@ input.counter-value::-webkit-inner-spin-button {
   margin: 0;
 }
 
+/* ── weight / reps ribbon ─────────────────────────────────────────────────
+   flick a ruler-style tape; the tick under the centre caret is selected. The
+   big readout is tappable to type an exact value. */
+.ribbon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.ribbon-readout {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.ribbon-value,
+.ribbon-input {
+  font-family: inherit;
+  font-size: 2.5rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  background: transparent;
+  border: none;
+  padding: 0;
+  text-align: center;
+  line-height: 1;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ribbon-value {
+  cursor: pointer;
+}
+
+.ribbon-input {
+  width: 4ch;
+  /* keep the type box on the accent so it's clearly editable */
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+.ribbon-unit {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-dim);
+}
+
+/* chevron | tape | chevron */
+.ribbon-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+}
+
+.ribbon-chevron {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--accent);
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.ribbon-chevron:active {
+  background: var(--surface-pressed);
+}
+.ribbon-chevron:disabled {
+  color: var(--text-dim);
+  opacity: 0.4;
+}
+
+.ribbon-track-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 60px;
+}
+
+/* the fixed centre marker the selected tick snaps under */
+.ribbon-caret {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 2px;
+  height: 30px;
+  transform: translateX(-50%);
+  background: var(--accent);
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 1;
+}
+.ribbon-caret::after {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid var(--accent);
+}
+
+.ribbon-track {
+  display: flex;
+  height: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  /* mouse: grab the tape and slide; text stays unselectable mid-drag */
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  /* first/last ticks must be able to reach the centre (--item set inline from JS) */
+  padding: 0 calc(50% - var(--item) / 2);
+  scrollbar-width: none;
+  /* fade the ends so far-off numbers don't compete with the selection */
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+}
+.ribbon-track::-webkit-scrollbar {
+  display: none;
+}
+.ribbon-track.is-dragging {
+  cursor: grabbing;
+  scroll-behavior: auto; /* track the cursor 1:1, no smoothing lag */
+}
+
+.ribbon-tick {
+  flex: 0 0 var(--item);
+  scroll-snap-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding-top: 8px;
+}
+
+.ribbon-mark {
+  width: 2px;
+  height: 14px;
+  background: var(--border);
+  border-radius: 2px;
+}
+.ribbon-mark.major {
+  height: 22px;
+  background: var(--text-dim);
+}
+
+.ribbon-tick-label {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-dim);
+}
+
 /* --- rest timer --- */
 
 /* floating bar: rendered by App (not inside a screen) so it persists while

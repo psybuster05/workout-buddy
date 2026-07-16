@@ -11,7 +11,14 @@ import {
 import { personalRecord } from '../format.js'
 import { dayAccent } from '../theme.js'
 import { CheckIcon, PencilIcon } from '../icons.jsx'
+import Ribbon from '../components/Ribbon.jsx'
 import { getWeightUnit, lbsToDisplay, displayToLbs, weightStep } from '../units.js'
+
+// ribbon bounds (display units). Generous caps — you flick past the middle, and
+// the tappable readout handles anything beyond.
+const REPS_MAX = 50
+const SECONDS_MAX = 300
+const WEIGHT_MAX = { lbs: 300, kg: 140 }
 
 // The programmed target is no longer a card of its own — it's the Notes
 // placeholder, so the prescription is there when the note is empty and gets out
@@ -284,28 +291,33 @@ function Exercise({ exercise, onStartRest }) {
         </div>
         <div className="zone-card log-card">
           <span className="zone-card-label">This Set</span>
-          {/* lifts: weight above reps (original layout) · cardio: minutes above
-              distance (primary value first) — same rows, swapped order */}
-          {mode === 'weighted' && weightRow}
-          <div className="counter-row">
-            <button
-              className="counter-button"
-              onClick={() => setReps((r) => Math.max(0, r - 1))}
-              disabled={reps === 0}
-              aria-label={
-                cardio
-                  ? 'Subtract one minute'
-                  : mode === 'time'
-                    ? 'Subtract one second'
-                    : 'Subtract one rep'
-              }
-            >
-              −
-            </button>
-            <div className="counter-value-wrap">
-              {cardio ? (
-                // minutes are typed, not tapped 32 times — same input treatment
-                // the weight field gets
+          {/* lifts: weight ribbon above reps ribbon · cardio keeps its typed
+              minutes + miles stepper (those aren't "weight and reps") */}
+          {mode === 'weighted' && (
+            <Ribbon
+              value={Number(weight) || 0}
+              onChange={(v) => setWeight(String(v))}
+              min={0}
+              max={WEIGHT_MAX[unit] ?? 300}
+              step={weightStep(unit)}
+              decimals={2}
+              labelEvery={2}
+              unit={unit}
+              ariaLabel={`Weight in ${unit}`}
+            />
+          )}
+          {cardio ? (
+            <div className="counter-row">
+              <button
+                className="counter-button"
+                onClick={() => setReps((r) => Math.max(0, r - 1))}
+                disabled={reps === 0}
+                aria-label="Subtract one minute"
+              >
+                −
+              </button>
+              <div className="counter-value-wrap">
+                {/* minutes are typed, not tapped 32 times */}
                 <input
                   className="counter-value"
                   type="number"
@@ -317,25 +329,29 @@ function Exercise({ exercise, onStartRest }) {
                   placeholder="0"
                   aria-label="Minutes"
                 />
-              ) : (
-                <div className="counter-value" aria-label={mode === 'time' ? 'Seconds' : 'Reps'}>
-                  {reps}
-                </div>
-              )}
-              <span className="counter-sub">
-                {cardio ? 'min' : mode === 'time' ? 'sec' : 'reps'}
-              </span>
+                <span className="counter-sub">min</span>
+              </div>
+              <button
+                className="counter-button"
+                onClick={() => setReps((r) => r + 1)}
+                aria-label="Add one minute"
+              >
+                +
+              </button>
             </div>
-            <button
-              className="counter-button"
-              onClick={() => setReps((r) => r + 1)}
-              aria-label={
-                cardio ? 'Add one minute' : mode === 'time' ? 'Add one second' : 'Add one rep'
-              }
-            >
-              +
-            </button>
-          </div>
+          ) : (
+            <Ribbon
+              value={reps}
+              onChange={setReps}
+              min={0}
+              max={mode === 'time' ? SECONDS_MAX : REPS_MAX}
+              step={1}
+              decimals={0}
+              labelEvery={mode === 'time' ? 10 : 2}
+              unit={mode === 'time' ? 'sec' : 'reps'}
+              ariaLabel={mode === 'time' ? 'Seconds' : 'Reps'}
+            />
+          )}
 
           {cardio && weightRow}
 
