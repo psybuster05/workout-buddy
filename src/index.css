@@ -321,8 +321,10 @@ h1 {
   padding: 0 4px;
 }
 
-/* a disabled exercise, visible only in edit mode — dimmed, dashed, struck */
-.exercise-button.is-off {
+/* a disabled exercise, visible only in edit mode — dimmed, dashed, struck.
+   Applies to finisher rows too: the pencil toggles those the same way. */
+.exercise-button.is-off,
+.cardio-row.is-off {
   opacity: 0.45;
   border-style: dashed;
   text-decoration: line-through;
@@ -1000,11 +1002,106 @@ h1 {
   padding-top: 22px;
 }
 
-.target-line {
-  display: flex;
-  gap: 24px;
-  font-weight: 700;
+/* Notes card: a sticky per-exercise scratchpad sitting where Target used to.
+   The placeholder is the programmed target, so the prescription shows until
+   you write your own note over it. */
+/* editing: reads as an actual field. On an empty note the checkmark would
+   otherwise be the only thing distinguishing edit mode from read mode. */
+.note-input {
+  /* textareas don't inherit type — and anything under 16px makes iOS zoom the
+     page on focus, which is miserable mid-set */
+  font: inherit;
   color: var(--text);
+  background: rgba(255, 255, 255, 0.05);
+  border: 0;
+  border-radius: 8px;
+  padding: 8px 10px;
+  width: 100%;
+  min-height: 52px;
+  resize: none;
+}
+
+.note-input:focus {
+  outline: 1px solid var(--accent);
+}
+
+.note-input::placeholder {
+  color: var(--text-dim);
+  font-weight: 700;
+}
+
+/* the note as it reads 99% of the time: static text, edited only via the
+   pencil. Same min-height as the textarea so toggling edit doesn't jump. */
+.note-text {
+  margin: 0;
+  min-height: 52px;
+  color: var(--text);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* nothing written yet — this is the programmed target showing through */
+.note-text.is-empty {
+  color: var(--text-dim);
+  font-weight: 700;
+}
+
+/* PR on the left, pencil + clear on the right */
+.note-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  margin-bottom: -4px;
+}
+
+.note-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.note-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  color: var(--text-dim);
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.125rem;
+  font-weight: 700;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.note-action.on {
+  color: var(--accent);
+}
+
+/* first tap arms the clear; second tap actually wipes the note */
+.note-action.armed {
+  color: var(--bg);
+  background: var(--accent);
+  font-size: 0.875rem;
+  font-weight: 800;
+  font-style: italic;
+  text-transform: uppercase;
+  padding: 0 12px;
+}
+
+/* the standalone PR line is tuned to hang under the h1; inside the Notes card
+   the head row's flex alignment owns the spacing */
+.zone-card .pr-line {
+  margin: 0;
+}
+
+/* nothing logged yet — keep the row balanced but stay quiet about it; a bright
+   accent "None yet" would shout about an absence */
+.pr-line.is-none {
+  color: var(--text-dim);
 }
 
 /* Weight and reps share one control language: −/value/＋ row with a small
@@ -1511,6 +1608,7 @@ body::after {
   .app-brand:hover,
   .back-button:hover,
   .history-delete:hover,
+  .note-action:hover,
   .login-offline:hover,
   .login-link:hover {
     opacity: 0.75;
@@ -1746,8 +1844,8 @@ body::after {
   color: var(--text);
 }
 
-/* cardio finisher card (reuses the stretch-card shell, amber --accent):
-   tappable rows that open the cardio exercise's logging screen */
+/* finisher cards — Cardio and Core (reuse the stretch-card shell, with the
+   borrowed day's --accent): tappable rows that open that exercise's screen */
 .cardio-list {
   list-style: none;
   display: flex;

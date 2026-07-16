@@ -1,10 +1,14 @@
 // per-day accents, tuned to the red/black/white sports palette;
 // fallback (lock screen, history/export buttons) is the brand red
+// Core is a pseudo-day: it has an accent (finisher card, History) but no image
+// and no Home button, because it's deliberately left out of days[] in
+// exercises.json — it only ever appears as a finisher on the other days.
 const DAY_ACCENTS = {
   'Mon — Push': '#ff3b3b',
   'Wed — Pull': '#3b9dff',
   'Fri — Legs': '#2ee66e',
   Cardio: '#ffb02e',
+  Core: '#a97bff',
 }
 
 export function dayAccent(day) {

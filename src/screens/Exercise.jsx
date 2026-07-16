@@ -1,8 +1,30 @@
-import { useState } from 'react'
-import { deleteLastSet, lastSession, loadStore, logSet, todaySession } from '../storage.js'
+import { useEffect, useRef, useState } from 'react'
+import {
+  deleteLastSet,
+  getNote,
+  lastSession,
+  loadStore,
+  logSet,
+  saveNote,
+  todaySession,
+} from '../storage.js'
 import { personalRecord } from '../format.js'
 import { dayAccent } from '../theme.js'
+import { CheckIcon, PencilIcon } from '../icons.jsx'
 import { getWeightUnit, lbsToDisplay, displayToLbs, weightStep } from '../units.js'
+
+// The programmed target is no longer a card of its own — it's the Notes
+// placeholder, so the prescription is there when the note is empty and gets out
+// of the way once you've written your own. exercises.json keeps `target` purely
+// as the source for this string.
+const targetPlaceholder = (t) => {
+  if (!t) return 'Notes…'
+  const parts = []
+  if (t.goal) parts.push(`Goal: ${t.goal}`)
+  if (t.sets) parts.push(`Sets: ${t.sets}`)
+  if (t.reps) parts.push(`Reps: ${t.reps}`)
+  return parts.length ? parts.join(' · ') : 'Notes…'
+}
 
 function Exercise({ exercise, onStartRest }) {
   // weighted (default): weight + reps · reps-only: no weight row ·
@@ -32,6 +54,91 @@ function Exercise({ exercise, onStartRest }) {
   const [reps, setReps] = useState(() => lastSetFor(sets.length)?.reps ?? 0)
   // "to failure" flag for the set being entered; resets after each Finish set
   const [failure, setFailure] = useState(false)
+
+  // Sticky per-exercise note. Local state drives the textarea and writes are
+  // batched: saveNote → saveStore → onStoreChange → markDirty re-renders the
+  // whole app, which is not something to do on every keystroke. noteRef keeps
+  // the latest text reachable from the unmount cleanup, which can't see state.
+  // The note is read-only until the pencil is tapped: it's standing reference
+  // you look at far more often than you edit, and a live textarea means a
+  // stray thumb rewrites it mid-set.
+  const [note, setNote] = useState(() => getNote(exercise.id))
+  const [editingNote, setEditingNote] = useState(false)
+  const noteInputRef = useRef(null)
+  const savedRef = useRef(note)
+  const noteRef = useRef(note)
+  // synced in an effect, not assigned during render: the listener and the
+  // unmount cleanup below close over the first render's scope and would
+  // otherwise never see the current text
+  useEffect(() => {
+    noteRef.current = note
+  }, [note])
+
+  const flushNote = () => {
+    if (noteRef.current === savedRef.current) return
+    savedRef.current = noteRef.current
+    saveNote(exercise.id, noteRef.current)
+  }
+
+  // pencil toggles edit; leaving edit mode is a save point
+  const toggleNoteEdit = () => {
+    setEditingNote((v) => {
+      if (v) flushNote()
+      return !v
+    })
+  }
+
+  // straight into typing — the tap that opened the editor shouldn't need a
+  // second tap to land in the field
+  useEffect(() => {
+    if (editingNote) noteInputRef.current?.focus()
+  }, [editingNote])
+
+  // Two-tap clear, same as History's delete: the first tap arms, the second
+  // commits, and it disarms after 3s so a stray tap can't sit there loaded.
+  // Worth the friction — the X lives next to the pencil and a note is typed,
+  // not recoverable.
+  const [clearArmed, setClearArmed] = useState(false)
+  const disarmRef = useRef(null)
+  useEffect(() => () => clearTimeout(disarmRef.current), [])
+
+  const clearNote = () => {
+    if (!clearArmed) {
+      setClearArmed(true)
+      clearTimeout(disarmRef.current)
+      disarmRef.current = setTimeout(() => setClearArmed(false), 3000)
+      return
+    }
+    clearTimeout(disarmRef.current)
+    setClearArmed(false)
+    setNote('')
+    // write the empty-string tombstone now and keep the refs in step, so the
+    // debounce and the unmount flush both see this as already saved
+    noteRef.current = ''
+    savedRef.current = ''
+    saveNote(exercise.id, '')
+    setEditingNote(false)
+  }
+
+  // persist after a pause in typing…
+  useEffect(() => {
+    if (note === savedRef.current) return
+    const id = setTimeout(flushNote, 800)
+    return () => clearTimeout(id)
+  }, [note]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // …and on the exits a debounce can't catch: leaving the screen (unmount,
+  // which is what the header Back tap does) and iOS killing a backgrounded tab.
+  useEffect(() => {
+    const onHide = () => {
+      if (document.visibilityState === 'hidden') flushNote()
+    }
+    document.addEventListener('visibilitychange', onHide)
+    return () => {
+      document.removeEventListener('visibilitychange', onHide)
+      flushNote()
+    }
+  }, [exercise.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const setLine = (s, i) =>
     cardio
@@ -129,19 +236,52 @@ function Exercise({ exercise, onStartRest }) {
   return (
     <div className="screen" style={{ '--accent': dayAccent(exercise.day) }}>
       <h1 className="exercise-title">{exercise.name}</h1>
-      {pr && <p className="pr-line">PR · {pr}</p>}
 
       <section className="session-zone">
-        {exercise.target && (
-          <div className="zone-card">
-            <span className="zone-card-label">Target</span>
-            <p className="target-line">
-              {exercise.target.goal && <span>Goal: {exercise.target.goal}</span>}
-              {exercise.target.sets && <span>Sets: {exercise.target.sets}</span>}
-              {exercise.target.reps && <span>Reps: {exercise.target.reps}</span>}
-            </p>
+        <div className="zone-card">
+          <span className="zone-card-label">Notes</span>
+          <div className="note-head">
+            {/* always rendered: with nothing on the left the buttons float
+                against empty space, and "none yet" is real information */}
+            <p className={pr ? 'pr-line' : 'pr-line is-none'}>PR · {pr ?? 'None yet'}</p>
+            <div className="note-actions">
+              <button
+                className={editingNote ? 'note-action on' : 'note-action'}
+                aria-label={editingNote ? 'Done editing notes' : 'Edit notes'}
+                aria-pressed={editingNote}
+                onClick={toggleNoteEdit}
+              >
+                {editingNote ? <CheckIcon /> : <PencilIcon />}
+              </button>
+              {note && (
+                <button
+                  className={clearArmed ? 'note-action armed' : 'note-action'}
+                  aria-label={clearArmed ? 'Confirm clear notes' : 'Clear notes'}
+                  onClick={clearNote}
+                >
+                  {clearArmed ? 'Clear?' : '✕'}
+                </button>
+              )}
+            </div>
           </div>
-        )}
+          {editingNote ? (
+            <textarea
+              ref={noteInputRef}
+              className="note-input"
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              onBlur={flushNote}
+              placeholder={targetPlaceholder(exercise.target)}
+              rows={2}
+              aria-label={`Notes for ${exercise.name}`}
+            />
+          ) : (
+            // pre-wrap so typed line breaks survive the round trip to a <p>
+            <p className={note ? 'note-text' : 'note-text is-empty'}>
+              {note || targetPlaceholder(exercise.target)}
+            </p>
+          )}
+        </div>
         <div className="zone-card log-card">
           <span className="zone-card-label">This Set</span>
           {/* lifts: weight above reps (original layout) · cardio: minutes above

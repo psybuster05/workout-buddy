@@ -343,6 +343,66 @@
         "Log minutes; distance can stay blank (the mi field doesn't apply)"
       ],
       "restSeconds": 0
+    },
+    {
+      "id": "plank",
+      "name": "Plank",
+      "day": "Core",
+      "target": { "sets": "3", "reps": "30–60 s hold" },
+      "tracking": "time",
+      "videoUrl": "https://www.youtube.com/embed/mwlp75MS6Rg",
+      "instructions": [
+        "Elbows under the shoulders, forearms flat, feet about hip-width",
+        "Squeeze the glutes and tuck the ribs down — no sagging hips, no piked butt",
+        "Head neutral, eyes at the floor a few inches ahead of your hands",
+        "Breathe. If your form breaks, the set is over — stop the clock and log it"
+      ],
+      "restSeconds": 60
+    },
+    {
+      "id": "hanging-leg-raise",
+      "name": "Hanging Leg Raise",
+      "day": "Core",
+      "target": { "sets": "3", "reps": "8–15" },
+      "tracking": "reps-only",
+      "videoUrl": "https://www.youtube.com/embed/rbOJSK07AGA",
+      "instructions": [
+        "Hang from the bar, shoulders pulled down and away from your ears",
+        "Curl the pelvis up first — think 'roll the hips', not 'lift the feet'",
+        "Lower slowly and kill the swing before the next rep",
+        "Too hard straight-legged? Bend the knees — that's the same exercise, easier"
+      ],
+      "restSeconds": 90
+    },
+    {
+      "id": "russian-twist",
+      "name": "Russian Twist",
+      "day": "Core",
+      "target": { "sets": "3", "reps": "16–24 total" },
+      "tracking": "weighted",
+      "videoUrl": "https://www.youtube.com/embed/IJDOoVyVjhc",
+      "instructions": [
+        "Sit leaning back ~45°, chest tall — don't let the lower back round",
+        "Rotate from the ribcage, not the arms; the weight follows your chest",
+        "Slow and controlled beats fast and floppy — pause at each side",
+        "Count both sides as the total (left + right = 2). Feet down is fine"
+      ],
+      "restSeconds": 60
+    },
+    {
+      "id": "dead-bug",
+      "name": "Dead Bug",
+      "day": "Core",
+      "target": { "sets": "2–3", "reps": "8–12 / side" },
+      "tracking": "reps-only",
+      "videoUrl": "https://www.youtube.com/embed/bxn9FBrt4-A",
+      "instructions": [
+        "On your back, arms straight up, knees over hips bent at 90°",
+        "Press the lower back flat into the floor and keep it there the whole set",
+        "Extend the opposite arm and leg slowly, only as far as the back stays flat",
+        "If the back arches, you went too far — shorten the range, don't rush"
+      ],
+      "restSeconds": 60
     }
   ]
 }

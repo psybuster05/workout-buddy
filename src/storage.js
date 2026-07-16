@@ -21,17 +21,19 @@ export function loadStore() {
     if (raw) {
       const store = JSON.parse(raw)
       if (store && Array.isArray(store.sessions)) {
-        // workouts / disabled added later — backfill for older stores
+        // workouts / disabled / notes added later — backfill for older stores
         if (!Array.isArray(store.workouts)) store.workouts = []
         if (!store.disabled || typeof store.disabled !== 'object' || Array.isArray(store.disabled))
           store.disabled = {}
+        if (!store.notes || typeof store.notes !== 'object' || Array.isArray(store.notes))
+          store.notes = {}
         return seedDefaultOff(store)
       }
     }
   } catch {
     // corrupt JSON or storage blocked — fall through to an empty store
   }
-  return seedDefaultOff({ schemaVersion: 1, sessions: [], workouts: [], disabled: {} })
+  return seedDefaultOff({ schemaVersion: 1, sessions: [], workouts: [], disabled: {}, notes: {} })
 }
 
 // In-memory backfill (persisted on the next mutation): defaultOff exercises
@@ -228,6 +230,28 @@ export function toggleExercise(exerciseId) {
     const off = store.disabled[exerciseId]?.off ?? false
     store.disabled[exerciseId] = { off: !off, at: Date.now() }
     return disabledIds(store)
+  })
+}
+
+// --- per-exercise notes (Exercise screen) --------------------------------
+// `notes` is a map: exerciseId → { text, at }, same shape and same LWW merge
+// as `disabled`. One sticky note per exercise, not per session — it's standing
+// reference ("seat pin 4, elbows tucked"), so it survives every workout.
+//
+// Clearing a note stores { text: '', at } rather than dropping the key: an
+// empty string is a tombstone that wins the merge, where a missing key would
+// let a stale cloud copy resurrect what you just deleted.
+//
+// The whole note is one LWW value, so two devices editing the same note means
+// the later write wins outright — no text merge. Same trade as `disabled`.
+
+export function getNote(exerciseId) {
+  return loadStore().notes[exerciseId]?.text ?? ''
+}
+
+export function saveNote(exerciseId, text) {
+  mutate((store) => {
+    store.notes[exerciseId] = { text, at: Date.now() }
   })
 }
 

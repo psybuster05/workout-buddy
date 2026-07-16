@@ -14,6 +14,19 @@ function mergeBy(items, keyOf, pick) {
   return [...map.values()]
 }
 
+// Last-write-wins union of two id → { at, ... } maps: per id, the entry with
+// the newer `at` survives. Used by every map-shaped store field (disabled,
+// notes) so a stale cloud copy can never undo a newer local change.
+function lww(a, b) {
+  const out = {}
+  for (const src of [a ?? {}, b ?? {}]) {
+    for (const [id, entry] of Object.entries(src)) {
+      if (!out[id] || (entry.at ?? 0) > (out[id].at ?? 0)) out[id] = entry
+    }
+  }
+  return out
+}
+
 // Union two stores so nothing is lost: sessions keyed by exercise+date (the one
 // with more sets wins), workouts keyed by date (a finished record wins, else the
 // later-started one). Empty-local ∪ remote = full restore after an eviction.
@@ -37,13 +50,19 @@ export function mergeStores(a, b) {
   )
   // disabled-exercise toggles keyed by exercise id — the newer flip wins (LWW),
   // so re-enabling on one device can't be undone by a stale cloud copy
-  const disabled = {}
-  for (const src of [A.disabled ?? {}, B.disabled ?? {}]) {
-    for (const [id, t] of Object.entries(src)) {
-      if (!disabled[id] || (t.at ?? 0) > (disabled[id].at ?? 0)) disabled[id] = t
-    }
+  const disabled = lww(A.disabled, B.disabled)
+  // per-exercise notes, same LWW rule: the newer edit wins the whole note
+  const notes = lww(A.notes, B.notes)
+  // NOTE: this literal is the entire contract — a store field missing from it
+  // is silently dropped on every sync AND written back over localStorage by
+  // pullMergePush's replaceStore. Add the field here when you add it.
+  return {
+    schemaVersion: A.schemaVersion ?? B.schemaVersion ?? 1,
+    sessions,
+    workouts,
+    disabled,
+    notes,
   }
-  return { schemaVersion: A.schemaVersion ?? B.schemaVersion ?? 1, sessions, workouts, disabled }
 }
 
 // --- status (footer text + header button) ------------------------------------

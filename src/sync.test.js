@@ -50,8 +50,9 @@ describe('mergeStores', () => {
       sessions: [session('bench', '2026-07-01', [{ reps: 8, weight: 45 }])],
       workouts: [workout('2026-07-01', 'Mon — Push', 1000, 2000)],
       disabled: { 'calf-raise': { off: true, at: 500 } },
+      notes: { bench: { text: 'seat pin 4', at: 500 } },
     }
-    const local = { schemaVersion: 1, sessions: [], workouts: [], disabled: {} }
+    const local = { schemaVersion: 1, sessions: [], workouts: [], disabled: {}, notes: {} }
     expect(mergeStores(remote, local)).toEqual(remote)
   })
 
@@ -61,12 +62,14 @@ describe('mergeStores', () => {
       sessions: [],
       workouts: [],
       disabled: {},
+      notes: {},
     })
     const only = {
       schemaVersion: 1,
       sessions: [session('x', '2026-07-01', [{ reps: 1, weight: 0 }])],
       workouts: [],
       disabled: {},
+      notes: {},
     }
     expect(mergeStores(only, null)).toEqual(only)
   })
@@ -80,5 +83,24 @@ describe('mergeStores', () => {
     // disjoint ids just union
     const c = { sessions: [], workouts: [], disabled: { squat: { off: true, at: 50 } } }
     expect(Object.keys(mergeStores(a, c).disabled).sort()).toEqual(['bench', 'squat'])
+  })
+
+  it('notes merge last-write-wins per exercise', () => {
+    const a = { sessions: [], workouts: [], notes: { bench: { text: 'old cue', at: 100 } } }
+    const b = { sessions: [], workouts: [], notes: { bench: { text: 'new cue', at: 200 } } }
+    expect(mergeStores(a, b).notes.bench).toEqual({ text: 'new cue', at: 200 })
+    expect(mergeStores(b, a).notes.bench).toEqual({ text: 'new cue', at: 200 }) // order-independent
+    // disjoint ids just union
+    const c = { sessions: [], workouts: [], notes: { squat: { text: 'belt', at: 50 } } }
+    expect(Object.keys(mergeStores(a, c).notes).sort()).toEqual(['bench', 'squat'])
+  })
+
+  it('a cleared note is a tombstone, not a resurrection', () => {
+    // the whole point of storing { text: '' } instead of dropping the key:
+    // clearing on this device must beat the stale cloud copy that still has text
+    const cloud = { sessions: [], workouts: [], notes: { bench: { text: 'stale', at: 100 } } }
+    const local = { sessions: [], workouts: [], notes: { bench: { text: '', at: 200 } } }
+    expect(mergeStores(cloud, local).notes.bench.text).toBe('')
+    expect(mergeStores(local, cloud).notes.bench.text).toBe('')
   })
 })
