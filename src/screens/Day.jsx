@@ -4,6 +4,7 @@ import {
   finishWorkout,
   getDisabledIds,
   pauseWorkout,
+  resumeFinishedWorkout,
   resumeWorkout,
   startWorkout,
   todaySession,
@@ -157,12 +158,23 @@ function Day({ day, exercises, onSelectExercise }) {
                 </button>
               </div>
             ) : (
-              <button
-                className="workout-button"
-                onClick={() => setWorkout(startWorkout(day))}
-              >
-                Restart
-              </button>
+              <div className="workout-actions">
+                <button
+                  className="finish-button"
+                  onClick={() => {
+                    setWorkout(resumeFinishedWorkout())
+                    flush() // push the un-finish now so a launch-time pull can't re-finish it
+                  }}
+                >
+                  Resume
+                </button>
+                <button
+                  className="workout-button"
+                  onClick={() => setWorkout(startWorkout(day))}
+                >
+                  Restart
+                </button>
+              </div>
             )}
           </>
         )}

@@ -136,6 +136,13 @@ export function todayWorkout() {
 // total time spent paused and `pausedAt` marks an open pause (null while
 // running). Elapsed subtracts pausedMs — see workoutElapsed in format.js. Old
 // records lacking these fields compute exactly as before (pausedMs ?? 0).
+//
+// `updatedAt` stamps every mutation below. The sync merge prefers the higher
+// updatedAt (see sync.js), so a Resume that clears endedAt beats the stale
+// cloud copy that still has it — without this, the merge's "finished wins"
+// rule would silently re-finish a resumed workout on the next app launch.
+// Records written before this field existed have no updatedAt (treated as 0),
+// so they fall through to the original endedAt-based rule.
 
 // Begin (or restart) today's workout — stamps startedAt, clears endedAt/pauses.
 export function startWorkout(day) {
@@ -151,6 +158,7 @@ export function startWorkout(day) {
     workout.endedAt = null
     workout.pausedMs = 0
     workout.pausedAt = null
+    workout.updatedAt = Date.now()
     return workout
   })
 }
@@ -162,6 +170,7 @@ export function pauseWorkout() {
     const workout = store.workouts.find((w) => w.date === date)
     if (!workout || workout.endedAt || workout.pausedAt) return workout ?? null
     workout.pausedAt = Date.now()
+    workout.updatedAt = Date.now()
     return workout
   })
 }
@@ -174,6 +183,7 @@ export function resumeWorkout() {
     if (!workout || !workout.pausedAt) return workout ?? null
     workout.pausedMs = (workout.pausedMs ?? 0) + (Date.now() - workout.pausedAt)
     workout.pausedAt = null
+    workout.updatedAt = Date.now()
     return workout
   })
 }
@@ -190,6 +200,23 @@ export function finishWorkout() {
       workout.pausedAt = null
     }
     workout.endedAt = Date.now()
+    workout.updatedAt = Date.now()
+    return workout
+  })
+}
+
+// Un-finish today's workout — for a mis-tapped Finish or "actually, one more
+// set". The gap between finishing and resuming is banked as a paused span, so
+// the clock picks up exactly where it froze and workoutElapsed needs no special
+// case. No-op if there's no ended workout to resume.
+export function resumeFinishedWorkout() {
+  const date = todayISO()
+  return mutate((store) => {
+    const workout = store.workouts.find((w) => w.date === date)
+    if (!workout || !workout.endedAt) return workout ?? null
+    workout.pausedMs = (workout.pausedMs ?? 0) + (Date.now() - workout.endedAt)
+    workout.endedAt = null
+    workout.updatedAt = Date.now()
     return workout
   })
 }

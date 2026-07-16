@@ -44,6 +44,35 @@ describe('mergeStores', () => {
     expect(mergeStores(b, a).workouts[0].endedAt).toBe(5000) // order-independent
   })
 
+  it('a resumed workout beats a stale finished cloud copy (updatedAt wins)', () => {
+    // cloud still thinks the workout finished at 5000; locally it was resumed
+    // (endedAt cleared) later. The resume must survive the merge, or the next
+    // app-launch pull silently re-finishes it.
+    const cloud = {
+      sessions: [],
+      workouts: [{ date: '2026-07-01', day: 'Mon — Push', startedAt: 1000, endedAt: 5000, updatedAt: 5000 }],
+    }
+    const local = {
+      sessions: [],
+      workouts: [
+        { date: '2026-07-01', day: 'Mon — Push', startedAt: 1000, endedAt: null, pausedMs: 2000, updatedAt: 9000 },
+      ],
+    }
+    expect(mergeStores(cloud, local).workouts[0].endedAt).toBe(null)
+    expect(mergeStores(local, cloud).workouts[0].endedAt).toBe(null) // order-independent
+    // and the banked pause rode along
+    expect(mergeStores(cloud, local).workouts[0].pausedMs).toBe(2000)
+  })
+
+  it('records without updatedAt keep the original finished-wins rule', () => {
+    // back-compat: pre-upgrade records have no updatedAt, so both sides are 0
+    // and the merge must fall through to the endedAt rule unchanged.
+    const a = { sessions: [], workouts: [workout('2026-07-01', 'Mon — Push', 1000, null)] }
+    const b = { sessions: [], workouts: [workout('2026-07-01', 'Mon — Push', 1000, 5000)] }
+    expect(mergeStores(a, b).workouts[0].endedAt).toBe(5000)
+    expect(mergeStores(b, a).workouts[0].endedAt).toBe(5000)
+  })
+
   it('empty local ∪ remote = full restore (post-eviction)', () => {
     const remote = {
       schemaVersion: 1,

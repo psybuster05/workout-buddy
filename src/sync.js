@@ -42,6 +42,14 @@ export function mergeStores(a, b) {
     [...(A.workouts ?? []), ...(B.workouts ?? [])],
     (w) => w.date,
     (x, y) => {
+      // A record that knows when it was last touched wins outright — this is
+      // what lets a resumed workout (endedAt: null) beat a stale cloud copy
+      // that still has endedAt set. Symmetric on !==, so order-independent.
+      const xu = x.updatedAt ?? 0
+      const yu = y.updatedAt ?? 0
+      if (xu !== yu) return yu > xu ? y : x
+      // pre-updatedAt records (both 0): original rule — finished beats
+      // unfinished, else the later-started one wins.
       const xe = x.endedAt ?? 0
       const ye = y.endedAt ?? 0
       if (xe !== ye) return ye > xe ? y : x
