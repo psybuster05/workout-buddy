@@ -83,6 +83,14 @@ Charts/graphs, in-app exercise editing, PWA service-worker/offline-launch (the a
 
 ## Changelog
 
+### 2026-07-16 — One more exercise per lifting day
+Item 5 (last) of the feedback batch. exercises.json only, no code.
+
+- **Push** → **Dumbbell Chest Fly** (`dumbbell-fly`), after Incline Press — the only horizontal-adduction/stretch movement on an all-pressing day. **Pull** → **Bent-Over Rear Delt Fly** (`rear-delt-fly`), after Pullover — the canonical gap on a dumbbell pull day and the best pick for a desk-bound lifter (his rows all pull to the hip). **Legs** → **Dumbbell Hip Thrust** (`hip-thrust`), after RDL — the missing glute-dominant hinge; Legs already had two single-leg movements. All weighted, `restSeconds: 90`, 4 written cues, inserted after the movement each complements (array order drives the Day list + Home count).
+- **No orphan-id reuse.** The only unused old ids left are `seated-cable-row` and `bicep-curl`; reusing an id for a *different* movement would fuse the old sets into the new exercise's PR/est-1RM, so both stay orphaned. New unique ids.
+- Videos oEmbed-verified (Lean Physique Lab ×2, FITASTIC ×1), titles profanity-checked. **Verified in preview:** Home counts 5→6 on each lifting day (Cardio still 5); each opens weighted with the right target placeholder + a rendering embed; Chest Fly finish-set logged and auto-started the 90s rest. 31 exercises total.
+- Cardio deliberately got nothing — it's a modality list (walk/run/rope/bike/stairs), already complete; the only gap is a HIIT protocol, which would just be Run with different cues splitting minutes across two ids.
+
 ### 2026-07-16 — Resume after Finish Workout
 Item 4 of the feedback batch. After Finish, the Day screen showed only Restart (which zeroes the clock) — no way to undo a mis-tap or grab one more set.
 

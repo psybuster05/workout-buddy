@@ -30,6 +30,20 @@
       "restSeconds": 90
     },
     {
+      "id": "dumbbell-fly",
+      "name": "Dumbbell Chest Fly",
+      "day": "Mon — Push",
+      "target": { "sets": "3", "reps": "12–15" },
+      "videoUrl": "https://www.youtube.com/embed/iHa_7sMa8mU",
+      "instructions": [
+        "Flat bench, dumbbells over the chest, palms facing each other",
+        "Soft bend in the elbows and hold it — this is a fly, not a press",
+        "Open the arms in a wide arc until you feel the chest stretch",
+        "Squeeze back up along the same arc; go lighter than you'd press"
+      ],
+      "restSeconds": 90
+    },
+    {
       "id": "overhead-press",
       "name": "Overhead Press",
       "day": "Mon — Push",
@@ -146,6 +160,20 @@
       "restSeconds": 90
     },
     {
+      "id": "rear-delt-fly",
+      "name": "Bent-Over Rear Delt Fly",
+      "day": "Wed — Pull",
+      "target": { "sets": "3", "reps": "12–20" },
+      "videoUrl": "https://www.youtube.com/embed/is-KyPOMqcY",
+      "instructions": [
+        "Hinge at the hips until your torso is near parallel to the floor",
+        "Dumbbells hang under the chest, palms facing each other, slight elbow bend",
+        "Raise the bells out to the sides, leading with the elbows — squeeze the rear delts",
+        "Keep it light and slow; don't swing or let the torso rise to cheat the weight up"
+      ],
+      "restSeconds": 90
+    },
+    {
       "id": "incline-dumbbell-curl",
       "name": "Incline Dumbbell Curl",
       "day": "Wed — Pull",
@@ -213,6 +241,20 @@
         "Push hips back, dumbbells slide down thighs",
         "Stop when hamstrings pull tight (around mid-shin), back flat",
         "Stand up by squeezing glutes, don't yank with lower back"
+      ],
+      "restSeconds": 90
+    },
+    {
+      "id": "hip-thrust",
+      "name": "Dumbbell Hip Thrust",
+      "day": "Fri — Legs",
+      "target": { "sets": "3", "reps": "10–15" },
+      "videoUrl": "https://www.youtube.com/embed/aSlnS11p1uQ",
+      "instructions": [
+        "Upper back against the bench, feet flat, a dumbbell across the hips (pad it)",
+        "Drive through the heels and lift until hips are level with knees and shoulders",
+        "Squeeze the glutes hard at the top, ribs down — don't arch the lower back",
+        "Lower under control; chin tucked, shins vertical at the top"
       ],
       "restSeconds": 90
     },
