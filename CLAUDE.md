@@ -1,7 +1,9 @@
 # CLAUDE.md — Workout Tracker
 
 ## What this is
-Personal workout tracker web app. One user (Jon), used on an iPhone browser mid-workout at the gym. Phone-first UI: big touch targets, readable at arm's length, works one-handed with sweaty thumbs.
+Personal workout tracker web app. Built by/for Jon, used on an iPhone browser mid-workout at the gym; **as of 2026-07-12 it's no longer single-user** — real accounts are live and friends/family are expected to try it, so don't assume a lone user when weighing tradeoffs (the exercise *program* is still Jon's, though — see Out of scope). Phone-first UI: big touch targets, readable at arm's length, works one-handed with sweaty thumbs.
+
+Known multi-user caveat: Supabase's built-in email sender is rate-limited (~2–4/hour), so a burst of signups/password-resets can queue. Fine so far; custom SMTP is the fix if it bites.
 
 ## Tech stack
 - React (Vite) 
@@ -80,6 +82,15 @@ Charts/graphs, in-app exercise editing, PWA service-worker/offline-launch (the a
 - Data model (no migration): workout records gain `pausedMs` (total paused) + `pausedAt` (open-pause stamp, null while running); `startedAt`/`endedAt` stay true wall-clock stamps. Elapsed = `endedAt ?? pausedAt ?? now) − startedAt − pausedMs` via new **`workoutElapsed(w, now)`** in format.js (shared by Day + anywhere duration is shown). Old records lacking the fields compute exactly as before.
 - storage.js: `pauseWorkout` (sets `pausedAt`), `resumeWorkout` (banks the span into `pausedMs`, clears `pausedAt`), and `finishWorkout` now closes an open pause first so paused time is never counted. `startWorkout`/Restart reset both fields.
 - Day.jsx ticks only while *running* (frozen while paused). Sync unaffected (extra fields ride along in the per-date workout record).
+
+### 2026-07-12 — Imperial/Metric toggle + sporty button redesign
+- **Weight unit toggle** (Account screen, segmented switch): new **src/units.js** — `getWeightUnit`/`setWeightUnit` (device-local key `workout-tracker:unit`, deliberately NOT synced), `lbsToDisplay`/`displayToLbs`/`weightStep`. **Storage stays canonical lbs** (see Conventions); conversion happens only at the display/input boundary, so history and the sync merge can never mix units. `formatSession`/`personalRecord` take an optional display `unit` arg; Exercise converts prefill + stepper (±1.25 kg vs ±2.5 lbs) and converts back on log. Cardio's weight field is **miles** and never converts. format.test.js grew kg cases (15 tests total).
+- **Day buttons redesigned**: sharp rectangles (no radius), accent-tinted hairline + 5px accent left edge, photo under an accent scrim, skewed title slab, frosted `.day-button-sub` count chip, and top-right speed stripes — all leaning the same **14°** so the geometry reads as one system.
+- **Shape experiments tried and rejected** (don't re-propose without asking): per-day corner treatments (triangle / square / 45° notch), a skewed **parallelogram** Cardio button ("not 2004 anymore"), and a **sliced corner + accent blade** — the slice was cut even after matching all angles to 14°. Verdict: plain sharp rectangle with the left accent edge. Exercise buttons also lost their accent blade.
+- **Exercise buttons**: uppercase italic names via new **src/components/FitText.jsx** — measures `scrollWidth > clientWidth` and steps the font down (18px → 11px floor) so every name stays on **one line**, re-fitting on resize. Anatomy is now outlined index numeral · name · accent chevron (✓ when done).
+- **New day photos** (supersedes the 2026-07-07 photo note): real gym action shots — push = DB shoulder press, pull = bent-over row, legs = trap-bar deadlift, cardio = treadmill sprint. Normalized from source PNGs with the sharp recipe (1024×400 attention crop → mozjpeg q82, 31–50 KB); heavy source PNGs deleted from the repo.
+- **Scap Pull-Ups** joined the `defaultOff` set (Pull now shows 5 by default).
+- Account screen: `.account-screen` flex column w/ 16px gap (child margins zeroed so the gap is the single spacing source); unit toggle is one connected segmented control.
 
 ### 2026-07-11 — Account screen + header person button
 - New **Account screen** (src/screens/Account.jsx), reached via a **person icon** in the header (order: rest → sync → account; PersonIcon added to icons.jsx). Sign out, change-account-email, and "Log in to back up" moved there from History (History now ends at Export JSON).
@@ -206,7 +217,7 @@ Charts/graphs, in-app exercise editing, PWA service-worker/offline-launch (the a
 - (Superseded the brief "banners baked-in, shown as-is" experiment — Jon swapped to plain action photos and wanted the app-drawn title/color-overlay back.)
 - Nav is now Home → Day → Exercise. App tracks `selectedDay`; header back is contextual (`goBack`: exercise→day, else→home). Exercise/Day/History no longer take an `onBack` — the app-header owns it.
 - Whole-day workout tracking in storage.js: `workouts[]` (one per date, `{ date, day, startedAt, endedAt }`), `startWorkout`/`finishWorkout`/`todayWorkout`. Elapsed derives from the `startedAt` timestamp (survives reload/close, verified 00:51 across a reload). "N of M done" derived from `todaySession` per day-exercise; done exercises get `.is-done` (dim + ✓) in the day list.
-- Day-button photos: **public/days/{push,pull,leg}.jpg** (note `leg`, singular; runtime URL via `import.meta.env.BASE_URL`). Current set = plain action photos (chest press / dumbbell row / barbell squat) Jon dropped in as `push2.jpg`/`pull2.webp`/`leg2.jpg` at mixed sizes+formats. Normalized with **sharp**: `resize(1024×400, fit:cover, position:sharp.strategy.attention)` (subject-aware crop keeps the lifter in frame) → mozjpeg q82 → ~35–48 KB each. theme.js `dayImage(day)` maps day→file; swap the files to restyle, no code change.
+- Day-button photos: **public/days/{push,pull,leg,cardio}.jpg** (note `leg`, singular; runtime URL via `import.meta.env.BASE_URL`). theme.js `dayImage(day)` maps day→file; **swap the file to restyle, no code change**. Always normalize a new photo with **sharp**: `resize(1024×400, fit:cover, position:sharp.strategy.attention)` (subject-aware crop keeps the lifter in frame) → mozjpeg q82 → ~30–50 KB. *(The photos themselves were replaced 2026-07-12 — see that entry.)*
 - (Earlier the source banners had a checkerboard *baked into pixels* — AI faux-transparency, not alpha; that set was masked out with sharp, but has since been replaced by the plain photos above.)
 - **sharp** now a devDependency — image tooling (resize/compress/convert/flatten/crop/mask) available for future asset jobs; run one-off scripts from the project root so `node_modules` resolves. Not imported at build time (Vite doesn't touch it).
 - Calories deferred (needs body weight + MET; body-weight tracking still out of scope). `workouts` record can gain a `calories` field later.
@@ -228,7 +239,7 @@ Charts/graphs, in-app exercise editing, PWA service-worker/offline-launch (the a
 - New **"Cardio" day** (amber `#ffb02e`) with 4 `tracking: "cardio"` exercises: incline-walk, run, jump-rope, cardio-machine. Cardio logs **minutes (reps field) + optional miles (weight field)** — zero storage/sync changes, same trick as time mode. Minutes render as a typeable input (not 32 taps); distance steps ±0.1 mi; failure toggle hidden.
 - Data-driven behaviors: `target.goal` → "Goal:" line; `videoUrl` optional (walk/run/machine have none — Exercise hides the frame; jump-rope keeps an oEmbed-verified Jump Rope Dudes video); `restSeconds: 0` = no auto rest timer after logging (jump-rope keeps 60s round rest).
 - **Cardio finisher** card on lifting days (Day.jsx, stretch-card shell, amber accent): enabled cardio exercises as tappable rows → same Exercise logging screen, ✓ when logged today, NOT counted in "N of M done". Managed (enable/disable) from the Cardio day's edit mode, which works there like any day.
-- format.js: cardio formatSession ("32 min · 2.1 mi", multi "32 + 18 min · 3.4 mi") + personalRecord ("longest 45 min · best 2.1 mi"); first **format.test.js** (6 cases, 12 total).
+- format.js: cardio formatSession ("32 min · 2.1 mi", multi "32 + 18 min · 3.4 mi") + personalRecord ("longest 45 min · best 2.1 mi"); first **format.test.js** (6 cases; 15 tests total today after the kg cases).
 - `public/days/cardio.jpg` is a **sharp-generated amber placeholder** (gradient + jump-rope arc, 6.6 KB) — swap in a real photo any time, no code change. Cardio cool-down stretches added.
 - Known caveat (accepted): `workouts` is one record per date, so starting a Cardio "workout" on a date you already lifted restarts that date's timer. Real usage (finisher on lift days, standalone cardio on other dates) doesn't hit it.
 
