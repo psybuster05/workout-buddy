@@ -322,9 +322,8 @@ h1 {
 }
 
 /* a disabled exercise, visible only in edit mode — dimmed, dashed, struck.
-   Applies to finisher rows too: the pencil toggles those the same way. */
-.exercise-button.is-off,
-.cardio-row.is-off {
+   Applies to finisher rows too (they're .exercise-buttons now). */
+.exercise-button.is-off {
   opacity: 0.45;
   border-style: dashed;
   text-decoration: line-through;
@@ -1584,7 +1583,6 @@ body::after {
   }
 
   .exercise-button:hover,
-  .cardio-row:hover,
   .home-history:hover,
   .timer-button:hover,
   .edit-day-button:hover,
@@ -1854,44 +1852,11 @@ body::after {
   color: var(--text);
 }
 
-/* finisher cards — Cardio and Core (reuse the stretch-card shell, with the
-   borrowed day's --accent): tappable rows that open that exercise's screen */
-.cardio-list {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+/* finisher cards — Cardio and Core — reuse the main list's .exercise-button
+   rows (borrowed day's --accent colours the numeral + chevron); only the inner
+   padding differs, since these sit inside the collapsible stretch-card shell */
+.finisher-list {
   padding: 4px 0 14px;
-}
-
-.cardio-row {
-  display: block;
-  width: 100%;
-  min-height: 52px;
-  padding: 12px 16px;
-  font-size: 1.0625rem;
-  font-weight: 700;
-  text-align: left;
-  color: var(--text);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--accent);
-  border-radius: 12px;
-}
-
-.cardio-row:active {
-  background: var(--surface-pressed);
-}
-
-.cardio-row.is-done {
-  color: var(--text-dim);
-}
-
-.cardio-row.is-done::after {
-  content: '✓';
-  float: right;
-  color: var(--accent);
-  font-weight: 800;
 }
 .stretch-cue {
   font-size: 0.9375rem;

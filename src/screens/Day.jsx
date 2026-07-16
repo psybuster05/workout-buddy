@@ -31,10 +31,10 @@ function FinisherCard({ title, accent, exercises, editing, disabled, doneIds, on
         <span className="stretch-title">{title}</span>
         <span className="stretch-count">{shown.length}</span>
       </summary>
-      <ul className="cardio-list">
-        {shown.map((e) => {
+      <ul className="exercise-list finisher-list">
+        {shown.map((e, i) => {
           const off = disabled.has(e.id)
-          const cls = ['cardio-row', doneIds.includes(e.id) && 'is-done', editing && off && 'is-off']
+          const cls = ['exercise-button', doneIds.includes(e.id) && 'is-done', editing && off && 'is-off']
             .filter(Boolean)
             .join(' ')
           return (
@@ -44,7 +44,11 @@ function FinisherCard({ title, accent, exercises, editing, disabled, doneIds, on
                 aria-pressed={editing ? !off : undefined}
                 onClick={() => (editing ? onToggle(e.id) : onSelect(e.id))}
               >
-                {e.name}
+                <span className="exercise-num" aria-hidden="true">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <FitText className="exercise-name">{e.name}</FitText>
+                <span className="exercise-go" aria-hidden="true" />
               </button>
             </li>
           )
