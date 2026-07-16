@@ -83,6 +83,11 @@ Charts/graphs, in-app exercise editing, PWA service-worker/offline-launch (the a
 
 ## Changelog
 
+### 2026-07-16 — Default set trimmed to the original PDF program; video-verifier agent
+- **Default-enabled exercises = the original WFH PDF program, minus Scap Pull-Ups.** Six accessory/variant lifts added since launch are now `defaultOff` so a fresh install shows only Jon's core program: **incline-dumbbell-press, dumbbell-fly** (Push), **dumbbell-pullover, rear-delt-fly** (Pull), **hip-thrust, bulgarian-split-squat** (Legs). Combined with the machine trio already off (tricep-pushdown, lat-pulldown, leg-press) and Scap Pull-Ups (off since 2026-07-12), every lifting day now defaults to **4 enabled** (Push/Pull/Legs = the PDF's 4/5/4 with scap dropped from Pull). All remain one tap away in Day-screen edit mode; history is untouched. **Scope note:** this applies to the lifting days only — **Cardio (5) and Core (4) finishers are left fully enabled**, since those are deliberately-visible features, not part of the "original program" question. Reversible in a line if that's not wanted.
+  - Mechanism reminder: `defaultOff` only seeds `{off: true, at: 0}` for ids **not already in a user's `disabled` map** (loadStore/seedDefaultOff), and `at: 0` loses every LWW merge — so this changes the default for fresh installs and for users who never toggled these, but can't override anyone's explicit choice or resurrect across a re-enable.
+- **`.claude/agents/video-verifier.md`** (new, `model: sonnet`): offloads finding + oEmbed-verifying YouTube form videos when adding exercises. Mandatory `curl` oEmbed check, profanity-check on the title (renders on the iframe), returns embed URLs, never returns an unverified ID, doesn't edit files. Smoke-tested on Sonnet (Face Pull → NASM video, rejected a profane-titled candidate). Not loaded into a session until the harness rescans `.claude/agents/` at startup.
+
 ### 2026-07-16 — One more exercise per lifting day
 Item 5 (last) of the feedback batch. exercises.json only, no code.
 

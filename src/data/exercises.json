@@ -20,6 +20,7 @@
       "name": "Incline Dumbbell Press",
       "day": "Mon — Push",
       "target": { "sets": "3", "reps": "8–12" },
+      "defaultOff": true,
       "videoUrl": "https://www.youtube.com/embed/8iPEnn-ltC8",
       "instructions": [
         "Bench at 30–45° — higher hits shoulders more than chest",
@@ -34,6 +35,7 @@
       "name": "Dumbbell Chest Fly",
       "day": "Mon — Push",
       "target": { "sets": "3", "reps": "12–15" },
+      "defaultOff": true,
       "videoUrl": "https://www.youtube.com/embed/iHa_7sMa8mU",
       "instructions": [
         "Flat bench, dumbbells over the chest, palms facing each other",
@@ -150,6 +152,7 @@
       "name": "Dumbbell Pullover",
       "day": "Wed — Pull",
       "target": { "sets": "3", "reps": "10–15" },
+      "defaultOff": true,
       "videoUrl": "https://www.youtube.com/embed/Qc4L9I3pHnw",
       "instructions": [
         "Upper back on the bench, feet planted, hips slightly below shoulders",
@@ -164,6 +167,7 @@
       "name": "Bent-Over Rear Delt Fly",
       "day": "Wed — Pull",
       "target": { "sets": "3", "reps": "12–20" },
+      "defaultOff": true,
       "videoUrl": "https://www.youtube.com/embed/is-KyPOMqcY",
       "instructions": [
         "Hinge at the hips until your torso is near parallel to the floor",
@@ -249,6 +253,7 @@
       "name": "Dumbbell Hip Thrust",
       "day": "Fri — Legs",
       "target": { "sets": "3", "reps": "10–15" },
+      "defaultOff": true,
       "videoUrl": "https://www.youtube.com/embed/aSlnS11p1uQ",
       "instructions": [
         "Upper back against the bench, feet flat, a dumbbell across the hips (pad it)",
@@ -277,6 +282,7 @@
       "name": "Bulgarian Split Squat",
       "day": "Fri — Legs",
       "target": { "sets": "2–3", "reps": "8–12 / leg" },
+      "defaultOff": true,
       "videoUrl": "https://www.youtube.com/embed/DeCnHqrN22U",
       "instructions": [
         "Top of rear foot on the bench, front foot far enough forward to stay balanced",
