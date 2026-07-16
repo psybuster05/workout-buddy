@@ -1,4 +1,5 @@
 import { SyncIcon, StopwatchIcon, PersonIcon } from '../icons.jsx'
+import { DEBUG_AUDIO } from '../hooks/useRestTimer.js'
 
 // Sticky app header: brand (Home) or back button on the left; rest-timer,
 // sync, and account icon buttons on the right (in that order). Purely
@@ -30,7 +31,9 @@ function AppHeader({
         <button
           className="timer-button"
           aria-label="Start rest timer"
-          onClick={() => onStartRest(90)}
+          // ?debug=1 → 10s, so the audio readout is reachable without standing
+          // around for a minute and a half per test
+          onClick={() => onStartRest(DEBUG_AUDIO ? 10 : 90)}
         >
           <StopwatchIcon />
         </button>

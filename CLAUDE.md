@@ -83,6 +83,17 @@ Charts/graphs, in-app exercise editing, PWA service-worker/offline-launch (the a
 
 ## Changelog
 
+### 2026-07-16 — Rest alarm: silent-switch fix, late-rule widened, `?debug=1` readout
+Item 3 of the feedback batch. Jon: the alarm fails **both** on silent **and** with the ringer ON.
+
+- **⚠️ Root cause of the ringer-ON silence is NOT confirmed.** Everything below is one real fix plus hardening. Don't record this item as "fixed" until the phone matrix says so.
+- **(a) `navigator.audioSession.type = 'playback'`** (useRestTimer, set lazily on first `startRest`, feature-detected) — iOS 16.4+; makes WebAudio ignore the ringer/silent switch, which otherwise mutes the beep. **The best candidate**, and untestable off-Safari (Chrome has no `navigator.audioSession`; the guard skips it cleanly). Supersedes the "silent switch mutes WebAudio, accepted" note in the 2026-07-06 step-3 entry. **Tradeoff to confirm by ear:** `playback` declares the page a media player and may duck/stop music from another app. If it does: revert, or gate behind an Account toggle. `'ambient'` mixes politely but stays muted = no fix.
+- **(c) late-return rule 3s → 10s** (`LATE_LIMIT_MS` in RestTimer). In the foreground the 250ms tick makes the alarm ~0.25s late, so the threshold only ever governed suspended JS — and a dimmed screen woken a few seconds after 0:00 is exactly when you still want the beep. **Demonstrated:** Δ5.2s now fires (old rule swallowed it), Δ20s still correctly suppressed.
+- **(b) `fire()` awaits `resume()` before `beep()` — hardening, NOT the fix.** This was asserted as the root cause and then **disproved**: measured on Chrome, `resume()` *continues* the clock rather than jumping it (~8ms), so scheduling off the stale `currentTime` still lands in the future and plays. Kept only because it's free and iOS's WebKit-only `interrupted` state isn't Chrome's `suspended` code path. **Do not re-derive the "schedules into the past" story as fact.** Also added a `+0.02` lead-in in `beep()`.
+- **(e) keepalive**: an inaudible oscillator (gain 0.0001) runs for the rest's duration so Safari can't reap an idle context; stopped on dismiss / new rest. **(d)** `webkitAudioContext` fallback added for old devices — never was the bug.
+- **`?debug=1`** (`DEBUG_AUDIO`, exported from useRestTimer): header stopwatch starts a **10s** rest instead of 90s, and the rest bar holds open at 0:00 showing `state-before→after · session=… · Δ<late>ms`. **This is the real deliverable** — all three failure modes look identical ("no beep") on a phone, so there's no diagnosing it without a readout. Inert without the param.
+- `startRest` stays **fully synchronous** (the iOS gesture invariant); all async work lives in RestTimer's fire path, which runs post-unlock. `fire` closes over `ctx` only, so the auto-dismiss unmount can't cut the beep off.
+
 ### 2026-07-16 — Core finishers + Notes card replaces Target
 Post-leg-day feedback batch from Jon + a friend (items 1–2 of 5).
 

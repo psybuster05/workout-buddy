@@ -1254,6 +1254,16 @@ input.counter-value::-webkit-inner-spin-button {
   color: var(--text-dim);
 }
 
+/* ?debug=1 only: what the audio layer actually did at 0:00 */
+.rest-diag {
+  flex: 1;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
 .rest-count {
   flex: 1;
   font-size: 2.25rem;
