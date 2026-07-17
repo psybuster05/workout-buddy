@@ -1429,6 +1429,20 @@ h1 {
   color: var(--text);
 }
 
+/* a logged set and its ✕ */
+.set-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* let the line take the slack so the count/✕ sit together on the right */
+.set-row .set-log-line,
+.set-drawer > summary .set-log-line {
+  flex: 1;
+  min-width: 0;
+}
+
 .set-drawer > summary {
   list-style: none;
   display: flex;
@@ -1465,24 +1479,6 @@ h1 {
   flex-direction: column;
   gap: 8px;
   padding-top: 8px;
-}
-
-/* subtle corrective action — deliberately not a filled CTA like Finish set */
-.delete-last-button {
-  min-height: 48px;
-  padding: 8px 16px;
-  font-size: 0.9375rem;
-  font-weight: 600;
-  color: var(--text-dim);
-  background: transparent;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.delete-last-button:active {
-  background: var(--surface-pressed);
 }
 
 /* --- History --- */
@@ -1689,7 +1685,6 @@ body::after {
   .home-history:hover,
   .timer-button:hover,
   .edit-day-button:hover,
-  .delete-last-button:hover,
   .export-button:hover,
   .signout-button:hover {
     background: var(--surface-pressed);

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import {
-  deleteLastSet,
+  deleteSetAt,
   getNote,
   lastSession,
   loadStore,
@@ -175,15 +175,31 @@ function Exercise({ exercise, onStartRest }) {
     if (exercise.restSeconds) onStartRest(exercise.restSeconds)
   }
 
-  const deleteLast = () => {
-    const remaining = deleteLastSet(exercise.id)
+  // Two-tap delete per set — armed → "Delete?", 3s auto-disarm, same as
+  // History's row deletes. A row of small ✕s is far easier to mis-tap than the
+  // single labelled "Delete last set" button this replaced, so the confirm is
+  // worth the extra tap on an already-logged set.
+  const [armedSet, setArmedSet] = useState(null) // set index, or null
+  const setDisarmRef = useRef(null)
+  useEffect(() => () => clearTimeout(setDisarmRef.current), [])
+
+  const deleteSet = (index) => {
+    if (armedSet !== index) {
+      setArmedSet(index)
+      clearTimeout(setDisarmRef.current)
+      setDisarmRef.current = setTimeout(() => setArmedSet(null), 3000)
+      return
+    }
+    clearTimeout(setDisarmRef.current)
+    setArmedSet(null)
+    const remaining = deleteSetAt(exercise.id, index)
     setSets([...remaining])
     // re-prefill the counter for the set position we just reopened
     setReps(lastSetFor(remaining.length)?.reps ?? 0)
   }
 
   // History always shows the most recent work: today's sets if any, else the
-  // last time this exercise was done. Delete-last only applies to today.
+  // last time this exercise was done. Deleting only applies to today's sets.
   const historyIsToday = sets.length > 0
   const historySets = historyIsToday ? sets : (last?.sets ?? [])
   const historyDate = historyIsToday ? null : last?.date
@@ -196,55 +212,30 @@ function Exercise({ exercise, onStartRest }) {
     unit
   )
 
+  // ✕ beside a logged set. Reuses History's row-delete styling — same control,
+  // same two-tap. Inside the drawer's <summary> the click must not also toggle
+  // the details open/shut.
+  const setDeleteButton = (index, inSummary = false) => {
+    const armed = armedSet === index
+    return (
+      <button
+        className={armed ? 'history-delete armed' : 'history-delete'}
+        onClick={(e) => {
+          if (inSummary) e.preventDefault()
+          deleteSet(index)
+        }}
+        aria-label={armed ? `Confirm delete set ${index + 1}` : `Delete set ${index + 1}`}
+      >
+        {armed ? 'Delete?' : '✕'}
+      </button>
+    )
+  }
+
   return (
     <div className="screen" style={{ '--accent': dayAccent(exercise.day) }}>
       <h1 className="exercise-title">{exercise.name}</h1>
 
       <section className="session-zone">
-        <div className="zone-card">
-          <span className="zone-card-label">Notes</span>
-          <div className="note-head">
-            {/* always rendered: with nothing on the left the buttons float
-                against empty space, and "none yet" is real information */}
-            <p className={pr ? 'pr-line' : 'pr-line is-none'}>PR · {pr ?? 'None yet'}</p>
-            <div className="note-actions">
-              <button
-                className={editingNote ? 'note-action on' : 'note-action'}
-                aria-label={editingNote ? 'Done editing notes' : 'Edit notes'}
-                aria-pressed={editingNote}
-                onClick={toggleNoteEdit}
-              >
-                {editingNote ? <CheckIcon /> : <PencilIcon />}
-              </button>
-              {note && (
-                <button
-                  className={clearArmed ? 'note-action armed' : 'note-action'}
-                  aria-label={clearArmed ? 'Confirm clear notes' : 'Clear notes'}
-                  onClick={clearNote}
-                >
-                  {clearArmed ? 'Clear?' : '✕'}
-                </button>
-              )}
-            </div>
-          </div>
-          {editingNote ? (
-            <textarea
-              ref={noteInputRef}
-              className="note-input"
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              onBlur={flushNote}
-              placeholder={targetPlaceholder(exercise.target)}
-              rows={2}
-              aria-label={`Notes for ${exercise.name}`}
-            />
-          ) : (
-            // pre-wrap so typed line breaks survive the round trip to a <p>
-            <p className={note ? 'note-text' : 'note-text is-empty'}>
-              {note || targetPlaceholder(exercise.target)}
-            </p>
-          )}
-        </div>
         <div className="zone-card log-card">
           <span className="zone-card-label">This Set</span>
           {/* lifts: weight ribbon above reps ribbon · cardio keeps its typed
@@ -304,35 +295,83 @@ function Exercise({ exercise, onStartRest }) {
             Finish set
           </button>
         </div>
+        <div className="zone-card">
+          <span className="zone-card-label">Notes</span>
+          <div className="note-head">
+            {/* always rendered: with nothing on the left the buttons float
+                against empty space, and "none yet" is real information */}
+            <p className={pr ? 'pr-line' : 'pr-line is-none'}>PR · {pr ?? 'None yet'}</p>
+            <div className="note-actions">
+              <button
+                className={editingNote ? 'note-action on' : 'note-action'}
+                aria-label={editingNote ? 'Done editing notes' : 'Edit notes'}
+                aria-pressed={editingNote}
+                onClick={toggleNoteEdit}
+              >
+                {editingNote ? <CheckIcon /> : <PencilIcon />}
+              </button>
+              {note && (
+                <button
+                  className={clearArmed ? 'note-action armed' : 'note-action'}
+                  aria-label={clearArmed ? 'Confirm clear notes' : 'Clear notes'}
+                  onClick={clearNote}
+                >
+                  {clearArmed ? 'Clear?' : '✕'}
+                </button>
+              )}
+            </div>
+          </div>
+          {editingNote ? (
+            <textarea
+              ref={noteInputRef}
+              className="note-input"
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              onBlur={flushNote}
+              placeholder={targetPlaceholder(exercise.target)}
+              rows={2}
+              aria-label={`Notes for ${exercise.name}`}
+            />
+          ) : (
+            // pre-wrap so typed line breaks survive the round trip to a <p>
+            <p className={note ? 'note-text' : 'note-text is-empty'}>
+              {note || targetPlaceholder(exercise.target)}
+            </p>
+          )}
+        </div>
 
         {historySets.length > 0 && (
           <div className="zone-card">
             <span className="zone-card-label">History</span>
             {!historyIsToday && <span className="zone-caption">Last done {historyDate}</span>}
             {historySets.length === 1 ? (
-              <p className="set-log-line">{setLine(historySets[0], 0)}</p>
+              <div className="set-row">
+                <span className="set-log-line">{setLine(historySets[0], 0)}</span>
+                {historyIsToday && setDeleteButton(0)}
+              </div>
             ) : (
               <details className="set-drawer">
+                {/* the latest set carries its own ✕ so the common undo doesn't
+                    need the drawer opened first */}
                 <summary>
                   <span className="set-log-line">
                     {setLine(historySets[historySets.length - 1], historySets.length - 1)}
                   </span>
                   <span className="set-drawer-count">All {historySets.length}</span>
+                  {historyIsToday && setDeleteButton(historySets.length - 1, true)}
                 </summary>
                 <ol className="set-drawer-list">
                   {historySets
                     .map((s, i) => ({ s, i }))
                     .reverse()
                     .map(({ s, i }) => (
-                      <li key={i}>{setLine(s, i)}</li>
+                      <li key={i} className="set-row">
+                        <span className="set-log-line">{setLine(s, i)}</span>
+                        {historyIsToday && setDeleteButton(i)}
+                      </li>
                     ))}
                 </ol>
               </details>
-            )}
-            {historyIsToday && (
-              <button className="delete-last-button" onClick={deleteLast}>
-                Delete last set
-              </button>
             )}
           </div>
         )}

@@ -96,17 +96,18 @@ export function logSet(exerciseId, set) {
   })
 }
 
-// Remove the most recent set from today's session (in-workout undo of an
-// accidental entry). Drops the session entirely if that empties it, so we
-// never leave a zero-set session behind. Returns the remaining sets.
-export function deleteLastSet(exerciseId) {
+// Remove one set from today's session by position (in-workout correction of a
+// mis-logged entry — any set, not just the last). Drops the session entirely if
+// that empties it, so we never leave a zero-set session behind. Out-of-range
+// indices are a no-op. Returns the remaining sets.
+export function deleteSetAt(exerciseId, index) {
   const date = todayISO()
   return mutate((store) => {
     const session = store.sessions.find(
       (s) => s.exerciseId === exerciseId && s.date === date
     )
-    if (!session || session.sets.length === 0) return []
-    session.sets.pop()
+    if (!session || index < 0 || index >= session.sets.length) return session?.sets ?? []
+    session.sets.splice(index, 1)
     if (session.sets.length === 0) {
       store.sessions = store.sessions.filter((s) => s !== session)
     }
