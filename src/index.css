@@ -1221,27 +1221,26 @@ input.counter-value::-webkit-inner-spin-button {
 }
 
 /* chevron | tape | chevron */
+/* chevrons flush left/right, the tape fills the middle */
 .ribbon-row {
   display: flex;
-  align-items: center;
-  gap: 4px;
+  align-items: stretch;
   width: 100%;
 }
 
 .ribbon-chevron {
   flex: 0 0 auto;
-  width: 40px;
-  height: 44px;
+  width: 20px; /* half the old width — just the glyph, no empty margin */
+  align-self: stretch; /* narrow but full-height, so it stays a decent tap area */
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.75rem;
+  font-size: 1.5rem;
   font-weight: 700;
   line-height: 1;
   color: var(--accent);
   background: transparent;
   border: none;
-  border-radius: 10px;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
@@ -1257,7 +1256,7 @@ input.counter-value::-webkit-inner-spin-button {
   position: relative;
   flex: 1;
   min-width: 0;
-  height: 74px;
+  height: 92px;
 }
 /* while typing, the tape is swapped for a centred input */
 .ribbon-track-wrap.is-typing {
@@ -1354,15 +1353,17 @@ input.counter-value::-webkit-inner-spin-button {
 }
 
 .ribbon-tick-label {
-  font-size: 0.9375rem;
-  font-weight: 800;
+  /* Every tick is labelled. Non-focused numbers stay small and light; --emph
+     grows, bolds and brightens the centred one into a crisp readout that
+     overflows its tick box, floating over the dimmed neighbours (font-size, not
+     transform, so it stays sharp). */
+  font-size: calc(0.625rem + var(--emph, 0) * 1.65rem);
+  font-weight: calc(400 + var(--emph, 0) * 400);
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
   color: color-mix(in srgb, var(--text-dim), var(--text) calc(var(--emph, 0) * 100%));
-  opacity: calc(0.6 + var(--emph, 0) * 0.4);
-  /* the centred number grows to ~2x to become the value readout */
-  transform: scale(calc(1 + var(--emph, 0) * 1.1));
-  transform-origin: center;
-  transition: transform 0.08s linear, opacity 0.08s linear;
+  opacity: calc(0.5 + var(--emph, 0) * 0.5);
+  transition: font-size 0.08s linear, font-weight 0.08s linear, opacity 0.08s linear;
 }
 
 /* --- rest timer --- */

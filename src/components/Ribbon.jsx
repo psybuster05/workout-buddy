@@ -11,13 +11,15 @@ import { useEffect, useRef, useState } from 'react'
 
 // px per increment — the scroll-snap stride. Pushed to CSS as --item (inline on
 // the track) so the tick width and edge padding can't drift from this number.
-const ITEM = 36
+const ITEM = 50
 // decorative faded ticks before the first real value, so the tape doesn't look
 // like it slams into a wall at the minimum. Never snap targets or selectable —
 // all the index math offsets past them.
 const LEAD = 5
-// ticks either side of the centre that get the scale/brighten emphasis
-const EMPH_WINDOW = 4
+// ticks either side of the centre that get the scale/brighten emphasis. Kept
+// tight so neighbours shrink fast — otherwise, with every tick now labelled,
+// several big numbers overlap around the centre.
+const EMPH_WINDOW = 2.5
 // pointer travel (px) past which a press is a drag/scroll, not a tap-to-type
 const TAP_SLOP = 6
 
@@ -76,10 +78,16 @@ export default function Ribbon({
     const centre = el.scrollLeft / ITEM // fractional child index under the caret
     for (const i of styledRef.current) kids[i]?.style.removeProperty('--emph')
     styledRef.current = []
-    const lo = Math.max(LEAD, Math.floor(centre) - EMPH_WINDOW)
-    const hi = Math.min(kids.length - 1, Math.ceil(centre) + EMPH_WINDOW)
+    // integer bounds — EMPH_WINDOW can be fractional, and a fractional loop
+    // index would make kids[i] undefined and throw
+    const lo = Math.max(LEAD, Math.floor(centre - EMPH_WINDOW))
+    const hi = Math.min(kids.length - 1, Math.ceil(centre + EMPH_WINDOW))
     for (let i = lo; i <= hi; i++) {
-      const t = Math.max(0, 1 - Math.abs(i - centre) / EMPH_WINDOW)
+      // squared falloff — linear left the immediate neighbours nearly as big
+      // and bold as the selection; this keeps the centre at full and drops
+      // everything either side away fast
+      const lin = Math.max(0, 1 - Math.abs(i - centre) / EMPH_WINDOW)
+      const t = lin * lin
       kids[i].style.setProperty('--emph', t.toFixed(3))
       styledRef.current.push(i)
     }

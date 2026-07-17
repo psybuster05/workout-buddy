@@ -301,7 +301,7 @@ function Exercise({ exercise, onStartRest }) {
               max={WEIGHT_MAX[unit] ?? 300}
               step={weightStep(unit)}
               decimals={2}
-              labelEvery={2}
+              labelEvery={1}
               unit={unit}
               ariaLabel={`Weight in ${unit}`}
             />
@@ -347,7 +347,7 @@ function Exercise({ exercise, onStartRest }) {
               max={mode === 'time' ? SECONDS_MAX : REPS_MAX}
               step={1}
               decimals={0}
-              labelEvery={mode === 'time' ? 10 : 2}
+              labelEvery={1}
               unit={mode === 'time' ? 'sec' : 'reps'}
               ariaLabel={mode === 'time' ? 'Seconds' : 'Reps'}
             />

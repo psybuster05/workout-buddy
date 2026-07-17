@@ -84,6 +84,17 @@ Charts/graphs, in-app exercise editing, PWA service-worker/offline-launch (the a
 
 ## Changelog
 
+### 2026-07-16 — Ribbon look pass: every tick labelled, sharper centre emphasis
+Third same-day iteration on the ribbon (see the two entries below for the original build and the lead-in-ticks/scale-as-readout rework). Jon's feedback, applied in order: no panel background, mark + label every tick (not just every Nth), non-focused numbers smaller and lighter, more spacing, and neighbours falling off harder instead of nearly matching the centre.
+
+- **Every tick is now labelled** (`labelEvery={1}` from Exercise.jsx) instead of every 2nd/5th — at rest this means a wall of small numbers, which is *the point*: `--emph` alone now carries which one is selected.
+- **`--emph` drives both font-size and font-weight**, not just size: non-focused ticks sit at a small, light `0.625rem`/weight-400 floor; the centred tick grows to `~2.3rem`/weight-800. `font-weight: calc(400 + var(--emph) * 400)` interpolates smoothly rather than snapping between two fixed weights.
+- **Falloff squared, not linear** (`t = linear² ` in `updateEmphasis`): linear left the immediate neighbours (±1 tick) nearly as large and bold as the selection, so the centre didn't read as *the* value. Squaring drops them off fast — e.g. a neighbour that was 74% size/weight under linear falls to ~36% under the square.
+- **Tick stride widened twice this pass**, 36px→46px→50px, so a 4-character label like "42.5" has room next to its neighbours without colliding once every tick carries text.
+- **A real crash caught in verification, not shipped:** `EMPH_WINDOW` was set to a fractional `2.5` for a tighter falloff, but the emphasis loop used it directly as a `for` bound (`Math.floor(centre) − EMPH_WINDOW`), producing a **fractional array index** — `kids[20.5]` is `undefined`, and `.style.setProperty` on it threw, unmounting the whole app (blank `#root`, `<Ribbon>` error-boundary warnings in console). Fixed by flooring/ceiling the *combined* expression (`Math.floor(centre - EMPH_WINDOW)`) so the loop bound itself is always an integer, independent of whether `EMPH_WINDOW` is. Caught by driving the Exercise screen in preview after the change, not by build/lint/tests (all three were green with the bug in place).
+- **No panel background.** A tinted/bordered panel behind the ribbon was tried and explicitly rejected (no border, no rounded corners, no fill) — the ribbon reads as interactive from the tick marks and caret alone.
+- **Verified in preview**: labels render every tick without overlap at the new stride, computed styles confirm the size/weight interpolation resolves correctly (centre tick measured at full 1.0 `--emph`, immediate neighbours at ~0.36 under the squared curve, non-focused floor at 10px/400), and a chevron step still lands cleanly on the correct value post-fix.
+
 ### 2026-07-16 — Weight/reps ribbon replaces the +/− steppers
 Jon: scrolling through a wide range with +/− taps was slow, especially for weight jumps of 20+ lbs.
 
