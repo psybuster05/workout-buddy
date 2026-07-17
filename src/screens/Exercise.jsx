@@ -19,6 +19,8 @@ import { getWeightUnit, lbsToDisplay, displayToLbs, weightStep } from '../units.
 const REPS_MAX = 50
 const SECONDS_MAX = 300
 const WEIGHT_MAX = { lbs: 300, kg: 140 }
+const MINUTES_MAX = 180
+const DISTANCE_MAX = 30
 
 // The programmed target is no longer a card of its own — it's the Notes
 // placeholder, so the prescription is there when the note is empty and gets out
@@ -154,14 +156,6 @@ function Exercise({ exercise, onStartRest }) {
         (mode === 'weighted' ? ` @ ${lbsToDisplay(s.weight, unit)} ${unit}` : '') +
         (s.failure ? ' · F' : '')
 
-  const adjustWeight = (delta) => {
-    setWeight((w) => {
-      const next = Math.max(0, (Number(w) || 0) + delta)
-      // 2 decimals so 1.25 kg steps don't drift (2.5 → 3.75 → 5 …)
-      return String(Math.round(next * 100) / 100)
-    })
-  }
-
   const finishSet = () => {
     const session = logSet(exercise.id, {
       reps,
@@ -200,44 +194,6 @@ function Exercise({ exercise, onStartRest }) {
     loadStore().sessions.filter((s) => s.exerciseId === exercise.id),
     mode,
     unit
-  )
-
-  // shared stepper row: weight (lbs, ±2.5) for lifts, distance (mi, ±0.1) for
-  // cardio — same state and styles, different units
-  const step = cardio ? 0.1 : weightStep(unit)
-  const weightRow = (
-    <div className="counter-row">
-      <button
-        className="counter-button"
-        onClick={() => adjustWeight(-step)}
-        disabled={(Number(weight) || 0) === 0}
-        aria-label={cardio ? 'Subtract 0.1 miles' : `Subtract ${step} ${unit}`}
-      >
-        −
-      </button>
-      <div className="counter-value-wrap">
-        <input
-          id="weight-input"
-          className="counter-value"
-          type="number"
-          inputMode="decimal"
-          min="0"
-          step={String(step)}
-          value={weight}
-          onChange={(e) => setWeight(e.target.value)}
-          placeholder="0"
-          aria-label={cardio ? 'Distance in miles (optional)' : `Weight in ${unit}`}
-        />
-        <span className="counter-sub">{cardio ? 'mi' : unit}</span>
-      </div>
-      <button
-        className="counter-button"
-        onClick={() => adjustWeight(step)}
-        aria-label={cardio ? 'Add 0.1 miles' : `Add ${step} ${unit}`}
-      >
-        +
-      </button>
-    </div>
   )
 
   return (
@@ -306,54 +262,31 @@ function Exercise({ exercise, onStartRest }) {
               ariaLabel={`Weight in ${unit}`}
             />
           )}
-          {cardio ? (
-            <div className="counter-row">
-              <button
-                className="counter-button"
-                onClick={() => setReps((r) => Math.max(0, r - 1))}
-                disabled={reps === 0}
-                aria-label="Subtract one minute"
-              >
-                −
-              </button>
-              <div className="counter-value-wrap">
-                {/* minutes are typed, not tapped 32 times */}
-                <input
-                  className="counter-value"
-                  type="number"
-                  inputMode="numeric"
-                  min="0"
-                  step="1"
-                  value={reps === 0 ? '' : reps}
-                  onChange={(e) => setReps(Math.max(0, Math.floor(Number(e.target.value) || 0)))}
-                  placeholder="0"
-                  aria-label="Minutes"
-                />
-                <span className="counter-sub">min</span>
-              </div>
-              <button
-                className="counter-button"
-                onClick={() => setReps((r) => r + 1)}
-                aria-label="Add one minute"
-              >
-                +
-              </button>
-            </div>
-          ) : (
+          <Ribbon
+            value={reps}
+            onChange={setReps}
+            min={0}
+            max={cardio ? MINUTES_MAX : mode === 'time' ? SECONDS_MAX : REPS_MAX}
+            step={1}
+            decimals={0}
+            labelEvery={1}
+            unit={cardio ? 'min' : mode === 'time' ? 'sec' : 'reps'}
+            ariaLabel={cardio ? 'Minutes' : mode === 'time' ? 'Seconds' : 'Reps'}
+          />
+
+          {cardio && (
             <Ribbon
-              value={reps}
-              onChange={setReps}
+              value={Number(weight) || 0}
+              onChange={(v) => setWeight(String(v))}
               min={0}
-              max={mode === 'time' ? SECONDS_MAX : REPS_MAX}
-              step={1}
-              decimals={0}
+              max={DISTANCE_MAX}
+              step={0.1}
+              decimals={1}
               labelEvery={1}
-              unit={mode === 'time' ? 'sec' : 'reps'}
-              ariaLabel={mode === 'time' ? 'Seconds' : 'Reps'}
+              unit="mi"
+              ariaLabel="Distance in miles"
             />
           )}
-
-          {cardio && weightRow}
 
           {!cardio && (
             <button

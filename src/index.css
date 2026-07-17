@@ -1103,86 +1103,6 @@ h1 {
   color: var(--text-dim);
 }
 
-/* Weight and reps share one control language: −/value/＋ row with a small
-   unit label under the value ("lbs" / "reps"); identical button and value
-   treatment (the weight value is an input so keyboard entry stays possible;
-   it must look the same as the rep value). */
-.counter-row {
-  display: flex;
-  align-items: stretch;
-  gap: 12px;
-}
-
-.counter-button {
-  flex: 1;
-  min-height: 72px;
-  font-size: 2rem;
-  font-weight: 600;
-  color: var(--text);
-  background: var(--surface-pressed);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.counter-button:active {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--bg);
-}
-
-.counter-button:disabled {
-  color: var(--text-dim);
-  background: transparent;
-}
-
-.counter-value-wrap {
-  flex-shrink: 0;
-  width: 110px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.counter-value {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  font-family: inherit;
-  font-size: 2.25rem;
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-  text-align: center;
-  color: var(--text);
-  background: transparent;
-  border: none;
-  border-radius: 12px;
-  line-height: 1.1;
-}
-
-.counter-sub {
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: var(--text-dim);
-  padding-top: 2px;
-}
-
-input.counter-value:focus {
-  outline: 2px solid var(--accent);
-  outline-offset: -1px;
-}
-
-/* the stepper buttons are the primary control — hide the browser spinners */
-input.counter-value::-webkit-outer-spin-button,
-input.counter-value::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
 /* ── weight / reps ribbon ─────────────────────────────────────────────────
    flick a ruler-style tape; the tick under the centre caret is the value (no
    separate readout). Unit sits below; tap the tape to type an exact value. */
@@ -1773,10 +1693,6 @@ body::after {
   .export-button:hover,
   .signout-button:hover {
     background: var(--surface-pressed);
-  }
-
-  .counter-button:hover:not(:disabled) {
-    border-color: var(--accent);
   }
 
   .finish-button:hover {
