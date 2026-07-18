@@ -63,6 +63,9 @@ export function mergeStores(a, b) {
   const notes = lww(A.notes, B.notes)
   // Custom-day membership, same LWW rule
   const custom = lww(A.custom, B.custom)
+  // Bodyweight log keyed by date, same LWW rule (null-lbs entries are delete
+  // tombstones — carried through the merge so a delete beats a stale copy)
+  const bodyweight = lww(A.bodyweight, B.bodyweight)
   // NOTE: this literal is the entire contract — a store field missing from it
   // is silently dropped on every sync AND written back over localStorage by
   // pullMergePush's replaceStore. Add the field here when you add it.
@@ -73,6 +76,7 @@ export function mergeStores(a, b) {
     disabled,
     notes,
     custom,
+    bodyweight,
   }
 }
 

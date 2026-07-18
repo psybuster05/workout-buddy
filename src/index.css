@@ -970,6 +970,16 @@ h1 {
   margin-top: 0;
 }
 
+/* Bodyweight card (Account): entry ribbon + a fold-up weigh-in history
+   accordion (reuses .hist-group / .history-list rows). Single accordion, so
+   drop the stacked-list bottom hairline. Latest weight shows on the closed row. */
+.bw-group {
+  border-bottom: none;
+}
+.bw-empty {
+  color: var(--text-dim);
+}
+
 /* change-account-email row on the Account screen */
 .change-email {
   margin-top: 14px;

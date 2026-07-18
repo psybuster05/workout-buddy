@@ -36,6 +36,12 @@ export function loadStore() {
           store.notes = {}
         if (!store.custom || typeof store.custom !== 'object' || Array.isArray(store.custom))
           store.custom = {}
+        if (
+          !store.bodyweight ||
+          typeof store.bodyweight !== 'object' ||
+          Array.isArray(store.bodyweight)
+        )
+          store.bodyweight = {}
         return seedCustom(seedDefaultOff(store))
       }
     }
@@ -43,7 +49,15 @@ export function loadStore() {
     // corrupt JSON or storage blocked — fall through to an empty store
   }
   return seedCustom(
-    seedDefaultOff({ schemaVersion: 1, sessions: [], workouts: [], disabled: {}, notes: {}, custom: {} })
+    seedDefaultOff({
+      schemaVersion: 1,
+      sessions: [],
+      workouts: [],
+      disabled: {},
+      notes: {},
+      custom: {},
+      bodyweight: {},
+    })
   )
 }
 
@@ -322,6 +336,38 @@ export function saveNote(exerciseId, text) {
   mutate((store) => {
     store.notes[exerciseId] = { text, at: Date.now() }
   })
+}
+
+// --- bodyweight log (Account screen) -------------------------------------
+// `bodyweight` maps date → { lbs, at }: one weigh-in per calendar day, stored
+// canonical lbs (converted at the display/input boundary like session weights).
+// Same LWW merge as notes/disabled — the newer `at` wins. Deleting stores
+// { lbs: null, at } as a tombstone so a stale cloud copy can't resurrect it.
+
+// Log (or overwrite) today's weigh-in. Idempotent per day and LWW-correct.
+export function logBodyweight(lbs) {
+  const date = todayISO()
+  return mutate((store) => {
+    store.bodyweight[date] = { lbs, at: Date.now() }
+    return store.bodyweight[date]
+  })
+}
+
+// Remove one weigh-in. Writes a null-lbs tombstone (not a key drop) so the
+// delete wins the merge instead of a stale cloud copy resurrecting it.
+export function deleteBodyweight(date) {
+  mutate((store) => {
+    store.bodyweight[date] = { lbs: null, at: Date.now() }
+  })
+}
+
+// Newest-first [{ date, lbs }], tombstones filtered out.
+export function getBodyweightLog() {
+  const bw = loadStore().bodyweight
+  return Object.entries(bw)
+    .filter(([, e]) => e.lbs != null)
+    .map(([date, e]) => ({ date, lbs: e.lbs }))
+    .sort((a, b) => (a.date < b.date ? 1 : -1))
 }
 
 // Most recent session from a previous day — "last time", not today's sets.

@@ -81,8 +81,17 @@ describe('mergeStores', () => {
       disabled: { 'calf-raise': { off: true, at: 500 } },
       notes: { bench: { text: 'seat pin 4', at: 500 } },
       custom: { squat: { on: true, at: 500 } },
+      bodyweight: { '2026-07-01': { lbs: 180, at: 500 } },
     }
-    const local = { schemaVersion: 1, sessions: [], workouts: [], disabled: {}, notes: {}, custom: {} }
+    const local = {
+      schemaVersion: 1,
+      sessions: [],
+      workouts: [],
+      disabled: {},
+      notes: {},
+      custom: {},
+      bodyweight: {},
+    }
     expect(mergeStores(remote, local)).toEqual(remote)
   })
 
@@ -94,6 +103,7 @@ describe('mergeStores', () => {
       disabled: {},
       notes: {},
       custom: {},
+      bodyweight: {},
     })
     const only = {
       schemaVersion: 1,
@@ -102,6 +112,7 @@ describe('mergeStores', () => {
       disabled: {},
       notes: {},
       custom: {},
+      bodyweight: {},
     }
     expect(mergeStores(only, null)).toEqual(only)
   })
@@ -144,5 +155,25 @@ describe('mergeStores', () => {
     expect(mergeStores(b, a).custom.bench).toEqual({ on: false, at: 200 }) // order-independent
     const c = { sessions: [], workouts: [], custom: { squat: { on: true, at: 50 } } }
     expect(Object.keys(mergeStores(a, c).custom).sort()).toEqual(['bench', 'squat'])
+  })
+
+  it('bodyweight log merges last-write-wins per date', () => {
+    // same day re-logged on two devices: the later weigh-in wins
+    const a = { sessions: [], workouts: [], bodyweight: { '2026-07-01': { lbs: 180, at: 100 } } }
+    const b = { sessions: [], workouts: [], bodyweight: { '2026-07-01': { lbs: 179, at: 200 } } }
+    expect(mergeStores(a, b).bodyweight['2026-07-01']).toEqual({ lbs: 179, at: 200 })
+    expect(mergeStores(b, a).bodyweight['2026-07-01']).toEqual({ lbs: 179, at: 200 }) // order-independent
+    // disjoint dates just union
+    const c = { sessions: [], workouts: [], bodyweight: { '2026-07-02': { lbs: 181, at: 50 } } }
+    expect(Object.keys(mergeStores(a, c).bodyweight).sort()).toEqual(['2026-07-01', '2026-07-02'])
+  })
+
+  it('a deleted weigh-in is a tombstone, not a resurrection', () => {
+    // deleting stores { lbs: null } — it must beat the stale cloud copy that
+    // still has a weight, same as a cleared note
+    const cloud = { sessions: [], workouts: [], bodyweight: { '2026-07-01': { lbs: 180, at: 100 } } }
+    const local = { sessions: [], workouts: [], bodyweight: { '2026-07-01': { lbs: null, at: 200 } } }
+    expect(mergeStores(cloud, local).bodyweight['2026-07-01'].lbs).toBe(null)
+    expect(mergeStores(local, cloud).bodyweight['2026-07-01'].lbs).toBe(null)
   })
 })
