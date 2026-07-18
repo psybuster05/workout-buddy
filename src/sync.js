@@ -61,6 +61,8 @@ export function mergeStores(a, b) {
   const disabled = lww(A.disabled, B.disabled)
   // per-exercise notes, same LWW rule: the newer edit wins the whole note
   const notes = lww(A.notes, B.notes)
+  // Custom-day membership, same LWW rule
+  const custom = lww(A.custom, B.custom)
   // NOTE: this literal is the entire contract — a store field missing from it
   // is silently dropped on every sync AND written back over localStorage by
   // pullMergePush's replaceStore. Add the field here when you add it.
@@ -70,6 +72,7 @@ export function mergeStores(a, b) {
     workouts,
     disabled,
     notes,
+    custom,
   }
 }
 

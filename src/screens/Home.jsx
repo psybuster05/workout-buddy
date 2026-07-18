@@ -1,14 +1,20 @@
 import { dayAccent, dayImage, dayLabel } from '../theme.js'
-import { getDisabledIds } from '../storage.js'
+import { getCustomIds, getDisabledIds } from '../storage.js'
 
 const base = import.meta.env.BASE_URL
 
 function Home({ days, exercises, onSelectDay, onHistory }) {
   const disabled = getDisabledIds()
+  const custom = getCustomIds()
   return (
     <div className="screen home-days">
       {days.map((day) => {
-        const count = exercises.filter((e) => e.day === day && !disabled.has(e.id)).length
+        // Custom day counts its members (a free-form pick across all days);
+        // every other day counts its own enabled exercises
+        const count =
+          day === 'Custom'
+            ? exercises.filter((e) => custom.has(e.id)).length
+            : exercises.filter((e) => e.day === day && !disabled.has(e.id)).length
         return (
           <button
             key={day}

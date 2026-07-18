@@ -7,6 +7,13 @@ const UNIT = 'lbs'
 // enables them in Day-screen edit mode
 const DEFAULT_OFF_IDS = data.exercises.filter((e) => e.defaultOff).map((e) => e.id)
 
+// The Custom day starts as a lean full-body template: the first exercise of
+// each lifting day (one Push / one Pull / one Legs). Its membership lives in a
+// separate `custom` map so it's independent of the home-day `disabled` state.
+const CUSTOM_DEFAULT_IDS = ['Mon — Push', 'Wed — Pull', 'Fri — Legs']
+  .map((d) => data.exercises.find((e) => e.day === d)?.id)
+  .filter(Boolean)
+
 // local date, not toISOString() — a 9pm workout must not roll into tomorrow (UTC)
 function todayISO() {
   const d = new Date()
@@ -27,13 +34,17 @@ export function loadStore() {
           store.disabled = {}
         if (!store.notes || typeof store.notes !== 'object' || Array.isArray(store.notes))
           store.notes = {}
-        return seedDefaultOff(store)
+        if (!store.custom || typeof store.custom !== 'object' || Array.isArray(store.custom))
+          store.custom = {}
+        return seedCustom(seedDefaultOff(store))
       }
     }
   } catch {
     // corrupt JSON or storage blocked — fall through to an empty store
   }
-  return seedDefaultOff({ schemaVersion: 1, sessions: [], workouts: [], disabled: {}, notes: {} })
+  return seedCustom(
+    seedDefaultOff({ schemaVersion: 1, sessions: [], workouts: [], disabled: {}, notes: {}, custom: {} })
+  )
 }
 
 // In-memory backfill (persisted on the next mutation): defaultOff exercises
@@ -42,6 +53,15 @@ export function loadStore() {
 function seedDefaultOff(store) {
   for (const id of DEFAULT_OFF_IDS) {
     if (!(id in store.disabled)) store.disabled[id] = { off: true, at: 0 }
+  }
+  return store
+}
+
+// Same idea for the Custom day: the three default exercises read as members
+// until the user edits. at: 0 loses every LWW comparison, so a real toggle wins.
+function seedCustom(store) {
+  for (const id of CUSTOM_DEFAULT_IDS) {
+    if (!(id in store.custom)) store.custom[id] = { on: true, at: 0 }
   }
   return store
 }
@@ -258,6 +278,27 @@ export function toggleExercise(exerciseId) {
     const off = store.disabled[exerciseId]?.off ?? false
     store.disabled[exerciseId] = { off: !off, at: Date.now() }
     return disabledIds(store)
+  })
+}
+
+// --- Custom-day membership (independent of the home-day `disabled` map) ------
+// `custom` maps exerciseId → { on, at }; members are ids with on:true. Toggling
+// here never touches an exercise's home-day enabled state, and vice versa — the
+// Custom day is a free-form pick from every exercise (finishers included).
+
+const customIds = (store) =>
+  new Set(Object.keys(store.custom).filter((id) => store.custom[id].on))
+
+export function getCustomIds() {
+  return customIds(loadStore())
+}
+
+// Add/remove one exercise from the Custom day. Returns the updated member Set.
+export function toggleCustom(exerciseId) {
+  return mutate((store) => {
+    const on = store.custom[exerciseId]?.on ?? false
+    store.custom[exerciseId] = { on: !on, at: Date.now() }
+    return customIds(store)
   })
 }
 

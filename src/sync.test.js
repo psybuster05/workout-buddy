@@ -80,8 +80,9 @@ describe('mergeStores', () => {
       workouts: [workout('2026-07-01', 'Mon — Push', 1000, 2000)],
       disabled: { 'calf-raise': { off: true, at: 500 } },
       notes: { bench: { text: 'seat pin 4', at: 500 } },
+      custom: { squat: { on: true, at: 500 } },
     }
-    const local = { schemaVersion: 1, sessions: [], workouts: [], disabled: {}, notes: {} }
+    const local = { schemaVersion: 1, sessions: [], workouts: [], disabled: {}, notes: {}, custom: {} }
     expect(mergeStores(remote, local)).toEqual(remote)
   })
 
@@ -92,6 +93,7 @@ describe('mergeStores', () => {
       workouts: [],
       disabled: {},
       notes: {},
+      custom: {},
     })
     const only = {
       schemaVersion: 1,
@@ -99,6 +101,7 @@ describe('mergeStores', () => {
       workouts: [],
       disabled: {},
       notes: {},
+      custom: {},
     }
     expect(mergeStores(only, null)).toEqual(only)
   })
@@ -131,5 +134,15 @@ describe('mergeStores', () => {
     const local = { sessions: [], workouts: [], notes: { bench: { text: '', at: 200 } } }
     expect(mergeStores(cloud, local).notes.bench.text).toBe('')
     expect(mergeStores(local, cloud).notes.bench.text).toBe('')
+  })
+
+  it('custom-day membership merges last-write-wins per exercise', () => {
+    // added to the Custom day on A at t=100; removed on B later at t=200
+    const a = { sessions: [], workouts: [], custom: { bench: { on: true, at: 100 } } }
+    const b = { sessions: [], workouts: [], custom: { bench: { on: false, at: 200 } } }
+    expect(mergeStores(a, b).custom.bench).toEqual({ on: false, at: 200 })
+    expect(mergeStores(b, a).custom.bench).toEqual({ on: false, at: 200 }) // order-independent
+    const c = { sessions: [], workouts: [], custom: { squat: { on: true, at: 50 } } }
+    expect(Object.keys(mergeStores(a, c).custom).sort()).toEqual(['bench', 'squat'])
   })
 })

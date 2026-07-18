@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { dayAccent, dayLabel } from '../theme.js'
 import {
   finishWorkout,
+  getCustomIds,
   getDisabledIds,
   pauseWorkout,
   resumeFinishedWorkout,
@@ -9,6 +10,7 @@ import {
   startWorkout,
   todaySession,
   todayWorkout,
+  toggleCustom,
   toggleExercise,
 } from '../storage.js'
 import { formatDuration, workoutElapsed } from '../format.js'
@@ -59,21 +61,31 @@ function FinisherCard({ title, accent, exercises, editing, disabled, doneIds, on
 }
 
 function Day({ day, exercises, onSelectExercise }) {
-  const dayExercises = exercises.filter((e) => e.day === day)
+  const isCustom = day === 'Custom'
+  // universe = the editable roster for this day. A normal day is its own
+  // exercises; the Custom day is every exercise in the app (finishers included).
+  const universe = isCustom ? exercises : exercises.filter((e) => e.day === day)
   const stretches = stretchesFor(day)
   const [workout, setWorkout] = useState(() => todayWorkout())
   const [now, setNow] = useState(() => Date.now())
-  // edit mode: tap the pencil, then tap exercises to disable/re-enable them for
-  // this day. Disabled ones are hidden outside edit mode but keep their history.
+  // edit mode: tap the pencil, then tap exercises to add/remove them for this
+  // day. Removed ones are hidden outside edit mode but keep their history.
   const [editing, setEditing] = useState(false)
   const [disabled, setDisabled] = useState(() => getDisabledIds())
-  const activeExercises = dayExercises.filter((e) => !disabled.has(e.id))
+  const [customIds, setCustomIds] = useState(() => getCustomIds())
+  // "off" = hidden outside edit mode. A normal day tracks that with the global
+  // `disabled` map; the Custom day tracks membership independently in `custom`,
+  // so toggling here never touches an exercise's home-day enabled state.
+  const isOff = (id) => (isCustom ? !customIds.has(id) : disabled.has(id))
+  const toggle = (id) =>
+    isCustom ? setCustomIds(toggleCustom(id)) : setDisabled(toggleExercise(id))
+  const activeExercises = universe.filter((e) => !isOff(e.id))
   // Finishers — extra credit, never part of "N of M done" (they're not in
-  // dayExercises, so the count can't see them). Cardio rides along on lifting
-  // days only; Core is a pseudo-day with no Home button, so it rides along on
-  // every day, and its edit mode here is the ONLY place to toggle it.
-  const cardioExercises = day === 'Cardio' ? [] : exercises.filter((e) => e.day === 'Cardio')
-  const coreExercises = exercises.filter((e) => e.day === 'Core')
+  // `universe` on a lifting day, so the count can't see them). They ride along
+  // on the lifting days only; on the Custom day cardio/core exercises are
+  // addable as regular rows instead, so no finisher sections there.
+  const cardioExercises = isCustom ? [] : exercises.filter((e) => e.day === 'Cardio')
+  const coreExercises = isCustom ? [] : exercises.filter((e) => e.day === 'Core')
 
   const active = workout && !workout.endedAt
   const paused = active && !!workout.pausedAt
@@ -185,8 +197,8 @@ function Day({ day, exercises, onSelectExercise }) {
       </div>
 
       <ul className="exercise-list">
-        {(editing ? dayExercises : activeExercises).map((e, i) => {
-          const off = disabled.has(e.id)
+        {(editing ? universe : activeExercises).map((e, i) => {
+          const off = isOff(e.id)
           const cls = [
             'exercise-button',
             doneIds.includes(e.id) && 'is-done',
@@ -198,10 +210,11 @@ function Day({ day, exercises, onSelectExercise }) {
             <li key={e.id}>
               <button
                 className={cls}
+                // Custom day mixes exercises from every day — colour each row's
+                // numeral/chevron by its home day rather than one flat accent
+                style={isCustom ? { '--accent': dayAccent(e.day) } : undefined}
                 aria-pressed={editing ? !off : undefined}
-                onClick={() =>
-                  editing ? setDisabled(toggleExercise(e.id)) : onSelectExercise(e.id)
-                }
+                onClick={() => (editing ? toggle(e.id) : onSelectExercise(e.id))}
               >
                 <span className="exercise-num" aria-hidden="true">
                   {String(i + 1).padStart(2, '0')}

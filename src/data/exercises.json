@@ -1,5 +1,5 @@
 {
-  "days": ["Mon — Push", "Wed — Pull", "Fri — Legs", "Cardio"],
+  "days": ["Mon — Push", "Wed — Pull", "Fri — Legs", "Custom"],
   "exercises": [
     {
       "id": "flat-dumbbell-press",
