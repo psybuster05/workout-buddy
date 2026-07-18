@@ -126,7 +126,11 @@ function History({ exercises }) {
 
       <h2 className="hist-heading">Exercises</h2>
       {byExercise.length === 0 ? (
-        <p className="placeholder">No workouts logged yet.</p>
+        // first-run: point somewhere instead of dead-ending a curious new user
+        <p className="placeholder">
+          No workouts yet — pick a day on the Home screen and your first session will land
+          here.
+        </p>
       ) : (
         byExercise.map(({ exercise, sessions }) => {
           const pr = personalRecord(sessions, exercise.tracking ?? 'weighted', unit)
@@ -176,9 +180,12 @@ function History({ exercises }) {
         })
       )}
 
-      <button className="export-button" onClick={handleExport}>
-        Export JSON
-      </button>
+      {/* nothing to export on an empty store — hide the dead control */}
+      {(store.sessions.length > 0 || store.workouts.length > 0) && (
+        <button className="export-button" onClick={handleExport}>
+          Export JSON
+        </button>
+      )}
     </div>
   )
 }

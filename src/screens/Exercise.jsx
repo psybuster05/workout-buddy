@@ -6,7 +6,9 @@ import {
   loadStore,
   logSet,
   saveNote,
+  startWorkout,
   todaySession,
+  todayWorkout,
 } from '../storage.js'
 import { personalRecord } from '../format.js'
 import { dayAccent } from '../theme.js'
@@ -35,7 +37,7 @@ const targetPlaceholder = (t) => {
   return parts.length ? parts.join(' · ') : 'Notes…'
 }
 
-function Exercise({ exercise, onStartRest }) {
+function Exercise({ exercise, day, onStartRest, onToast }) {
   // weighted (default): weight + reps · reps-only: no weight row ·
   // time: no weight row, counter is seconds stored in the reps field ·
   // cardio: minutes in the reps field + optional distance (mi) in weight
@@ -168,6 +170,13 @@ function Exercise({ exercise, onStartRest }) {
           : 0,
       ...(failure ? { failure: true } : {}),
     })
+    // first set of the day starts the workout clock — nobody should lose their
+    // duration to a forgotten Start tap. Only when NO record exists today: a
+    // deliberately Finished workout stays finished (Day's Resume covers that).
+    if (!todayWorkout()) {
+      startWorkout(day)
+      onToast?.('Workout started')
+    }
     setSets([...session.sets])
     setReps(lastSetFor(session.sets.length)?.reps ?? 0)
     setFailure(false)
@@ -212,6 +221,21 @@ function Exercise({ exercise, onStartRest }) {
     unit
   )
 
+  // One-line context for the set being entered: which set you're on (against
+  // the programmed target) and the mirrored "last time" set — the same one the
+  // ribbons prefilled from, so the prefill is legible instead of silent.
+  // Cardio skips the set count (multi-set cardio is rare; its target is a goal).
+  const contextSet = lastSetFor(sets.length)
+  const lastLine = !contextSet
+    ? null
+    : cardio
+      ? `${contextSet.reps} min` + (contextSet.weight > 0 ? ` · ${contextSet.weight} mi` : '')
+      : mode === 'time'
+        ? `${contextSet.reps} sec`
+        : mode === 'weighted'
+          ? `${lbsToDisplay(contextSet.weight, unit)} ${unit} × ${contextSet.reps}`
+          : `× ${contextSet.reps}`
+
   // ✕ beside a logged set. Reuses History's row-delete styling — same control,
   // same two-tap. Inside the drawer's <summary> the click must not also toggle
   // the details open/shut.
@@ -238,6 +262,16 @@ function Exercise({ exercise, onStartRest }) {
       <section className="session-zone">
         <div className="zone-card log-card">
           <span className="zone-card-label">This Set</span>
+          {(!cardio || lastLine) && (
+            <p className="set-context">
+              {!cardio && (
+                <span className="set-context-num">
+                  Set {sets.length + 1}
+                </span>
+              )}
+              {lastLine && <span className="set-context-last">Last: {lastLine}</span>}
+            </p>
+          )}
           {/* lifts: weight ribbon above reps ribbon · cardio keeps its typed
               minutes + miles stepper (those aren't "weight and reps") */}
           {mode === 'weighted' && (
@@ -294,6 +328,13 @@ function Exercise({ exercise, onStartRest }) {
           <button className="finish-button" disabled={reps === 0} onClick={finishSet}>
             Finish set
           </button>
+          {/* say WHY the primary is dead instead of leaving a grey slab */}
+          {reps === 0 && (
+            <p className="finish-hint">
+              Set {cardio ? 'minutes' : mode === 'time' ? 'seconds' : 'reps'} above to log this
+              set
+            </p>
+          )}
         </div>
         <div className="zone-card">
           <span className="zone-card-label">Notes</span>

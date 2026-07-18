@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
 import Home from './screens/Home.jsx'
 import Day from './screens/Day.jsx'
@@ -50,6 +50,16 @@ function App() {
   const [selectedDay, setSelectedDay] = useState(null)
   const [exerciseId, setExerciseId] = useState(null)
 
+  // transient confirmation chip ("Workout started") — one message at a time,
+  // self-dismissing; a repeat show resets the clock
+  const [toast, setToast] = useState(null)
+  const toastTimer = useRef(null)
+  const showToast = (msg) => {
+    setToast(msg)
+    clearTimeout(toastTimer.current)
+    toastTimer.current = setTimeout(() => setToast(null), 2500)
+  }
+
   if (session === undefined) return null // brief auth check on load
   // arrived via a password-reset email link → set the new password first
   if (recovery && session) return <ResetPassword onDone={clearRecovery} />
@@ -75,7 +85,14 @@ function App() {
   let screenEl
   if (screen === 'exercise') {
     const exercise = data.exercises.find((e) => e.id === exerciseId)
-    screenEl = <Exercise exercise={exercise} onStartRest={startRest} />
+    screenEl = (
+      <Exercise
+        exercise={exercise}
+        day={selectedDay}
+        onStartRest={startRest}
+        onToast={showToast}
+      />
+    )
   } else if (screen === 'day') {
     screenEl = (
       <Day day={selectedDay} exercises={data.exercises} onSelectExercise={openExercise} />
@@ -105,6 +122,7 @@ function App() {
         syncStatus={syncStatus}
         onSyncNow={() => syncNow()}
         onStartRest={startRest}
+        restActive={!!rest}
         showAccount={!!supabase}
         onAccount={goAccount}
       />
@@ -134,6 +152,12 @@ function App() {
           onExtend={extendRest}
           onDismiss={dismissRest}
         />
+      )}
+
+      {toast && (
+        <div className="toast" role="status">
+          {toast}
+        </div>
       )}
     </div>
   )

@@ -23,6 +23,8 @@ const EMPH_WINDOW = 2.5
 // pointer travel (px) past which a press is a drag/scroll, not a tap-to-type
 const TAP_SLOP = 6
 
+// One-time affordance for the tap-to-type path — it's otherwise invisible, and
+// a first-timer will chevron-tap their way from 0 to 185 lbs without it.
 export default function Ribbon({
   value,
   onChange,

@@ -13,6 +13,7 @@ function AppHeader({
   syncStatus,
   onSyncNow,
   onStartRest,
+  restActive,
   showAccount,
   onAccount,
 }) {
@@ -29,11 +30,17 @@ function AppHeader({
       )}
       <div className="header-actions">
         <button
-          className="timer-button"
-          aria-label="Start rest timer"
+          className={restActive ? 'timer-button is-resting' : 'timer-button'}
+          aria-label={restActive ? 'Rest timer running' : 'Start rest timer'}
           // ?debug=1 → 10s, so the audio readout is reachable without standing
-          // around for a minute and a half per test
-          onClick={() => onStartRest(DEBUG_AUDIO ? 10 : 90)}
+          // around for a minute and a half per test.
+          // While a rest is running the tap is a no-op — the bottom bar's
+          // +15s / Skip are the controls, and an accidental header tap must not
+          // restart the countdown. (The guard stays synchronous: startRest's
+          // audio unlock still runs inside the original tap's call stack.)
+          onClick={() => {
+            if (!restActive) onStartRest(DEBUG_AUDIO ? 10 : 90)
+          }}
         >
           <StopwatchIcon />
         </button>

@@ -262,6 +262,46 @@ h1 {
   color: var(--accent);
 }
 
+/* a rest is counting: the launcher shows it and ignores taps (the bottom bar's
+   +15s / Skip are the controls — an accidental header tap can't restart it) */
+.timer-button.is-resting {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* transient confirmation chip ("Workout started") — top-centred so it never
+   collides with the rest bar arriving at the bottom on the same tap. Same
+   frosted surface as the rest bar; pinned during page transitions like it too. */
+.toast {
+  position: fixed;
+  top: calc(env(safe-area-inset-top) + 76px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 60;
+  padding: 10px 18px;
+  background: rgba(10, 10, 12, 0.92);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  font-size: 0.875rem;
+  font-weight: 800;
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  color: var(--accent);
+  view-transition-name: toast;
+  animation: toast-in 200ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-8px);
+  }
+}
+
 /* secondary action on Home — History lives here now (no more burger menu) */
 .home-history {
   margin-top: 4px;
@@ -1484,6 +1524,38 @@ h1 {
   background: var(--surface-pressed);
   color: var(--text-dim);
   box-shadow: none;
+}
+
+/* why the primary is disabled — shows only while the counter reads 0 */
+.finish-hint {
+  font-size: 0.8125rem;
+  text-align: center;
+  color: var(--text-dim);
+}
+
+/* one-line set context at the top of the This Set card: which set you're on +
+   the mirrored "last time" set the ribbons prefilled from */
+.set-context {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  font-size: 0.875rem;
+  color: var(--text-dim);
+}
+
+.set-context-num {
+  font-weight: 800;
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+}
+
+/* when the set count is absent (cardio), keep the Last line right-aligned */
+.set-context-last {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
 }
 
 .set-log-line {
