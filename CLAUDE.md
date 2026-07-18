@@ -88,6 +88,3 @@ Known multi-user caveat: Supabase's built-in email sender is rate-limited (~2–
 - Written instructions must be useful WITHOUT the video loading (bad gym reception)
 - Keep dependencies minimal; no UI framework unless there's a concrete reason
 - **Commit messages**: use conventional-commit style — `feat:`, `fix:`, `refactor:`, `style:`, `chore:`. One concise line; body only if the "why" isn't obvious. Git history is the changelog; do not maintain a separate changelog file.
-
-## Out of scope (do not build unless asked)
-Charts/graphs, in-app exercise editing, PWA service-worker/offline-launch (the app still needs network to *load* — sync makes data durable, not the shell offline).
