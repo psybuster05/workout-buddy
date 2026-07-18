@@ -95,7 +95,7 @@ function History({ exercises }) {
               <li key={session.exerciseId}>
                 <span className="workout-ex-name">{exercise?.name ?? session.exerciseId}</span>
                 <span className="workout-ex-sets">
-                  {formatSession(session, exercise?.tracking ?? 'weighted', unit)}
+                  {formatSession(session, exercise?.tracking ?? 'weighted', unit, exercise?.perSide)}
                 </span>
               </li>
             ))}
@@ -158,7 +158,7 @@ function History({ exercises }) {
                     <li key={s.date} className="history-entry">
                       <span className="history-date">{s.date}</span>
                       <span className="history-sets">
-                        {formatSession(s, exercise.tracking ?? 'weighted', unit)}
+                        {formatSession(s, exercise.tracking ?? 'weighted', unit, exercise.perSide)}
                       </span>
                       <button
                         className={isArmed ? 'history-delete armed' : 'history-delete'}

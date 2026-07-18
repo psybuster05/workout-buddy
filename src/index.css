@@ -1552,10 +1552,22 @@ h1 {
   color: var(--accent);
 }
 
+/* live overload cue: dim "= matched" by default, accent "▲ ahead" once the set
+   being dialed in beats last time. Sits beside the set number, left group. */
+.set-context-cmp {
+  font-weight: 700;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+.set-context-cmp.is-ahead {
+  color: var(--accent);
+}
+
 /* when the set count is absent (cardio), keep the Last line right-aligned */
 .set-context-last {
   margin-left: auto;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .set-log-line {
@@ -1884,40 +1896,36 @@ body::after {
   }
 }
 
-/* "taken to failure" toggle in the This-Set card */
-.failure-toggle {
+/* Failure / Warm-up: two compact on-off segments on one line, sharing the
+   segmented-control family used by the Imperial/Metric toggle. align-self keeps
+   the pair to its own width instead of stretching the card. */
+.set-toggles {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  align-self: center;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.set-toggle {
   min-height: 44px;
-  padding: 0 4px;
-  font-size: 0.9375rem;
-  font-weight: 700;
+  padding: 0 18px;
+  font-size: 0.8125rem;
+  font-weight: 800;
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   color: var(--text-dim);
-  background: none;
+  background: transparent;
   border: none;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
-.failure-box {
-  flex-shrink: 0;
-  width: 26px;
-  height: 26px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px solid var(--border);
-  border-radius: 7px;
-  font-weight: 900;
-  font-style: italic;
+.set-toggle + .set-toggle {
+  border-left: 1px solid var(--border);
+}
+.set-toggle.on {
   color: var(--bg);
-}
-.failure-toggle.on {
-  color: var(--text);
-}
-.failure-toggle.on .failure-box {
   background: var(--accent);
-  border-color: var(--accent);
 }
 
 /* personal-record line under each History exercise heading */

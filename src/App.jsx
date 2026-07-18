@@ -82,6 +82,13 @@ function App() {
   const goBack = () =>
     withTransition(() => setScreen(screen === 'exercise' ? 'day' : 'home'))
 
+  // header quick-rest matches the exercise you're on; 90 elsewhere (and the
+  // `|| 90` gives cardio's restSeconds: 0 a sane manual-rest fallback)
+  const headerRestSeconds =
+    screen === 'exercise'
+      ? data.exercises.find((e) => e.id === exerciseId)?.restSeconds || 90
+      : 90
+
   let screenEl
   if (screen === 'exercise') {
     const exercise = data.exercises.find((e) => e.id === exerciseId)
@@ -123,6 +130,7 @@ function App() {
         onSyncNow={() => syncNow()}
         onStartRest={startRest}
         restActive={!!rest}
+        restSeconds={headerRestSeconds}
         showAccount={!!supabase}
         onAccount={goAccount}
       />

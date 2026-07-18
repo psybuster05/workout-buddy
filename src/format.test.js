@@ -32,14 +32,41 @@ describe('kg display unit (storage stays lbs)', () => {
     expect(formatSession(s, 'weighted')).toBe('3×8 @ 45 lbs') // default untouched
   })
 
-  it('personalRecord converts est. 1RM and top weight to kg', () => {
+  it('personalRecord converts best set and top weight to kg', () => {
     const sessions = [session([{ reps: 8, weight: 45 }])]
-    expect(personalRecord(sessions, 'weighted', 'kg')).toBe('est. 1RM 26 kg · top 20.4 kg')
+    expect(personalRecord(sessions, 'weighted', 'kg')).toBe('best 20.4 kg × 8 · top 20.4 kg')
   })
 
   it('cardio distance never converts (weight field is miles)', () => {
     const s = session([{ reps: 32, weight: 2.1 }])
     expect(formatSession(s, 'cardio', 'kg')).toBe('32 min · 2.1 mi')
+  })
+})
+
+describe('personalRecord (weighted)', () => {
+  it('crowns the hardest set by est. 1RM, printed as real weight×reps', () => {
+    // 50×5 (e1RM ~58.3) beats 45×8 (e1RM ~57) — heavier-lower wins; top weight is 50
+    const sessions = [session([{ reps: 8, weight: 45 }, { reps: 5, weight: 50 }])]
+    expect(personalRecord(sessions, 'weighted')).toBe('best 50 lbs × 5 · top 50 lbs')
+  })
+
+  it('excludes warmup sets from the record', () => {
+    const sessions = [session([{ reps: 1, weight: 100, warmup: true }, { reps: 8, weight: 45 }])]
+    expect(personalRecord(sessions, 'weighted')).toBe('best 45 lbs × 8 · top 45 lbs')
+  })
+
+  it('null when every set is a warmup', () => {
+    expect(personalRecord([session([{ reps: 5, weight: 40, warmup: true }])], 'weighted')).toBeNull()
+  })
+})
+
+describe('formatSession (per-side)', () => {
+  it('appends /side to unilateral lifts', () => {
+    const s = session([
+      { reps: 10, weight: 30 },
+      { reps: 10, weight: 30 },
+    ])
+    expect(formatSession(s, 'weighted', 'lbs', true)).toBe('2×10 @ 30 lbs /side')
   })
 })
 

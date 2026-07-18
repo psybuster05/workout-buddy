@@ -8,7 +8,14 @@ import { lbsToDisplay } from './units.js'
 //               (minutes live in the reps field, miles in weight; 0 mi = unrecorded)
 // `unit` is the DISPLAY unit ('lbs'|'kg') — stored weights are always lbs;
 // only the weighted branch converts (cardio's weight field is miles).
-export function formatSession(s, mode = 'weighted', unit = 'lbs') {
+// Epley estimate — shared so the live overload nudge and the PR agree on which
+// set is "harder". Noisy past ~8 reps, so it ranks sets but is never shown as a
+// standalone 1RM number (see personalRecord).
+export function estimated1RM(weight, reps) {
+  return weight * (1 + reps / 30)
+}
+
+export function formatSession(s, mode = 'weighted', unit = 'lbs', perSide = false) {
   const reps = new Set(s.sets.map((x) => x.reps))
   let base
   if (mode === 'cardio') {
@@ -29,17 +36,21 @@ export function formatSession(s, mode = 'weighted', unit = 'lbs') {
       ? `${s.sets.length}×${s.sets[0].reps} @ ${lbsToDisplay(s.sets[0].weight, unit)} ${unit}`
       : s.sets.map((x) => `${x.reps}×${lbsToDisplay(x.weight, unit)}`).join(', ') + ` ${unit}`
   }
+  // unilateral lifts log per side — mark it so history can't be mistaken for a total
+  if (perSide) base += ' /side'
   // F flag if any set in the session was taken to failure
   return s.sets.some((x) => x.failure) ? `${base} · F` : base
 }
 
-// Personal record across every logged set of an exercise, per tracking mode:
-//   weighted  — estimated 1RM (Epley: w·(1+reps/30)) + heaviest weight lifted
+// Personal record across every logged WORKING set of an exercise (warmups
+// excluded), per tracking mode:
+//   weighted  — best working set as real weight×reps (ranked by est. 1RM, but
+//               printed as its actual numbers) + heaviest weight lifted
 //   reps-only — most reps in a set
 //   time      — longest hold (seconds)
 //   cardio    — longest single entry (minutes) + best distance (miles, if any logged)
 export function personalRecord(sessions, mode = 'weighted', unit = 'lbs') {
-  const sets = sessions.flatMap((s) => s.sets)
+  const sets = sessions.flatMap((s) => s.sets).filter((x) => !x.warmup)
   if (sets.length === 0) return null
   if (mode === 'cardio') {
     const longest = Math.max(...sets.map((x) => x.reps))
@@ -48,10 +59,13 @@ export function personalRecord(sessions, mode = 'weighted', unit = 'lbs') {
   }
   if (mode === 'time') return `best ${Math.max(...sets.map((x) => x.reps))}s`
   if (mode === 'reps-only') return `best ${Math.max(...sets.map((x) => x.reps))} reps`
-  const est1rm = Math.max(...sets.map((x) => x.weight * (1 + x.reps / 30)))
   const topWeight = Math.max(...sets.map((x) => x.weight))
   if (topWeight === 0) return null
-  return `est. 1RM ${Math.round(lbsToDisplay(est1rm, unit))} ${unit} · top ${lbsToDisplay(topWeight, unit)} ${unit}`
+  // hardest set by Epley, shown as its real reps/weight — no invented 1RM number
+  const best = sets.reduce((a, b) =>
+    estimated1RM(b.weight, b.reps) > estimated1RM(a.weight, a.reps) ? b : a
+  )
+  return `best ${lbsToDisplay(best.weight, unit)} ${unit} × ${best.reps} · top ${lbsToDisplay(topWeight, unit)} ${unit}`
 }
 
 // True elapsed time of a workout, excluding paused spans. Handles old records

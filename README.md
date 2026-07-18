@@ -9,7 +9,7 @@ Live: https://psybuster05.github.io/workout-buddy/
 - **Four training days** — Push, Pull, Legs, and Cardio, each with its own photo, accent color, and exercise list.
 - **Whole-workout tracking** — start/finish a session with a live timer; see how many of the day's exercises you've done.
 - **Per-exercise logging** — weight + reps counters (or minutes + distance for cardio, seconds for timed holds), a form video, written cues that work without the video loading, and an auto-starting rest timer.
-- **History & personal records** — a workouts feed plus per-exercise history with estimated 1RM / best marks.
+- **History & personal records** — a workouts feed plus per-exercise history with your best working set and top weight.
 - **Customize your days** — enable or disable exercises per day in edit mode; lifting days include an optional cardio finisher.
 - **Imperial or metric** — a lbs/kg toggle that converts on display only (weights are always stored in lbs).
 - **Accounts** — sign in with email/password or Google to back up and sync across devices, or use it fully offline with no account.

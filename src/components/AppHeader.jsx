@@ -14,6 +14,7 @@ function AppHeader({
   onSyncNow,
   onStartRest,
   restActive,
+  restSeconds = 90,
   showAccount,
   onAccount,
 }) {
@@ -39,7 +40,7 @@ function AppHeader({
           // restart the countdown. (The guard stays synchronous: startRest's
           // audio unlock still runs inside the original tap's call stack.)
           onClick={() => {
-            if (!restActive) onStartRest(DEBUG_AUDIO ? 10 : 90)
+            if (!restActive) onStartRest(DEBUG_AUDIO ? 10 : restSeconds)
           }}
         >
           <StopwatchIcon />

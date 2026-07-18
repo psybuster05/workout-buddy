@@ -10,7 +10,7 @@ import {
   todaySession,
   todayWorkout,
 } from '../storage.js'
-import { personalRecord } from '../format.js'
+import { personalRecord, estimated1RM } from '../format.js'
 import { dayAccent } from '../theme.js'
 import { CheckIcon, PencilIcon } from '../icons.jsx'
 import Ribbon from '../components/Ribbon.jsx'
@@ -65,6 +65,8 @@ function Exercise({ exercise, day, onStartRest, onToast }) {
   const [reps, setReps] = useState(() => lastSetFor(sets.length)?.reps ?? 0)
   // "to failure" flag for the set being entered; resets after each Finish set
   const [failure, setFailure] = useState(false)
+  // "warm-up" flag — a warmup set is logged but excluded from PRs; also resets
+  const [warmup, setWarmup] = useState(false)
 
   // Sticky per-exercise note. Local state drives the textarea and writes are
   // batched: saveNote → saveStore → onStoreChange → markDirty re-renders the
@@ -156,7 +158,9 @@ function Exercise({ exercise, day, onStartRest, onToast }) {
       ? `Set ${i + 1} — ${s.reps} min` + (s.weight > 0 ? ` · ${s.weight} mi` : '')
       : `Set ${i + 1} — ${s.reps} ${mode === 'time' ? 'sec' : 'reps'}` +
         (mode === 'weighted' ? ` @ ${lbsToDisplay(s.weight, unit)} ${unit}` : '') +
-        (s.failure ? ' · F' : '')
+        (exercise.perSide ? ' /side' : '') +
+        (s.failure ? ' · F' : '') +
+        (s.warmup ? ' · warm-up' : '')
 
   const finishSet = () => {
     const session = logSet(exercise.id, {
@@ -169,6 +173,7 @@ function Exercise({ exercise, day, onStartRest, onToast }) {
           ? displayToLbs(Number(weight) || 0, unit)
           : 0,
       ...(failure ? { failure: true } : {}),
+      ...(warmup ? { warmup: true } : {}),
     })
     // first set of the day starts the workout clock — nobody should lose their
     // duration to a forgotten Start tap. Only when NO record exists today: a
@@ -180,6 +185,7 @@ function Exercise({ exercise, day, onStartRest, onToast }) {
     setSets([...session.sets])
     setReps(lastSetFor(session.sets.length)?.reps ?? 0)
     setFailure(false)
+    setWarmup(false)
     // restSeconds 0 = no auto rest timer (walk/run — nothing to rest for)
     if (exercise.restSeconds) onStartRest(exercise.restSeconds)
   }
@@ -236,6 +242,21 @@ function Exercise({ exercise, day, onStartRest, onToast }) {
           ? `${lbsToDisplay(contextSet.weight, unit)} ${unit} × ${contextSet.reps}`
           : `× ${contextSet.reps}`
 
+  // live overload nudge: is the set being dialed in ahead of / matched to last
+  // time? Ranks weighted sets by est. 1RM (in canonical lbs), others by the
+  // counter. Shows nothing when below last — you start under and dial up, no nag.
+  const overload = (() => {
+    if (!contextSet || cardio) return null
+    const r = Number(reps) || 0
+    if (r === 0) return null
+    if (mode === 'weighted') {
+      const now = estimated1RM(displayToLbs(Number(weight) || 0, unit), r)
+      const was = estimated1RM(contextSet.weight, contextSet.reps)
+      return now > was ? 'ahead' : now === was ? 'matched' : null
+    }
+    return r > contextSet.reps ? 'ahead' : r === contextSet.reps ? 'matched' : null
+  })()
+
   // ✕ beside a logged set. Reuses History's row-delete styling — same control,
   // same two-tap. Inside the drawer's <summary> the click must not also toggle
   // the details open/shut.
@@ -267,6 +288,15 @@ function Exercise({ exercise, day, onStartRest, onToast }) {
               {!cardio && (
                 <span className="set-context-num">
                   Set {sets.length + 1}
+                </span>
+              )}
+              {overload && (
+                <span
+                  className={
+                    overload === 'ahead' ? 'set-context-cmp is-ahead' : 'set-context-cmp'
+                  }
+                >
+                  {overload === 'ahead' ? '▲ ahead' : '= matched'}
                 </span>
               )}
               {lastLine && <span className="set-context-last">Last: {lastLine}</span>}
@@ -314,15 +344,24 @@ function Exercise({ exercise, day, onStartRest, onToast }) {
           )}
 
           {!cardio && (
-            <button
-              type="button"
-              className={failure ? 'failure-toggle on' : 'failure-toggle'}
-              aria-pressed={failure}
-              onClick={() => setFailure((f) => !f)}
-            >
-              <span className="failure-box">{failure ? 'F' : ''}</span>
-              Taken to failure
-            </button>
+            <div className="set-toggles">
+              <button
+                type="button"
+                className={failure ? 'set-toggle on' : 'set-toggle'}
+                aria-pressed={failure}
+                onClick={() => setFailure((f) => !f)}
+              >
+                Failure
+              </button>
+              <button
+                type="button"
+                className={warmup ? 'set-toggle on' : 'set-toggle'}
+                aria-pressed={warmup}
+                onClick={() => setWarmup((w) => !w)}
+              >
+                Warm-up
+              </button>
+            </div>
           )}
 
           <button className="finish-button" disabled={reps === 0} onClick={finishSet}>
