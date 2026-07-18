@@ -129,6 +129,24 @@
       "restSeconds": 60
     },
     {
+      "id": "dips",
+      "name": "Dips",
+      "day": "Mon — Push",
+      "target": {
+        "sets": "3",
+        "reps": "8–12"
+      },
+      "defaultOff": true,
+      "videoUrl": "https://www.youtube.com/embed/K5JxupmoLW4",
+      "instructions": [
+        "Hands on parallel bars, arms locked out, shoulders pulled down away from your ears",
+        "Lean the torso forward slightly to bias the chest — stay upright for more triceps",
+        "Lower under control until the shoulders drop just below the elbows, feeling the stretch",
+        "Press back to a strong lockout without shrugging; no bouncing out of the bottom"
+      ],
+      "restSeconds": 120
+    },
+    {
       "id": "assisted-hangs",
       "name": "Assisted Hangs / Progression",
       "day": "Wed — Pull",
@@ -270,6 +288,24 @@
       "restSeconds": 150
     },
     {
+      "id": "face-pull",
+      "name": "Face Pulls",
+      "day": "Wed — Pull",
+      "target": {
+        "sets": "3",
+        "reps": "15–20"
+      },
+      "defaultOff": true,
+      "videoUrl": "https://www.youtube.com/embed/eTCBSFlCJ_s",
+      "instructions": [
+        "Cable (or band) set at about head height, rope handle, palms facing in",
+        "Pull the rope toward your eyes, splitting the ends apart as your hands reach your face",
+        "Lead with high elbows — squeeze the rear delts and upper back at the end",
+        "Light weight, slow return; this is about control and the squeeze, not load"
+      ],
+      "restSeconds": 60
+    },
+    {
       "id": "goblet-squat",
       "name": "Goblet Squat",
       "day": "Fri — Legs",
@@ -392,6 +428,24 @@
         "Never lock the knees hard at the top — keep a soft finish"
       ],
       "restSeconds": 150
+    },
+    {
+      "id": "lying-leg-curl",
+      "name": "Lying Leg Curl",
+      "day": "Fri — Legs",
+      "target": {
+        "sets": "3",
+        "reps": "10–15"
+      },
+      "defaultOff": true,
+      "videoUrl": "https://www.youtube.com/embed/lUH80pneL5w",
+      "instructions": [
+        "Face down, pad resting just above the heels, hips pressed into the bench",
+        "Curl the heels toward your glutes — squeeze the hamstrings hard at the top",
+        "Keep the hips down; don't let them pop up to swing the weight",
+        "Lower slow to a full stretch, no crashing the stack"
+      ],
+      "restSeconds": 60
     },
     {
       "id": "incline-walk",
